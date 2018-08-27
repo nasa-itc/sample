@@ -40,18 +40,16 @@ SAMPLE_AppData_t SAMPLE_AppData;
 
 static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
        {  /* Event ID    mask */
-          {SAMPLE_STF1_STARTUP_INF_EID,       0x0000, 0},
-          {SAMPLE_STF1_COMMAND_ERR_EID,       0x0000, 0},
-          {SAMPLE_STF1_COMMANDNOP_INF_EID,    0x0000, 0},
-          {SAMPLE_STF1_COMMANDRST_INF_EID,    0x0000, 0},
+          {SAMPLE_STF1_STARTUP_INF_EID,       0x0000},
+          {SAMPLE_STF1_COMMAND_ERR_EID,       0x0000},
+          {SAMPLE_STF1_COMMANDNOP_INF_EID,    0x0000},
+          {SAMPLE_STF1_COMMANDRST_INF_EID,    0x0000},
        };
 
 /*
 ** SAMPLE_AppMain() -- Application entry point and main process loop
 */
-CFS_MODULE_DECLARE_APP(sample, 255, 8192);
-
-void sample_Main( void )
+void sample_AppMain( void )
 {
     int32  status    = 0;
     SAMPLE_AppData.RunStatus = CFE_ES_APP_RUN;
