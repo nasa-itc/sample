@@ -98,7 +98,7 @@ void sample_AppMain( void )
             ** Note that a SB read error is not always going to
             ** result in an app quitting.
             */
-            CFE_EVS_SendEvent(SAMPLE_STF1_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error, SAMPLE STF1 APP Will Exit with error = %d", status);
+            CFE_EVS_SendEvent(SAMPLE_STF1_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error, SAMPLE STF1 APP Will Exit with error = %d", (int) status);
             SAMPLE_AppData.RunStatus = CFE_ES_APP_ERROR;
         }
 
