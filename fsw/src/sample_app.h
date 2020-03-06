@@ -1,38 +1,20 @@
-/* Copyright (C) 2009 - 2015 National Aeronautics and Space Administration. All Foreign Rights are Reserved to the U.S. Government.
-
-This software is provided "as is" without any warranty of any, kind either express, implied, or statutory, including, but not
-limited to, any warranty that the software will conform to, specifications any implied warranties of merchantability, fitness
-for a particular purpose, and freedom from infringement, and any warranty that the documentation will conform to the program, or
-any warranty that the software will be error free.
-
-In no event shall NASA be liable for any damages, including, but not limited to direct, indirect, special or consequential damages,
-arising out of, resulting from, or in any way connected with the software or its documentation.  Whether or not based upon warranty,
-contract, tort or otherwise, and whether or not loss was sustained from, or arose out of the results of, or use of, the software,
-documentation or services provided hereunder
-
-ITC Team
-NASA IV&V
-ivv-itc@lists.nasa.gov
-*/
-
-
 /*******************************************************************************
-** File: sample_stf1_app.h
+** File: sample_app.h
 **
 ** Purpose:
-**   This file is main hdr file for the SAMPLE STF1 application.
+**   This file is main hdr file for the SAMPLE application.
 **
 ** Notes:
 **
 *******************************************************************************/
-#ifndef _SAMPLE_STF1_APP_H_
-#define _SAMPLE_STF1_APP_H_
+#ifndef _SAMPLE_APP_H_
+#define _SAMPLE_APP_H_
 
 /*
 ** Required header files.
 */
 #include "cfe.h"
-#include "sample_stf1_app_msg.h"
+#include "sample_app_msg.h"
 
 /*
 ** Optional Header Files - May be target dependent
@@ -68,7 +50,7 @@ ivv-itc@lists.nasa.gov
 
 /* 
 ** The cFE convention is to put all global app data in a single struct. 
-** This struct would be defined in the sample_stf1_app.h file. You would then have one global instance 
+** This struct would be defined in the sample_app.h file. You would then have one global instance 
 ** in the.c file. You would also extern the global struct in the header file. This is important for 
 ** the Unit Test Framework(UTF). When using the UTF, you need access to the app global data so 
 ** it's a good idea to play along. 
@@ -95,7 +77,6 @@ typedef struct
 ** Exported Data
 */
 extern SAMPLE_AppData_t SAMPLE_AppData; /* SAMPLE App Data */
-
 
 
 /*

@@ -17,6 +17,3 @@ If this project interests you or if you have any questions, please feel free to 
 
 ### License
 This project is licensed under the NOSA (NASA Open Source Agreement) License. 
-
-### Acknowledgments
-* Special thanks to all the developers involved!

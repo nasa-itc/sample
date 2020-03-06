@@ -1,37 +1,20 @@
-/* Copyright (C) 2009 - 2015 National Aeronautics and Space Administration. All Foreign Rights are Reserved to the U.S. Government.
-
-This software is provided "as is" without any warranty of any, kind either express, implied, or statutory, including, but not
-limited to, any warranty that the software will conform to, specifications any implied warranties of merchantability, fitness
-for a particular purpose, and freedom from infringement, and any warranty that the documentation will conform to the program, or
-any warranty that the software will be error free.
-
-In no event shall NASA be liable for any damages, including, but not limited to direct, indirect, special or consequential damages,
-arising out of, resulting from, or in any way connected with the software or its documentation.  Whether or not based upon warranty,
-contract, tort or otherwise, and whether or not loss was sustained from, or arose out of the results of, or use of, the software,
-documentation or services provided hereunder
-
-ITC Team
-NASA IV&V
-ivv-itc@lists.nasa.gov
-*/
-
 /*******************************************************************************
-** File: sample_stf1_app.c
+** File: sample_app.c
 **
 ** Purpose:
-**   This file contains the source code for the Sample STF1 App.
+**   This file contains the source code for the Sample App.
 **
 *******************************************************************************/
 
 /*
 **   Include Files:
 */
-#include "sample_stf1_app.h"
-#include "sample_stf1_app_perfids.h"
-#include "sample_stf1_app_msgids.h"
-#include "sample_stf1_app_msg.h"
-#include "sample_stf1_app_events.h"
-#include "sample_stf1_app_version.h"
+#include "sample_app.h"
+#include "sample_app_perfids.h"
+#include "sample_app_msgids.h"
+#include "sample_app_msg.h"
+#include "sample_app_events.h"
+#include "sample_app_version.h"
 
 /*
 ** global data
@@ -40,10 +23,10 @@ SAMPLE_AppData_t SAMPLE_AppData;
 
 static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
        {  /* Event ID    mask */
-          {SAMPLE_STF1_STARTUP_INF_EID,       0x0000},
-          {SAMPLE_STF1_COMMAND_ERR_EID,       0x0000},
-          {SAMPLE_STF1_COMMANDNOP_INF_EID,    0x0000},
-          {SAMPLE_STF1_COMMANDRST_INF_EID,    0x0000},
+          {SAMPLE_STARTUP_INF_EID,       0x0000},
+          {SAMPLE_COMMAND_ERR_EID,       0x0000},
+          {SAMPLE_COMMANDNOP_INF_EID,    0x0000},
+          {SAMPLE_COMMANDRST_INF_EID,    0x0000},
        };
 
 /*
@@ -53,7 +36,7 @@ void sample_AppMain( void )
 {
     int32  status    = 0;
     SAMPLE_AppData.RunStatus = CFE_ES_APP_RUN;
-    CFE_ES_PerfLogEntry(SAMPLE_STF1_APP_PERF_ID);
+    CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
 
     /* 
     ** initialize the application, register the app, etc 
@@ -68,7 +51,7 @@ void sample_AppMain( void )
         /*
         ** Exit performance profiling.  It will be restarted later in this while loop. 
         */
-        CFE_ES_PerfLogExit(SAMPLE_STF1_APP_PERF_ID);
+        CFE_ES_PerfLogExit(SAMPLE_APP_PERF_ID);
 
         /* 
         ** Pend on receipt of command packet -- set timeout to 500ms as cFE default
@@ -82,7 +65,7 @@ void sample_AppMain( void )
         ** Begin performance metrics on anything after this line. This will help to determine
         ** where we are spending most of the time during this app execution
         */
-        CFE_ES_PerfLogEntry(SAMPLE_STF1_APP_PERF_ID);
+        CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
 
         /*
         ** If the RcvMsg() was successful, then continue to process the CommandPacket()
@@ -98,7 +81,7 @@ void sample_AppMain( void )
             ** Note that a SB read error is not always going to
             ** result in an app quitting.
             */
-            CFE_EVS_SendEvent(SAMPLE_STF1_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error, SAMPLE STF1 APP Will Exit with error = %d", (int) status);
+            CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error, SAMPLE STF1 APP Will Exit with error = %d", (int) status);
             SAMPLE_AppData.RunStatus = CFE_ES_APP_ERROR;
         }
 
@@ -135,26 +118,26 @@ void SAMPLE_AppInit(void)
     status = CFE_SB_CreatePipe(&SAMPLE_AppData.CmdPipe, SAMPLE_PIPE_DEPTH, "SAMPLE_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
-        OS_printf("SAMPLE STF APP: CFE_SB_CreatePipe error!\n");
+        OS_printf("SAMPLE APP: CFE_SB_CreatePipe error!\n");
     }
     
     /*
     ** Subscribe to "ground commands". Ground commands are those commands with command codes
     */
-    status = CFE_SB_Subscribe(SAMPLE_STF1_APP_CMD_MID, SAMPLE_AppData.CmdPipe);
+    status = CFE_SB_Subscribe(SAMPLE_APP_CMD_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
-        OS_printf("SAMPLE STF APP: CFE_SB_Subscribe error (id=%i)!\n", SAMPLE_STF1_APP_CMD_MID);
+        OS_printf("SAMPLE APP: CFE_SB_Subscribe error (id=%i)!\n", SAMPLE_APP_CMD_MID);
     }
 
     /*
     ** Subscribe to housekeeping (hk) messages.  HK messages are those messages that request
     ** an app to send its HK telemetry
     */
-    status = CFE_SB_Subscribe(SAMPLE_STF1_APP_SEND_HK_MID, SAMPLE_AppData.CmdPipe);
+    status = CFE_SB_Subscribe(SAMPLE_APP_SEND_HK_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
-        OS_printf("SAMPLE STF APP: CFE_SB_Subscribe error (id=%i)!\n", SAMPLE_STF1_APP_SEND_HK_MID);
+        OS_printf("SAMPLE APP: CFE_SB_Subscribe error (id=%i)!\n", SAMPLE_APP_SEND_HK_MID);
     }
 
     /*
@@ -171,8 +154,8 @@ void SAMPLE_AppInit(void)
     ** that has been defined in the SAMPLE_HkTelemetryPkt for this app
     */
     CFE_SB_InitMsg(&SAMPLE_AppData.HkTelemetryPkt,
-                   SAMPLE_STF1_APP_HK_TLM_MID,
-                   SAMPLE_STF1_APP_HK_TLM_LNGTH, TRUE);
+                   SAMPLE_APP_HK_TLM_MID,
+                   SAMPLE_APP_HK_TLM_LNGTH, TRUE);
 
     /*
     ** todo - initialize any other messages that this app will publish.  The cFS "way", is to 
@@ -184,12 +167,12 @@ void SAMPLE_AppInit(void)
      ** Important to send an information event that the app has initialized. this is
      ** useful for debugging the loading of individual apps
      */
-    CFE_EVS_SendEvent (SAMPLE_STF1_STARTUP_INF_EID, CFE_EVS_INFORMATION,
-               "SAMPLE STF1 App Initialized. Version %d.%d.%d.%d",
-                SAMPLE_STF1_APP_MAJOR_VERSION,
-                SAMPLE_STF1_APP_MINOR_VERSION, 
-                SAMPLE_STF1_APP_REVISION, 
-                SAMPLE_STF1_APP_MISSION_REV);	
+    CFE_EVS_SendEvent (SAMPLE_STARTUP_INF_EID, CFE_EVS_INFORMATION,
+               "SAMPLE App Initialized. Version %d.%d.%d.%d",
+                SAMPLE_APP_MAJOR_VERSION,
+                SAMPLE_APP_MINOR_VERSION, 
+                SAMPLE_APP_REVISION, 
+                SAMPLE_APP_MISSION_REV);	
 } 
 
 
@@ -208,7 +191,7 @@ void SAMPLE_ProcessCommandPacket(void)
         ** Ground Commands with command codes fall under the SAMPLE_STF1_APP_CMD_MID
         ** message ID
         */
-        case SAMPLE_STF1_APP_CMD_MID:
+        case SAMPLE_APP_CMD_MID:
             SAMPLE_ProcessGroundCommand();
             break;
 
@@ -217,7 +200,7 @@ void SAMPLE_ProcessCommandPacket(void)
         ** The HK MID comes first, as it is currently the only other messages defined
         ** besides the SAMPLE_STF1_APP_CMD_MID message above
         */
-        case SAMPLE_STF1_APP_SEND_HK_MID:
+        case SAMPLE_APP_SEND_HK_MID:
             SAMPLE_ReportHousekeeping();
             break;
 
@@ -227,7 +210,7 @@ void SAMPLE_ProcessCommandPacket(void)
          */
         default:
             SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
-            CFE_EVS_SendEvent(SAMPLE_STF1_COMMAND_ERR_EID,CFE_EVS_ERROR, "SAMPLE STF1 App: invalid command packet, MID = 0x%x", MsgId);
+            CFE_EVS_SendEvent(SAMPLE_COMMAND_ERR_EID,CFE_EVS_ERROR, "SAMPLE App: invalid command packet, MID = 0x%x", MsgId);
             break;
     }
 
@@ -264,7 +247,7 @@ void SAMPLE_ProcessGroundCommand(void)
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgsCmd_t)))
             {
                 SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
-                CFE_EVS_SendEvent(SAMPLE_STF1_COMMANDNOP_INF_EID, CFE_EVS_INFORMATION, "SAMPLE STF1 App: NOOP command");
+                CFE_EVS_SendEvent(SAMPLE_COMMANDNOP_INF_EID, CFE_EVS_INFORMATION, "SAMPLE App: NOOP command");
             }
             break;
 
@@ -286,8 +269,8 @@ void SAMPLE_ProcessGroundCommand(void)
         */
         default:
             SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
-            CFE_EVS_SendEvent(SAMPLE_STF1_COMMAND_ERR_EID, CFE_EVS_ERROR, 
-                "SAMPLE STF1 App: invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
+            CFE_EVS_SendEvent(SAMPLE_COMMAND_ERR_EID, CFE_EVS_ERROR, 
+                "SAMPLE App: invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
             break;
     }
     return;
@@ -321,7 +304,7 @@ void SAMPLE_ResetCounters(void)
     /* Status of commands processed by the SAMPLE App */
     SAMPLE_AppData.HkTelemetryPkt.CommandCount       = 0;
     SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount  = 0;
-    CFE_EVS_SendEvent(SAMPLE_STF1_COMMANDRST_INF_EID, CFE_EVS_INFORMATION, "SAMPLE STF1 App: RESET Counters Command");
+    CFE_EVS_SendEvent(SAMPLE_COMMANDRST_INF_EID, CFE_EVS_INFORMATION, "SAMPLE App: RESET Counters Command");
     return;
 } 
 
@@ -341,7 +324,7 @@ boolean SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
         CFE_SB_MsgId_t MessageID   = CFE_SB_GetMsgId(msg);
         uint16         CommandCode = CFE_SB_GetCmdCode(msg);
 
-        CFE_EVS_SendEvent(SAMPLE_STF1_LEN_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SAMPLE_LEN_ERR_EID, CFE_EVS_ERROR,
            "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
               MessageID, CommandCode, ActualLength, ExpectedLength);
 
