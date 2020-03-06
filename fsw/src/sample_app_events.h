@@ -21,5 +21,7 @@
 #define SAMPLE_INVALID_MSGID_ERR_EID     5 
 #define SAMPLE_LEN_ERR_EID               6 
 #define SAMPLE_PIPE_ERR_EID              7
+#define SAMPLE_SUB_CMD_ERR_EID           8
+#define SAMPLE_SUB_REQ_ERR_EID           9
 
 #endif

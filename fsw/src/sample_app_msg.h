@@ -9,8 +9,8 @@
 **
 **
 *******************************************************************************/
-#ifndef _SAMPLE_STF1_MSG_H_
-#define _SAMPLE_STF1_MSG_H_
+#ifndef _SAMPLE_APP_MSG_H_
+#define _SAMPLE_APP_MSG_H_
 
 /*
 ** SAMPLE App command codes

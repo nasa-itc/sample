@@ -37,7 +37,9 @@
 #define SAMPLE_PIPE_DEPTH   32
 
 /* Follow cFE convention and define a success macro that is for the usage of the VerifyCmdLength() function */
-#define SAMPLE_SUCCESS 0
+#define SAMPLE_SUCCESS              ( 0)
+#define SAMPLE_ERROR                (-1)
+#define SAMPLE_BAD_MSG_LENGTH_RC    (-2)
 
 /*
 ** Type Definitions - Put any type definitions here
@@ -86,16 +88,12 @@ extern SAMPLE_AppData_t SAMPLE_AppData; /* SAMPLE App Data */
 ** Note: Except for the entry point (SAMPLE_AppMain), these
 **       functions are not called from any other source module.
 */
-void SAMPLE_AppMain(void);
-void SAMPLE_AppInit(void);
-void SAMPLE_ProcessCommandPacket(void);
-void SAMPLE_ProcessGroundCommand(void);
-void SAMPLE_ReportHousekeeping(void);
-void SAMPLE_ResetCounters(void);
-
-/* 
-** This function is provided as an example of verifying the size of the command
-*/
-boolean SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
+void  SAMPLE_AppMain(void);
+int32 SAMPLE_AppInit(void);
+void  SAMPLE_ProcessCommandPacket(void);
+void  SAMPLE_ProcessGroundCommand(void);
+void  SAMPLE_ReportHousekeeping(void);
+void  SAMPLE_ResetCounters(void);
+int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
 
 #endif 

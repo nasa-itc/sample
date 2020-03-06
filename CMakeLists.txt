@@ -3,8 +3,10 @@ project(CFS_SAMPLE_APP C)
 
 include(../ComponentSettings.cmake)
 
+include_directories(fsw/public_inc)
 include_directories(fsw/mission_inc)
 include_directories(fsw/platform_inc)
+include_directories(fsw/src)
 
 aux_source_directory(fsw/src APP_SRC_FILES)
 
