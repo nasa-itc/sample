@@ -9,14 +9,14 @@
 **
 **
 *******************************************************************************/
-#ifndef _SAMPLE_APP_MSG_H_
-#define _SAMPLE_APP_MSG_H_
+#ifndef _SAMPLE_MSG_H_
+#define _SAMPLE_MSG_H_
 
 /*
 ** SAMPLE App command codes
 */
-#define SAMPLE_APP_NOOP_CC                 0
-#define SAMPLE_APP_RESET_COUNTERS_CC       1
+#define SAMPLE_NOOP_CC                 0
+#define SAMPLE_RESET_COUNTERS_CC       1
 /* todo - add application dependent command codes here */
 
 
@@ -32,7 +32,7 @@ typedef struct
 
 
 /*
-** Type definition (SAMPLE STF1 App housekeeping)
+** Type definition (SAMPLE App housekeeping)
 */
 typedef struct 
 {
@@ -46,6 +46,6 @@ typedef struct
 
 } SAMPLE_Hk_tlm_t;
 
-#define SAMPLE_APP_HK_TLM_LNGTH  sizeof ( SAMPLE_Hk_tlm_t )
+#define SAMPLE_HK_TLM_LNGTH  sizeof ( SAMPLE_Hk_tlm_t )
 
 #endif 

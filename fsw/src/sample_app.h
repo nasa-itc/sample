@@ -14,17 +14,13 @@
 ** Required header files.
 */
 #include "cfe.h"
-#include "sample_app_msg.h"
-
-/*
-** Optional Header Files - May be target dependent
-*/
-#ifdef __linux__
-/* intended for 32bit/64bit intel x86 linux */
-    #include <string.h>
-    #include <errno.h>
-    #include <unistd.h>
-#endif
+#include "sample_events.h"
+#include "sample_platform_cfg.h"
+#include "sample_perfids.h"
+#include "sample_msg.h"
+#include "sample_msgids.h"
+#include "sample_version.h"
+#include "hwlib.h"
 
 /*
 ** Macros - Put any custom app-specific macros here
@@ -65,7 +61,6 @@ typedef struct
     */
     SAMPLE_Hk_tlm_t   HkTelemetryPkt;   /* SAMPLE Housekeeping Telemetry Packet */
     
-
     /*
     ** Operational data (not reported in housekeeping)...
     */

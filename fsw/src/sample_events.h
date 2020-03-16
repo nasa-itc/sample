@@ -24,4 +24,8 @@
 #define SAMPLE_SUB_CMD_ERR_EID           8
 #define SAMPLE_SUB_REQ_ERR_EID           9
 
+#define SAMPLE_MUTEX_ERR_EID
+#define SAMPLE_INIT_DEVICE_ERR_EID
+
+
 #endif

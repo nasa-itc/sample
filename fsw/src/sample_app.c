@@ -10,11 +10,6 @@
 **   Include Files:
 */
 #include "sample_app.h"
-#include "sample_app_perfids.h"
-#include "sample_app_msgids.h"
-#include "sample_app_msg.h"
-#include "sample_app_events.h"
-#include "sample_app_version.h"
 
 /*
 ** global data
@@ -44,7 +39,7 @@ void sample_AppMain( void )
     /*
     ** Create the first Performance Log entry
     */
-    CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
+    CFE_ES_PerfLogEntry(SAMPLE_PERF_ID);
 
     /* 
     ** Perform Application Initialization
@@ -63,7 +58,7 @@ void sample_AppMain( void )
         /*
         ** Performance Log Exit Stamp
         */
-        CFE_ES_PerfLogExit(SAMPLE_APP_PERF_ID);
+        CFE_ES_PerfLogExit(SAMPLE_PERF_ID);
 
         /* 
         ** Pend on the arrival of the next Software Bus message
@@ -74,7 +69,7 @@ void sample_AppMain( void )
         ** Begin performance metrics on anything after this line. This will help to determine
         ** where we are spending most of the time during this app execution
         */
-        CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
+        CFE_ES_PerfLogEntry(SAMPLE_PERF_ID);
 
         /*
         ** If the RcvMsg() was successful, then continue to process the CommandPacket()
@@ -90,7 +85,7 @@ void sample_AppMain( void )
             ** Note that a SB read error is not always going to
             ** result in an app quitting.
             */
-            CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error, SAMPLE STF1 APP Will Exit with error = %d", (int) status);
+            CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE STF1 APP: SB Pipe Read Error = %d", (int) status);
             SAMPLE_AppData.RunStatus = CFE_ES_APP_ERROR;
         }
     }
@@ -98,7 +93,7 @@ void sample_AppMain( void )
     /*
     ** Performance Log Exit Stamp
     */
-    CFE_ES_PerfLogExit(SAMPLE_APP_PERF_ID);
+    CFE_ES_PerfLogExit(SAMPLE_PERF_ID);
 
     /*
     ** Exit the Application
@@ -119,9 +114,9 @@ int32 SAMPLE_AppInit(void)
     /*
     ** Register the events
     */ 
-    CFE_EVS_Register(SAMPLE_EventFilters,
-                     sizeof(SAMPLE_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
-                     CFE_EVS_NO_FILTER);    /* as default, no filters are used */
+    status = CFE_EVS_Register(SAMPLE_EventFilters,
+                              sizeof(SAMPLE_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
+                              CFE_EVS_NO_FILTER);    /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("SAMPLE: error registering for event services: 0x%08X\n", (unsigned int) status);
@@ -143,12 +138,12 @@ int32 SAMPLE_AppInit(void)
     ** Subscribe to "ground commands"
     ** Ground commands are those commands with command codes
     */
-    status = CFE_SB_Subscribe(SAMPLE_APP_CMD_MID, SAMPLE_AppData.CmdPipe);
+    status = CFE_SB_Subscribe(SAMPLE_CMD_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(SAMPLE_SUB_CMD_ERR_EID, CFE_EVS_ERROR,
             "Error Subscribing to HK Gnd Cmds, MID=0x%04X, RC=0x%08X",
-            SAMPLE_APP_CMD_MID, (unsigned int) status);
+            SAMPLE_CMD_MID, (unsigned int) status);
         return status;
     }
 
@@ -156,12 +151,12 @@ int32 SAMPLE_AppInit(void)
     ** Subscribe to housekeeping (hk) messages
     ** HK messages request an app to send its HK telemetry
     */
-    status = CFE_SB_Subscribe(SAMPLE_APP_SEND_HK_MID, SAMPLE_AppData.CmdPipe);
+    status = CFE_SB_Subscribe(SAMPLE_SEND_HK_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(SAMPLE_SUB_REQ_ERR_EID, CFE_EVS_ERROR,
             "Error Subscribing to HK Request, MID=0x%04X, RC=0x%08X",
-            SAMPLE_APP_SEND_HK_MID, (unsigned int) status);
+            SAMPLE_SEND_HK_MID, (unsigned int) status);
         return status;
     }
 
@@ -179,8 +174,8 @@ int32 SAMPLE_AppInit(void)
     ** that has been defined in the SAMPLE_HkTelemetryPkt for this app
     */
     CFE_SB_InitMsg(&SAMPLE_AppData.HkTelemetryPkt,
-                   SAMPLE_APP_HK_TLM_MID,
-                   SAMPLE_APP_HK_TLM_LNGTH, TRUE);
+                   SAMPLE_HK_TLM_MID,
+                   SAMPLE_HK_TLM_LNGTH, TRUE);
 
     /*
     ** todo - initialize any other messages that this app will publish.  The cFS "way", is to 
@@ -194,13 +189,13 @@ int32 SAMPLE_AppInit(void)
      */
     status = CFE_EVS_SendEvent (SAMPLE_STARTUP_INF_EID, CFE_EVS_INFORMATION,
                "SAMPLE App Initialized. Version %d.%d.%d.%d",
-                SAMPLE_APP_MAJOR_VERSION,
-                SAMPLE_APP_MINOR_VERSION, 
-                SAMPLE_APP_REVISION, 
-                SAMPLE_APP_MISSION_REV);	
+                SAMPLE_MAJOR_VERSION,
+                SAMPLE_MINOR_VERSION, 
+                SAMPLE_REVISION, 
+                SAMPLE_MISSION_REV);	
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SAMPLE: error sending initialiation event: 0x%08X\n", (unsigned int) status);
+        CFE_ES_WriteToSysLog("SAMPLE: error sending initialization event: 0x%08X\n", (unsigned int) status);
     }
 
     return status;
@@ -222,7 +217,7 @@ void SAMPLE_ProcessCommandPacket(void)
         ** Ground Commands with command codes fall under the SAMPLE_STF1_APP_CMD_MID
         ** message ID
         */
-        case SAMPLE_APP_CMD_MID:
+        case SAMPLE_CMD_MID:
             SAMPLE_ProcessGroundCommand();
             break;
 
@@ -231,7 +226,7 @@ void SAMPLE_ProcessCommandPacket(void)
         ** The HK MID comes first, as it is currently the only other messages defined
         ** besides the SAMPLE_STF1_APP_CMD_MID message above
         */
-        case SAMPLE_APP_SEND_HK_MID:
+        case SAMPLE_SEND_HK_MID:
             SAMPLE_ReportHousekeeping();
             break;
 
@@ -270,7 +265,7 @@ void SAMPLE_ProcessGroundCommand(void)
         /*
         ** NOOP Command
         */
-        case SAMPLE_APP_NOOP_CC:
+        case SAMPLE_NOOP_CC:
             /* 
             ** notice the usage of the VerifyCmdLength() function call to verify that
             ** the command length is as expected.  
@@ -285,7 +280,7 @@ void SAMPLE_ProcessGroundCommand(void)
         /*
         ** Reset Counters Command
         */
-        case SAMPLE_APP_RESET_COUNTERS_CC:
+        case SAMPLE_RESET_COUNTERS_CC:
             SAMPLE_ResetCounters();
             break;
 
