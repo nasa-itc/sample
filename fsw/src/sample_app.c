@@ -7,12 +7,12 @@
 *******************************************************************************/
 
 /*
-**   Include Files:
+**   Include Files
 */
 #include "sample_app.h"
 
 /*
-** global data
+**   Global Data
 */
 SAMPLE_AppData_t SAMPLE_AppData;
 
@@ -166,7 +166,36 @@ int32 SAMPLE_AppInit(void)
     **        need to perform a specific task
     */
 
-    
+    /*
+    ** Initialize hardware interface
+    */ 
+    sample_uart = 
+
+
+    /*
+    ** Create data mutex
+    */
+    status = OS_MutSemCreate(&SAMPLE_AppData.data_mutex, SAMPLE_MUTEX_NAME, 0);
+    if (status != OS_SUCCESS)
+    {
+        CFE_EVS_SendEvent(SAMPLE_MUTEX_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Create mutex error %d", status);
+        return status;
+    }
+
+    /* 
+    ** Create device task
+    */
+    status = CFE_ES_CreateChildTask(&SAMPLE_AppData.ChildTaskID,
+                                    SAMPLE_DEVICE_NAME,
+                                    (void *) SAMPLE_DeviceTask, 0,
+                                    SAMPLE_DEVICE_STACK_SIZE,
+                                    SAMPLE_DEVICE_PRIORITY, 0);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(SAMPLE_CREATE_DEVICE_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Create device child task error %d", status);
+        return status;
+    }
+
     /* on app init, always reset all counters */
     SAMPLE_ResetCounters();
 
@@ -313,8 +342,13 @@ void SAMPLE_ProcessGroundCommand(void)
 */
 void SAMPLE_ReportHousekeeping(void)
 {
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+    if (OS_MutSemTake(SAMPLE_AppData.data_mutex) == OS_SUCCESS)
+    {
+        CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+        CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+
+        OS_MutSemGive(SAMPLE_AppData.data_mutex);
+    }
     return;
 } 
 
@@ -327,10 +361,15 @@ void SAMPLE_ReportHousekeeping(void)
 */
 void SAMPLE_ResetCounters(void)
 {
-    /* Status of commands processed by the SAMPLE App */
-    SAMPLE_AppData.HkTelemetryPkt.CommandCount       = 0;
-    SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount  = 0;
-    CFE_EVS_SendEvent(SAMPLE_COMMANDRST_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: RESET Counters Command");
+    if (OS_MutSemTake(SAMPLE_AppData.data_mutex) == OS_SUCCESS)
+    {
+        /* Status of commands processed by the SAMPLE App */
+        SAMPLE_AppData.HkTelemetryPkt.CommandCount       = 0;
+        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount  = 0;
+        CFE_EVS_SendEvent(SAMPLE_COMMANDRST_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: RESET Counters Command");
+
+        OS_MutSemGive(SAMPLE_AppData.data_mutex);
+    }
     return;
 } 
 

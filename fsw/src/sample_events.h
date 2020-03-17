@@ -24,8 +24,10 @@
 #define SAMPLE_SUB_CMD_ERR_EID           8
 #define SAMPLE_SUB_REQ_ERR_EID           9
 
-#define SAMPLE_MUTEX_ERR_EID
-#define SAMPLE_INIT_DEVICE_ERR_EID
+#define SAMPLE_MUTEX_ERR_EID             10
+#define SAMPLE_CREATE_DEVICE_ERR_EID     11
+#define SAMPLE_DEVICE_REG_ERR_EID        12
+#define SAMPLE_DEVICE_REG_INF_EID        13
 
 
 #endif

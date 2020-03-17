@@ -14,6 +14,7 @@
 ** Required header files.
 */
 #include "cfe.h"
+#include "sample_device.h"
 #include "sample_events.h"
 #include "sample_platform_cfg.h"
 #include "sample_perfids.h"
@@ -67,6 +68,18 @@ typedef struct
     CFE_SB_MsgPtr_t MsgPtr;     /* Pointer to msg received on software bus */
     CFE_SB_PipeId_t CmdPipe;    /* Pipe Id for HK command pipe */
     uint32 RunStatus;           /* App run status for controlling the application state */
+
+    /*
+	** Device data 
+	*/
+	uint32   DeviceID;		    /* Device ID provided by CFS on initialization */
+	uint32   data_mutex;
+
+    /* 
+    ** Device protocol
+    */
+    uart_info_t sample_uart;
+
 } SAMPLE_AppData_t;
 
 
