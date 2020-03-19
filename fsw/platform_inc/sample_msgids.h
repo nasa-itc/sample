@@ -28,6 +28,7 @@
 ** to the ground
 */
 #define SAMPLE_HK_TLM_MID      0x0830      /* todo change this for your app */
-#define SAMPLE_DEVICE_TLM_MID  0x0831      /* todo change this for your app */
+#define SAMPLE_RAWIO_TLM_MID   0x0831      /* todo change this for your app */
+#define SAMPLE_DEVICE_TLM_MID  0x0832      /* todo change this for your app */
 
 #endif

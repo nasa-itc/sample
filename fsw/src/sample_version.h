@@ -5,8 +5,6 @@
 ** Purpose:
 **  The Sample Application header file containing version number
 **
-** Notes:
-**
 *************************************************************************/
 
 /* The Sample Application header file containing version number */
