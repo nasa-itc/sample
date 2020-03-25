@@ -46,7 +46,7 @@ typedef struct
 {
     uint16  DeviceHeader;
     uint32  DeviceCounter;
-    uint32  DeviceData;
+    double  DeviceData;
     uint16  DeviceTrailer;
 
 } OS_PACK SAMPLE_Device_Stream_tlm_t;
