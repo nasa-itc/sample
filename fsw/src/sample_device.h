@@ -26,17 +26,6 @@
 
 
 /*
-** SAMPLE write configuration command
-*/
-typedef struct
-{
-    uint8    CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    uint32   MillisecondStreamDelay;
-
-} SAMPLE_Config_cmd_t;
-
-
-/*
 ** SAMPLE device command
 */
 typedef struct 
@@ -46,7 +35,7 @@ typedef struct
     uint32  DevicePayload;
     uint16  DeviceTrailer;
 
-} SAMPLE_Device_cmd_t;
+} OS_PACK SAMPLE_Device_cmd_t;
 #define SAMPLE_DEVICE_CMD_LNGTH sizeof ( SAMPLE_Device_cmd_t )
 
 
@@ -60,7 +49,7 @@ typedef struct
     uint32  DeviceData;
     uint16  DeviceTrailer;
 
-} SAMPLE_Device_Stream_tlm_t;
+} OS_PACK SAMPLE_Device_Stream_tlm_t;
 #define SAMPLE_DEVICE_STREAM_LNGTH sizeof ( SAMPLE_Device_Stream_tlm_t )
 
 

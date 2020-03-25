@@ -9,6 +9,8 @@
 #ifndef _SAMPLE_MSG_H_
 #define _SAMPLE_MSG_H_
 
+#include "cfe.h"
+
 /*
 ** SAMPLE command codes
 */
@@ -45,6 +47,17 @@ typedef struct
 
 
 /*
+** SAMPLE write configuration command
+*/
+typedef struct
+{
+    uint8    CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint32   MillisecondStreamDelay;
+
+} SAMPLE_Config_cmd_t;
+
+
+/*
 ** Raw IO telemetry type definition
 */
 typedef struct
@@ -72,6 +85,7 @@ typedef struct
     uint32 data;
 } SAMPLE_Device_sample_t;
 
+
 /*
 ** SAMPLE device telemetry definition
 */
@@ -90,7 +104,7 @@ typedef struct
 typedef struct 
 {
     uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    SAMPLE_Device_sample_t sample[SAMPLE_CFG_TLM_PACK];
+    SAMPLE_Device_sample_t sample[SAMPLE_DEVICE_TLM_PACK];
 
 } OS_PACK SAMPLE_DevicePack_tlm_t;
 #define SAMPLE_DEVICE_PACK_TLM_LNGTH sizeof ( SAMPLE_DevicePack_tlm_t )
@@ -111,6 +125,6 @@ typedef struct
     uint32  MillisecondStreamDelay;
 
 } OS_PACK SAMPLE_Hk_tlm_t;
-#define SAMPLE_HK_TLM_LNGTH  sizeof ( SAMPLE_Hk_tlm_t )
+#define SAMPLE_HK_TLM_LNGTH sizeof ( SAMPLE_Hk_tlm_t )
 
 #endif /* _SAMPLE_MSG_H_ */

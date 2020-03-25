@@ -17,7 +17,8 @@
 #define SAMPLE_DEVICE_NAME              "SAMPLE_DEVICE"
 #define SAMPLE_DEVICE_STACK_SIZE        2048
 #define SAMPLE_DEVICE_PRIORITY          250
-#define SAMPLE_DEVICE_MS_LOOP_DELAY     10  
+#define SAMPLE_DEVICE_MS_LOOP_DELAY     1000  
+#define SAMPLE_DEVICE_TLM_PACK          8
 
 #define SAMPLE_HKDATA_MUTEX_NAME        "SAMPLE_HKDATA_MUTEX"
 #define SAMPLE_DEVICE_MUTEX_NAME        "SAMPLE_DEVICE_MUTEX"
@@ -26,10 +27,11 @@
 ** Default Sample Configuration
 */
 #ifndef SAMPLE_CFG
-    #define SAMPLE_CFG_STRING           "usart_0"
+    /* Note: NOS3 uart requires matching handle and bus number */
+    #define SAMPLE_CFG_STRING           "usart_29"
+    #define SAMPLE_CFG_HANDLE           29 
     #define SAMPLE_CFG_BAUDRATE_HZ      115200
     #define SAMPLE_CFG_MS_TIMEOUT       250
-    #define SAMPLE_CFG_TLM_PACK         8
 #endif
 
 #endif /* _SAMPLE_PLATFORM_CFG_H_ */

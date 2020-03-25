@@ -93,6 +93,7 @@ int32 SAMPLE_AppInit(void);
 void  SAMPLE_ProcessCommandPacket(void);
 void  SAMPLE_ProcessGroundCommand(void);
 void  SAMPLE_ReportHousekeeping(void);
+void  SAMPLE_ReportDeviceTelemetry(void);
 int32 SAMPLE_GetRunStatus(void);
 void  SAMPLE_SetRunStatus(uint32 status);
 void  SAMPLE_IncrementCommandCount(void);

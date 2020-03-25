@@ -17,7 +17,9 @@
 #define SAMPLE_LEN_ERR_EID               3 
 #define SAMPLE_PIPE_ERR_EID              4
 #define SAMPLE_SUB_CMD_ERR_EID           5
-#define SAMPLE_SUB_REQ_ERR_EID           6
+#define SAMPLE_SUB_REQ_HK_ERR_EID        6
+#define SAMPLE_SUB_REQ_DEVICE_ERR_EID    7
+
 
 /* Define any hardware protocol event IDs */
 #define SAMPLE_UART_ERR_EID              10

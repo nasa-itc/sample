@@ -34,15 +34,18 @@ void SAMPLE_RawIO(void)
         /* Device protocol work */
         if (OS_MutSemTake(SAMPLE_AppData.DeviceMutex) == OS_SUCCESS)
         {
-            /* Flush receive data */
+            /* Flush existing receive data */
             bytes_available = uart_bytes_available(SAMPLE_AppData.SampleUart.handle);
-            bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, NULL, bytes_available);
-            if (bytes != bytes_available)
+            if (bytes_available > 0)
             {
-                CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
-                OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
-                OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
-                return;
+                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, NULL, bytes_available);
+                if (bytes != bytes_available)
+                {
+                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
+                    OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
+                    OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
+                    return;
+                }
             }
 
             /* Write data */
@@ -55,34 +58,37 @@ void SAMPLE_RawIO(void)
                 return;
             }
 
-            /* Wait until all data received or timeout occurs */
-            bytes_available = uart_bytes_available(SAMPLE_AppData.SampleUart.handle);
-            while((bytes_available < raw_cmd->ReadRequest) && (ms_timeout_counter < raw_cmd->MillisecondTimeout))
+            if (raw_cmd->ReadRequest > 0)
             {
-                ms_timeout_counter++;
-                OS_TaskDelay(1);
+                /* Wait until all data received or timeout occurs */
                 bytes_available = uart_bytes_available(SAMPLE_AppData.SampleUart.handle);
-            }
+                while((bytes_available < raw_cmd->ReadRequest) && (ms_timeout_counter < raw_cmd->MillisecondTimeout))
+                {
+                    ms_timeout_counter++;
+                    OS_TaskDelay(1);
+                    bytes_available = uart_bytes_available(SAMPLE_AppData.SampleUart.handle);
+                }
 
-            /* Check if timeout occurred */
-            if (ms_timeout_counter >= raw_cmd->MillisecondTimeout)
-            {
-                CFE_EVS_SendEvent(SAMPLE_UART_TIMEOUT_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart timeout error");
-                /* Proceed with error */
-            }
+                /* Check if timeout occurred */
+                if (ms_timeout_counter >= raw_cmd->MillisecondTimeout)
+                {
+                    CFE_EVS_SendEvent(SAMPLE_UART_TIMEOUT_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart timeout error");
+                    /* Proceed with error */
+                }
 
-            /* Limit bytes available */
-            if (bytes_available > sizeof(SAMPLE_AppData.RawIO.ReadData))
-            {
-                bytes_available = sizeof(SAMPLE_AppData.RawIO.ReadData);
-            }
+                /* Limit bytes available */
+                if (bytes_available > sizeof(SAMPLE_AppData.RawIO.ReadData))
+                {
+                    bytes_available = sizeof(SAMPLE_AppData.RawIO.ReadData);
+                }
 
-            /* Read data */
-            bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, SAMPLE_AppData.RawIO.ReadData, bytes_available);
-            if (bytes != bytes_available)
-            {
-                CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
-                /* Proceed with error */
+                /* Read data */
+                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, SAMPLE_AppData.RawIO.ReadData, bytes_available);
+                if (bytes != bytes_available)
+                {
+                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
+                    /* Proceed with error */
+                }
             }
 
             OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
@@ -269,7 +275,7 @@ int32 SAMPLE_DeviceTask(void)
 
                     /* Increment pack counter */
                     pack_count++;
-                    if (pack_count == SAMPLE_CFG_TLM_PACK)
+                    if (pack_count == SAMPLE_DEVICE_TLM_PACK)
                     {
                         pack_count = 0;
                         /* Publish packed telemetry */
