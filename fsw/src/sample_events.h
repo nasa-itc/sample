@@ -20,7 +20,6 @@
 #define SAMPLE_SUB_REQ_HK_ERR_EID        6
 #define SAMPLE_SUB_REQ_DEVICE_ERR_EID    7
 
-
 /* Define any hardware protocol event IDs */
 #define SAMPLE_UART_ERR_EID              10
 #define SAMPLE_UART_READ_ERR_EID         11
@@ -40,5 +39,6 @@
 #define SAMPLE_CREATE_DEVICE_ERR_EID     41
 #define SAMPLE_DEVICE_REG_ERR_EID        42
 #define SAMPLE_DEVICE_REG_INF_EID        43
+#define SAMPLE_DEVICE_STREAM_ERR_EID     44
 
 #endif /* _SAMPLE_EVENTS_H_ */

@@ -257,7 +257,7 @@ int32 SAMPLE_DeviceTask(void)
             if (bytes_available >= SAMPLE_DEVICE_STREAM_LNGTH)
             {
                 /* Read data */
-                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, stream_data, SAMPLE_DEVICE_STREAM_LNGTH);
+                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, stream_data, bytes_available);
                 if (bytes != SAMPLE_DEVICE_STREAM_LNGTH)
                 {
                     CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming Uart read error, expected %d and returned %d", bytes_available, bytes);
@@ -265,22 +265,30 @@ int32 SAMPLE_DeviceTask(void)
                 }
                 else
                 {
-                    /* Copy data into latest packet */
-                    SAMPLE_AppData.DevicePkt.sample.count = stream->DeviceCounter;
-                    SAMPLE_AppData.DevicePkt.sample.data  = stream->DeviceData;
-
-                    /* Copy data into packed telemetry */
-                    SAMPLE_AppData.DevicePack.sample[pack_count].count = stream->DeviceCounter;
-                    SAMPLE_AppData.DevicePack.sample[pack_count].data  = stream->DeviceData;
-
-                    /* Increment pack counter */
-                    pack_count++;
-                    if (pack_count == SAMPLE_DEVICE_TLM_PACK)
+                    /* Verify data header and trailer */
+                    if ((stream->DeviceHeader != SAMPLE_DEVICE_HDR) || (stream->DeviceTrailer != SAMPLE_DEVICE_TRAILER))
                     {
-                        pack_count = 0;
-                        /* Publish packed telemetry */
-                        CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePack);
-                        CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePack);
+                        CFE_EVS_SendEvent(SAMPLE_DEVICE_STREAM_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming packet error with header %04x and trailer %04x", stream->DeviceHeader, stream->DeviceTrailer);
+                    }
+                    else
+                    {
+                        /* Copy data into latest packet */
+                        SAMPLE_AppData.DevicePkt.sample.count = stream->DeviceCounter;
+                        SAMPLE_AppData.DevicePkt.sample.data  = stream->DeviceData;
+
+                        /* Copy data into packed telemetry */
+                        SAMPLE_AppData.DevicePack.sample[pack_count].count = stream->DeviceCounter;
+                        SAMPLE_AppData.DevicePack.sample[pack_count].data  = stream->DeviceData;
+
+                        /* Increment pack counter */
+                        pack_count++;
+                        if (pack_count == SAMPLE_DEVICE_TLM_PACK)
+                        {
+                            pack_count = 0;
+                            /* Publish packed telemetry */
+                            CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePack);
+                            CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePack);
+                        }
                     }
                 }
             }

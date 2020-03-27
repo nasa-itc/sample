@@ -38,6 +38,7 @@ static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
     {SAMPLE_CREATE_DEVICE_ERR_EID,  0x0000},
     {SAMPLE_DEVICE_REG_ERR_EID,     0x0000},
     {SAMPLE_DEVICE_REG_INF_EID,     0x0000},
+    {SAMPLE_DEVICE_STREAM_ERR_EID,  0x0000},
     // TODO: Add additional event IDs (EID) to the table as created
 };
 
