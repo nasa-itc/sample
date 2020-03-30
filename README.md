@@ -19,4 +19,3 @@ Vendor repositories:
 
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.
->>>>>>> origin/2-baseline-task
