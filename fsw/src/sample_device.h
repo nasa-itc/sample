@@ -17,13 +17,18 @@
 ** Type definitions
 ** TODO: Make specific to your application
 */
+//#define SAMPLE_DEBUG
+
 #define SAMPLE_DEVICE_HDR          0xDEAD
+#define SAMPLE_DEVICE_HDR_0        0xDE
+#define SAMPLE_DEVICE_HDR_1        0xAD
 
 #define SAMPLE_DEVICE_CFG_CMD      0x01
 #define SAMPLE_DEVICE_OTHER_CMD    0x02
 
 #define SAMPLE_DEVICE_TRAILER      0xBEEF
-
+#define SAMPLE_DEVICE_TRAILER_0    0xBE
+#define SAMPLE_DEVICE_TRAILER_1    0xEF
 
 /*
 ** SAMPLE device command
@@ -46,7 +51,7 @@ typedef struct
 {
     uint16  DeviceHeader;
     uint32  DeviceCounter;
-    double  DeviceData;
+    float   DeviceData;
     uint16  DeviceTrailer;
 
 } OS_PACK SAMPLE_Device_Stream_tlm_t;

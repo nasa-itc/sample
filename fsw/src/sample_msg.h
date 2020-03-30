@@ -82,7 +82,7 @@ typedef struct
 typedef struct
 {
     uint32 count;
-    double data;
+    float  data;
 } SAMPLE_Device_sample_t;
 
 

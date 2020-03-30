@@ -193,10 +193,10 @@ void SAMPLE_Configuration(void)
     uint8_t ms_timeout_counter = SAMPLE_CFG_MS_TIMEOUT;
 
     /* Prepare data to send */
-    device_cmd.DeviceHeader = SAMPLE_DEVICE_HDR;
+    device_cmd.DeviceHeader = CFE_MAKE_BIG16(SAMPLE_DEVICE_HDR);
     device_cmd.DeviceCmd = SAMPLE_DEVICE_CFG_CMD;
     device_cmd.DevicePayload = cfg_cmd->MillisecondStreamDelay;
-    device_cmd.DeviceTrailer = SAMPLE_DEVICE_TRAILER;
+    device_cmd.DeviceTrailer = CFE_MAKE_BIG16(SAMPLE_DEVICE_TRAILER);
     
     /* Send command */
     status = SAMPLE_CommandDevice((uint8*) &device_cmd);
@@ -227,7 +227,8 @@ int32 SAMPLE_DeviceTask(void)
     uint32_t bytes_available = 0;
     uint32_t pack_count = 0;
     uint8_t stream_data[SAMPLE_DEVICE_STREAM_LNGTH];
-    SAMPLE_Device_Stream_tlm_t* stream = (SAMPLE_Device_Stream_tlm_t*) stream_data;
+    uint32_t tmp_count = 0;
+    uint32_t tmp_data = 0;
 
     /*
     ** Register the device task with Executive Services
@@ -257,28 +258,42 @@ int32 SAMPLE_DeviceTask(void)
             if (bytes_available >= SAMPLE_DEVICE_STREAM_LNGTH)
             {
                 /* Read data */
-                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, stream_data, bytes_available);
+                bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, stream_data, SAMPLE_DEVICE_STREAM_LNGTH);
                 if (bytes != SAMPLE_DEVICE_STREAM_LNGTH)
                 {
-                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming Uart read error, expected %d and returned %d", bytes_available, bytes);
+                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming Uart read error, expected %d and returned %d", SAMPLE_DEVICE_STREAM_LNGTH, bytes);
                     /* Drop data */
                 }
                 else
                 {
                     /* Verify data header and trailer */
-                    if ((stream->DeviceHeader != SAMPLE_DEVICE_HDR) || (stream->DeviceTrailer != SAMPLE_DEVICE_TRAILER))
+                    if ((stream_data[0] != SAMPLE_DEVICE_HDR_0)      || 
+                        (stream_data[1] != SAMPLE_DEVICE_HDR_1)      || 
+                        (stream_data[10] != SAMPLE_DEVICE_TRAILER_0) || 
+                        (stream_data[11] != SAMPLE_DEVICE_TRAILER_1) )
                     {
-                        CFE_EVS_SendEvent(SAMPLE_DEVICE_STREAM_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming packet error with header %04x and trailer %04x", stream->DeviceHeader, stream->DeviceTrailer);
+                        CFE_EVS_SendEvent(SAMPLE_DEVICE_STREAM_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming packet error with header 0x%02x%02x and trailer 0x%02x%02x", stream_data[0], stream_data[1], stream_data[10], stream_data[11]);
                     }
                     else
                     {
+                        /* Interpret stream */
+                        tmp_count  = stream_data[2] << 24;
+                        tmp_count |= stream_data[3] << 16;
+                        tmp_count |= stream_data[4] << 8;
+                        tmp_count |= stream_data[5];
+
+                        tmp_data   = stream_data[6] << 24;
+                        tmp_data  |= stream_data[7] << 16;
+                        tmp_data  |= stream_data[8] << 8;
+                        tmp_data  |= stream_data[9];
+
                         /* Copy data into latest packet */
-                        SAMPLE_AppData.DevicePkt.sample.count = stream->DeviceCounter;
-                        SAMPLE_AppData.DevicePkt.sample.data  = stream->DeviceData;
+                        SAMPLE_AppData.DevicePkt.sample.count = tmp_count;
+                        SAMPLE_AppData.DevicePkt.sample.data  = (float) tmp_data;
 
                         /* Copy data into packed telemetry */
-                        SAMPLE_AppData.DevicePack.sample[pack_count].count = stream->DeviceCounter;
-                        SAMPLE_AppData.DevicePack.sample[pack_count].data  = stream->DeviceData;
+                        SAMPLE_AppData.DevicePack.sample[pack_count].count = tmp_count;
+                        SAMPLE_AppData.DevicePack.sample[pack_count].data  = (float) tmp_data;
 
                         /* Increment pack counter */
                         pack_count++;
@@ -290,6 +305,19 @@ int32 SAMPLE_DeviceTask(void)
                             CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePack);
                         }
                     }
+
+                    #ifdef SAMPLE_DEBUG
+                        OS_printf("  Stream = ");
+                        for (uint32_t i = 0; i < bytes_available; i++)
+                        {
+                            OS_printf("%02x", stream_data[i]);
+                        }
+                        OS_printf("\n");
+                        OS_printf("  Header  = %02x%02x  \n", stream_data[0], stream_data[1]);
+                        OS_printf("  Counter = %08x      \n", tmp_count);
+                        OS_printf("  Data    = %08x , %f \n", tmp_data, (float) tmp_data);
+                        OS_printf("  Trailer = %02x%02x  \n", stream_data[10], stream_data[11]);
+                    #endif
                 }
             }
 
