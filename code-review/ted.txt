@@ -1,0 +1,22 @@
+4/2/2020
+
+sample_app.c
+
+Line 86: 
+CFE_SB_RcvMsg pends forever.  Is there ever a situation where this should time out?
+Would it be worth adding a second call to this function that times out, then having the developer 
+choose which call to use, deleting the other?
+
+Line 109:
+Sets the run status to CFE_ES_APP_ERROR if SB read error, which causes the main loop to exit. 
+Would it be good to comment this line out with a note to the developer to uncomment the line 
+if they want to exit the main loop on SB read error?  In most cases I don't think you want the 
+app to exit on a single SB read error. 
+
+General: 
+A device task may not make sense for all applications.  Should we provide a second sample out that 
+does not include a device task or instructions for how to remove the device task?
+
+I think it would be good to add a request housekeeping telemetry ground command (ie. ground cmd 
+with cmd code). That will allow a developer to verify their apps telemetry interface with COSMOS 
+without adding telemetry request messages to the Scheduler App.  
