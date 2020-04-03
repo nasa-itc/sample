@@ -1,4 +1,4 @@
-4/2/2020
+4/3/2020
 
 sample_app.c
 
@@ -14,9 +14,16 @@ if they want to exit the main loop on SB read error?  In most cases I don't thin
 app to exit on a single SB read error. 
 
 General: 
-A device task may not make sense for all applications.  Should we provide a second sample out that 
+A device task may not make sense for all applications.  Should we provide a second sample app that 
 does not include a device task or instructions for how to remove the device task?
 
 I think it would be good to add a request housekeeping telemetry ground command (ie. ground cmd 
 with cmd code). That will allow a developer to verify their apps telemetry interface with COSMOS 
 without adding telemetry request messages to the Scheduler App.  
+
+Some apps may not need to publish separate housekeeping and data messages on the software bus. Also, 
+some apps may not need to publish an array of device data samples.  Maybe make that clear in the comments?  
+
+I usually include device interface funtions in a separate .c file, like Vulcan_interface.c, as opposed to in 
+the device task file.  The interace .c file includes no cfe stuff and is used/tested in the checkout app, then 
+pulled directly over into the cFS app and reused.  
