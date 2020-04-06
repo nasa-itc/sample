@@ -122,6 +122,8 @@ typedef struct
     /*
     ** TODO: Edit and add specific telemetry values to this struct
     */
+    uint8   DeviceErrorCount;
+    uint8   DeviceSuccessCount;
     uint32  MillisecondStreamDelay;
 
 } OS_PACK SAMPLE_Hk_tlm_t;

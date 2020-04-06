@@ -61,9 +61,9 @@ typedef struct
 /*
 ** Prototypes
 */
-void  SAMPLE_RawIO(void);
+int32 SAMPLE_RawIO(void);
 int32 SAMPLE_CommandDevice(uint8* cmd);
-void  SAMPLE_Configuration(void);
+int32 SAMPLE_Configuration(void);
 int32 SAMPLE_DeviceTask(void);
 
 

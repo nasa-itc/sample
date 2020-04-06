@@ -15,8 +15,9 @@
 /*
 ** Raw input / output command
 */ 
-void SAMPLE_RawIO(void)
+int32 SAMPLE_RawIO(void)
 {
+    int32 status = OS_SUCCESS;
     uint32_t bytes = 0;
     uint32_t bytes_available = 0;
     uint8_t ms_timeout_counter = 0;
@@ -44,7 +45,8 @@ void SAMPLE_RawIO(void)
                     CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
                     OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
                     OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
-                    return;
+                    status = OS_ERROR;
+                    return status;
                 }
             }
 
@@ -55,7 +57,8 @@ void SAMPLE_RawIO(void)
                 CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart write error, expected %d and returned %d", raw_cmd->WriteLength, bytes);
                 OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
                 OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
-                return;
+                status = OS_ERROR;
+                return status;
             }
 
             if (raw_cmd->ReadRequest > 0)
@@ -73,6 +76,7 @@ void SAMPLE_RawIO(void)
                 if (ms_timeout_counter >= raw_cmd->MillisecondTimeout)
                 {
                     CFE_EVS_SendEvent(SAMPLE_UART_TIMEOUT_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart timeout error");
+                    status = OS_ERROR;
                     /* Proceed with error */
                 }
 
@@ -87,6 +91,7 @@ void SAMPLE_RawIO(void)
                 if (bytes != bytes_available)
                 {
                     CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: RawIO Uart read error, expected %d and returned %d", bytes_available, bytes);
+                    status = OS_ERROR;
                     /* Proceed with error */
                 }
             }
@@ -104,7 +109,7 @@ void SAMPLE_RawIO(void)
 
         OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
     }
-    return;
+    return status;
 }
 
 
@@ -183,7 +188,7 @@ int32 SAMPLE_CommandDevice(uint8* cmd)
 /*
 ** Configuration command
 */
-void SAMPLE_Configuration(void)
+int32 SAMPLE_Configuration(void)
 {
     int32 status = OS_SUCCESS;
     SAMPLE_Config_cmd_t* cfg_cmd = (SAMPLE_Config_cmd_t*) SAMPLE_AppData.MsgPtr;
@@ -203,7 +208,7 @@ void SAMPLE_Configuration(void)
     if (status != OS_SUCCESS)
     {
         CFE_EVS_SendEvent(SAMPLE_COMMANDCONFIG_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Configuration command failed");
-        return;
+        return status;
     }
 
     /* Capture configuration in HK message */
@@ -213,7 +218,7 @@ void SAMPLE_Configuration(void)
 
         OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
     }
-    return;
+    return status;
 }
 
 

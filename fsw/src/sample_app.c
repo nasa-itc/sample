@@ -360,6 +360,8 @@ void SAMPLE_ProcessCommandPacket(void)
 */
 void SAMPLE_ProcessGroundCommand(void)
 {
+    int32 status = OS_SUCCESS;
+
     /*
     ** MsgId is only needed if the command code is not recognized. See default case.
     */
@@ -381,9 +383,9 @@ void SAMPLE_ProcessGroundCommand(void)
             */
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(SAMPLE_COMMANDNOP_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: NOOP command received");
                 /* Increment the command count upon receipt of a valid command */
                 SAMPLE_IncrementCommandCount();
+                CFE_EVS_SendEvent(SAMPLE_COMMANDNOP_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: NOOP command received");
             }
             break;
 
@@ -405,9 +407,20 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_RAW_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_RawIO_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(SAMPLE_COMMANDRAW_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Raw IO command received");
-                SAMPLE_RawIO();
+                /* Increment the command count upon receipt of a valid command */
                 SAMPLE_IncrementCommandCount();
+                CFE_EVS_SendEvent(SAMPLE_COMMANDRAW_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Raw IO command received");
+                /* Take the action */ 
+                status = SAMPLE_RawIO();
+                /* Increment device counter as appropriate */
+                if (status == OS_SUCCESS)
+                {
+                    SAMPLE_DeviceIncrementSuccessCount();
+                }
+                else
+                {
+                    SAMPLE_DeviceIncrementErrorCount();
+                }
             }
             break;
 
@@ -417,9 +430,18 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_CONFIG_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(SAMPLE_COMMANDCONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received");
-                SAMPLE_Configuration();
+                
                 SAMPLE_IncrementCommandCount();
+                CFE_EVS_SendEvent(SAMPLE_COMMANDCONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received");
+                status = SAMPLE_Configuration();
+                if (status == OS_SUCCESS)
+                {
+                    SAMPLE_DeviceIncrementSuccessCount();
+                }
+                else
+                {
+                    SAMPLE_DeviceIncrementErrorCount();
+                }
             }
             break;
 
@@ -427,10 +449,10 @@ void SAMPLE_ProcessGroundCommand(void)
         ** Invalid Command Codes
         */
         default:
-            CFE_EVS_SendEvent(SAMPLE_COMMAND_ERR_EID, CFE_EVS_ERROR, 
-                "SAMPLE: invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
             /* Increment the error counter upon receipt of an invalid command */
             SAMPLE_IncrementCommandErrorCount();
+            CFE_EVS_SendEvent(SAMPLE_COMMAND_ERR_EID, CFE_EVS_ERROR, 
+                "SAMPLE: invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
             break;
     }
     return;
@@ -532,6 +554,36 @@ void SAMPLE_IncrementCommandErrorCount(void)
 
 
 /*
+** Safely increment device command counter
+*/
+void SAMPLE_DeviceIncrementSuccessCount(void)
+{
+    if (OS_MutSemTake(SAMPLE_AppData.HkDataMutex) == OS_SUCCESS)
+    {
+        SAMPLE_AppData.HkTelemetryPkt.DeviceSuccessCount++;
+
+        OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
+    }
+    return;
+}
+
+
+/*
+** Safely increment device command error counter
+*/
+void SAMPLE_DeviceIncrementErrorCount(void)
+{
+    if (OS_MutSemTake(SAMPLE_AppData.HkDataMutex) == OS_SUCCESS)
+    {
+        SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+
+        OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
+    }
+    return;
+}
+
+
+/*
 ** Reset all global counter variables
 */
 void SAMPLE_ResetCounters(void)
@@ -540,6 +592,8 @@ void SAMPLE_ResetCounters(void)
     {
         SAMPLE_AppData.HkTelemetryPkt.CommandCount       = 0;
         SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount  = 0;
+        SAMPLE_AppData.HkTelemetryPkt.DeviceSuccessCount = 0;
+        SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount   = 0;
 
         OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
     }

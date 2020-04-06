@@ -98,6 +98,8 @@ int32 SAMPLE_GetRunStatus(void);
 void  SAMPLE_SetRunStatus(uint32 status);
 void  SAMPLE_IncrementCommandCount(void);
 void  SAMPLE_IncrementCommandErrorCount(void);
+void  SAMPLE_DeviceIncrementSuccessCount(void);
+void  SAMPLE_DeviceIncrementErrorCount(void);
 void  SAMPLE_ResetCounters(void);
 int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
 
