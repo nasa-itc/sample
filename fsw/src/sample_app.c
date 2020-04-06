@@ -254,6 +254,7 @@ int32 SAMPLE_AppInit(void)
         CFE_EVS_SendEvent(SAMPLE_UART_ERR_EID, CFE_EVS_ERROR, "SAMPLE: UART port initialization error %d", status);
         return status;
     }
+    SAMPLE_AppData.HkTelemetryPkt.MillisecondStreamDelay = SAMPLE_DEVICE_DEFAULT_STREAM_MS;
 
     /*
     ** Create HK data mutex

@@ -196,6 +196,7 @@ int32 SAMPLE_Configuration(void)
     uint32_t bytes = 0;
     uint32_t bytes_available = 0;
     uint8_t ms_timeout_counter = SAMPLE_CFG_MS_TIMEOUT;
+    uint32_t ms_stream_delay = CFE_MAKE_BIG32(cfg_cmd->MillisecondStreamDelay);
 
     /* Prepare data to send */
     device_cmd.DeviceHeader = CFE_MAKE_BIG16(SAMPLE_DEVICE_HDR);
@@ -214,7 +215,7 @@ int32 SAMPLE_Configuration(void)
     /* Capture configuration in HK message */
     if (OS_MutSemTake(SAMPLE_AppData.HkDataMutex) == OS_SUCCESS)
     {
-        SAMPLE_AppData.HkTelemetryPkt.MillisecondStreamDelay = cfg_cmd->MillisecondStreamDelay;
+        SAMPLE_AppData.HkTelemetryPkt.MillisecondStreamDelay = ms_stream_delay;
 
         OS_MutSemGive(SAMPLE_AppData.HkDataMutex);
     }
