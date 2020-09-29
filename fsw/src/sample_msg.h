@@ -20,6 +20,11 @@
 /* TODO: Edit and add application dependent command codes */
 #define SAMPLE_CONFIG_CC               3
 
+/* 
+** SAMPLE TLM request command codes
+*/
+#define SAMPLE_SEND_HK_TLM_CC          1
+#define SAMPLE_SEND_DEVICE_TLM_CC      2
 
 /*
 ** Generic "no arguments" command type definition

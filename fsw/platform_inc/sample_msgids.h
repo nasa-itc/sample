@@ -17,9 +17,9 @@
 
 /* 
 ** This MID is for commands telling the app to publish its telemetry message
+** These messages do not increment the command counters
 */
-#define SAMPLE_SEND_HK_MID          0x18FB /* TODO: Change this for your app */
-#define SAMPLE_SEND_DEVICE_TLM_MID  0x18FC /* TODO: Change this for your app */
+#define SAMPLE_SEND_TLM_MID          0x18FB /* TODO: Change this for your app */
 
 /* 
 ** Telemetry message IDs - these messages are meant for publishing messages

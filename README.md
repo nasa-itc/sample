@@ -11,10 +11,11 @@ All streamed data is packed into a larger telemetry packet to be sent to the gro
 
 ## Documentation
 Currently support exists for the following versions:
-* [Sample Link](https://cfs.gsfc.nasa.gov/)
+* [cFS 6.7/6.8](https://cfs.gsfc.nasa.gov/)
 
-Vendor repositories: 
-* https://code.nasa.gov/
+# Commanding
+Refer to the file in `fsw/platform_inc/sample_msgids.h` for the Sample app message IDs
+Refer to the file in `fsw/src/sampel_msg.h` for the Sample app command codes
 
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.
