@@ -125,7 +125,7 @@ int32 SAMPLE_CommandDevice(uint8* cmd)
         bytes = uart_write_port(SAMPLE_AppData.SampleUart.handle, cmd, SAMPLE_DEVICE_CMD_LNGTH);
         if (bytes != SAMPLE_DEVICE_CMD_LNGTH)
         {
-            CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Command uart write error, expected %d and returned %d", SAMPLE_DEVICE_CMD_LNGTH, bytes);
+            CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Command uart write error, expected %lu and returned %u", SAMPLE_DEVICE_CMD_LNGTH, bytes);
             status = OS_ERROR;
             OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
             return status;
@@ -261,7 +261,7 @@ int32 SAMPLE_DeviceTask(void)
                 bytes = uart_read_port(SAMPLE_AppData.SampleUart.handle, stream_data, SAMPLE_DEVICE_STREAM_LNGTH);
                 if (bytes != SAMPLE_DEVICE_STREAM_LNGTH)
                 {
-                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming Uart read error, expected %d and returned %d", SAMPLE_DEVICE_STREAM_LNGTH, bytes);
+                    CFE_EVS_SendEvent(SAMPLE_UART_READ_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Streaming Uart read error, expected %lu and returned %u", SAMPLE_DEVICE_STREAM_LNGTH, bytes);
                     /* Drop data */
                 }
                 else
