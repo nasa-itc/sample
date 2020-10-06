@@ -1,5 +1,5 @@
 /*******************************************************************************
-** File: sample_app.h
+** File: sample_device.h
 **
 ** Purpose:
 **   This is the header file for the SAMPLE device.

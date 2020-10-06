@@ -4,6 +4,7 @@
 **
 ** Purpose:
 **  Define SAMPLE application commands and telemetry messages
+**  This includes command codes, and command definition structs
 **
 *******************************************************************************/
 #ifndef _SAMPLE_MSG_H_
@@ -99,8 +100,8 @@ typedef struct
     uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
     SAMPLE_Device_sample_t sample;
 
-} OS_PACK SAMPLE_Device_tlm_t;
-#define SAMPLE_DEVICE_TLM_LNGTH sizeof ( SAMPLE_Device_tlm_t )
+} OS_PACK SAMPLE_Device_single_tlm_t;
+#define SAMPLE_DEVICE_SINGLE_TLM_LNGTH sizeof ( SAMPLE_Device_single_tlm_t )
 
 
 /*
@@ -109,10 +110,10 @@ typedef struct
 typedef struct 
 {
     uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    SAMPLE_Device_sample_t sample[SAMPLE_DEVICE_TLM_PACK];
+    SAMPLE_Device_sample_t sample[SAMPLE_DEVICE_MULTI_TLM_COUNT];
 
-} OS_PACK SAMPLE_DevicePack_tlm_t;
-#define SAMPLE_DEVICE_PACK_TLM_LNGTH sizeof ( SAMPLE_DevicePack_tlm_t )
+} OS_PACK SAMPLE_Device_multi_tlm_t;
+#define SAMPLE_DEVICE_MULTI_TLM_LNGTH sizeof ( SAMPLE_Device_multi_tlm_t )
 
 
 /*

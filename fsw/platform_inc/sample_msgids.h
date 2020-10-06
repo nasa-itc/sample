@@ -26,9 +26,9 @@
 ** containing telemetry from the application needs sent to other apps or
 ** to the ground
 */
-#define SAMPLE_HK_TLM_MID           0x08FA /* TODO: Change this for your app */
-#define SAMPLE_RAWIO_TLM_MID        0x08FB /* TODO: Change this for your app */
-#define SAMPLE_DEVICE_TLM_MID       0x08FC /* TODO: Change this for your app */
-#define SAMPLE_DEVICEPACK_TLM_MID   0x08FD /* TODO: Change this for your app */
+#define SAMPLE_HK_TLM_MID               0x08FA /* TODO: Change this for your app */
+#define SAMPLE_RAWIO_TLM_MID            0x08FB /* TODO: Change this for your app */
+#define SAMPLE_DEVICE_SINGLE_TLM_MID    0x08FC /* TODO: Change this for your app */
+#define SAMPLE_DEVICE_MULTI_TLM_MID     0x08FD /* TODO: Change this for your app */
 
 #endif /* _SAMPLE_MSGIDS_H_ */
