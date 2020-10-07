@@ -22,6 +22,7 @@
 #define SAMPLE_DEVICE_HDR          0xDEAD
 #define SAMPLE_DEVICE_HDR_0        0xDE
 #define SAMPLE_DEVICE_HDR_1        0xAD
+#define SAMPLE_DEVICE_HDR_LEN      2
 
 #define SAMPLE_DEVICE_CFG_CMD      0x01
 #define SAMPLE_DEVICE_OTHER_CMD    0x02
@@ -51,7 +52,7 @@ typedef struct
 {
     uint16  DeviceHeader;
     uint32  DeviceCounter;
-    float   DeviceData;
+    uint16  DeviceData[3];
     uint16  DeviceTrailer;
 
 } OS_PACK SAMPLE_Device_Stream_tlm_t;

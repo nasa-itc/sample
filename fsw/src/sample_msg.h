@@ -88,8 +88,8 @@ typedef struct
 typedef struct
 {
     uint32 count;
-    float  data;
-} SAMPLE_Device_sample_t;
+    uint16 data[3];
+} OS_PACK SAMPLE_Device_sample_t;
 
 
 /*
@@ -129,6 +129,7 @@ typedef struct
     ** TODO: Edit and add specific telemetry values to this struct
     */
     uint8   DeviceErrorCount;
+    uint8   DeviceStreamErrorCount;
     uint8   DeviceSuccessCount;
     uint32  MillisecondStreamDelay;
 

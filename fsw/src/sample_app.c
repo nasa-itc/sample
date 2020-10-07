@@ -522,11 +522,16 @@ void SAMPLE_SetRunStatus(uint32 status)
 */
 void SAMPLE_ResetCounters(void)
 {
-    SAMPLE_AppData.HkTelemetryPkt.CommandCount       = 0;
-    SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount  = 0;
-    SAMPLE_AppData.HkTelemetryPkt.DeviceSuccessCount = 0;
-    SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount   = 0;
-
+    if (OS_MutSemTake(SAMPLE_AppData.DeviceMutex) == OS_SUCCESS)
+    {
+        SAMPLE_AppData.HkTelemetryPkt.CommandCount            = 0;
+        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount       = 0;
+        SAMPLE_AppData.HkTelemetryPkt.DeviceSuccessCount      = 0;
+        SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount        = 0;
+        SAMPLE_AppData.HkTelemetryPkt.DeviceStreamErrorCount  = 0;
+        
+        OS_MutSemGive(SAMPLE_AppData.DeviceMutex);
+    }
     return;
 } 
 
