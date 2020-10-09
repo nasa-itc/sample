@@ -361,7 +361,7 @@ void SAMPLE_ProcessGroundCommand(void)
             /* 
             ** Notice the usage of the VerifyCmdLength() function call
             */
-            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == CFE_SUCCESS)
             {
                 /* Increment the command count upon receipt of a valid command */
                 SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
@@ -373,7 +373,7 @@ void SAMPLE_ProcessGroundCommand(void)
         ** Reset Counters Command
         */
         case SAMPLE_RESET_COUNTERS_CC:
-            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == CFE_SUCCESS)
             {
                 CFE_EVS_SendEvent(SAMPLE_COMMANDRST_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: RESET counters command received");
                 /* Skipped incrementing command count as the goal is to reset it */
@@ -385,7 +385,7 @@ void SAMPLE_ProcessGroundCommand(void)
         ** Raw Input / Output Command
         */
         case SAMPLE_RAW_CC:
-            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_RawIO_cmd_t)) == OS_SUCCESS)
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_RawIO_cmd_t)) == CFE_SUCCESS)
             {
                 /* Increment the command count upon receipt of a valid command */
                 SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
@@ -408,7 +408,7 @@ void SAMPLE_ProcessGroundCommand(void)
         ** TODO: Edit and add more command codes as appropriate for the application
         */
         case SAMPLE_CONFIG_CC:
-            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == CFE_SUCCESS)
             {
                 
                 SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
@@ -444,8 +444,6 @@ void SAMPLE_ProcessGroundCommand(void)
 */
 void SAMPLE_ReportTlm(void)
 {
-    int32 status;
-
     /*
     ** MsgId is only needed if the command code is not recognized. See default case.
     */
@@ -473,7 +471,7 @@ void SAMPLE_ReportTlm(void)
             }
             break;
 
-                /*
+        /*
         ** Invalid Command Codes
         */
         default:
@@ -541,7 +539,7 @@ void SAMPLE_ResetCounters(void)
 */
 int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length)
 {     
-    int32  status;
+    int32  status = CFE_SUCCESS;
     CFE_SB_MsgId_t msg_id;
     uint16 cmd_code;
     uint16 actual_length = CFE_SB_GetTotalMsgLength(msg);
