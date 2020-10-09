@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 2.6.4)
-project(CFE_SAMPLE_STF1_APP C)
+project(CFS_SAMPLE_APP C)
 
-include(../Stf1AppSettings.cmake)
+include(../ComponentSettings.cmake)
 
+include_directories(fsw/public_inc)
 include_directories(fsw/mission_inc)
 include_directories(fsw/platform_inc)
+include_directories(fsw/src)
+
+include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 
 aux_source_directory(fsw/src APP_SRC_FILES)
 
 # Create the app module
-add_cfe_app(sample_stf1_app ${APP_SRC_FILES})
+add_cfe_app(sample ${APP_SRC_FILES})
