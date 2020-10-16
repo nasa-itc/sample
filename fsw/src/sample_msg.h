@@ -4,6 +4,7 @@
 **
 ** Purpose:
 **  Define SAMPLE application commands and telemetry messages
+**  This includes command codes, and command definition structs
 **
 *******************************************************************************/
 #ifndef _SAMPLE_MSG_H_
@@ -20,6 +21,11 @@
 /* TODO: Edit and add application dependent command codes */
 #define SAMPLE_CONFIG_CC               3
 
+/* 
+** SAMPLE TLM request command codes
+*/
+#define SAMPLE_SEND_HK_TLM_CC          1
+#define SAMPLE_SEND_DEVICE_TLM_CC      2
 
 /*
 ** Generic "no arguments" command type definition
@@ -82,8 +88,8 @@ typedef struct
 typedef struct
 {
     uint32 count;
-    float  data;
-} SAMPLE_Device_sample_t;
+    uint16 data[3];
+} OS_PACK SAMPLE_Device_sample_t;
 
 
 /*
@@ -94,8 +100,8 @@ typedef struct
     uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
     SAMPLE_Device_sample_t sample;
 
-} OS_PACK SAMPLE_Device_tlm_t;
-#define SAMPLE_DEVICE_TLM_LNGTH sizeof ( SAMPLE_Device_tlm_t )
+} OS_PACK SAMPLE_Device_single_tlm_t;
+#define SAMPLE_DEVICE_SINGLE_TLM_LNGTH sizeof ( SAMPLE_Device_single_tlm_t )
 
 
 /*
@@ -104,10 +110,10 @@ typedef struct
 typedef struct 
 {
     uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    SAMPLE_Device_sample_t sample[SAMPLE_DEVICE_TLM_PACK];
+    SAMPLE_Device_sample_t sample[SAMPLE_DEVICE_MULTI_TLM_COUNT];
 
-} OS_PACK SAMPLE_DevicePack_tlm_t;
-#define SAMPLE_DEVICE_PACK_TLM_LNGTH sizeof ( SAMPLE_DevicePack_tlm_t )
+} OS_PACK SAMPLE_Device_multi_tlm_t;
+#define SAMPLE_DEVICE_MULTI_TLM_LNGTH sizeof ( SAMPLE_Device_multi_tlm_t )
 
 
 /*
@@ -122,6 +128,9 @@ typedef struct
     /*
     ** TODO: Edit and add specific telemetry values to this struct
     */
+    uint8   DeviceErrorCount;
+    uint8   DeviceStreamErrorCount;
+    uint8   DeviceSuccessCount;
     uint32  MillisecondStreamDelay;
 
 } OS_PACK SAMPLE_Hk_tlm_t;

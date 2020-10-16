@@ -1,6 +1,6 @@
 /************************************************************************
 ** File:
-**   $Id: sample_app_version.h  $
+**   $Id: sample_version.h  $
 **
 ** Purpose:
 **  The Sample Application header file containing version number
