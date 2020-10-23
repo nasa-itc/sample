@@ -1,71 +1,60 @@
 /*******************************************************************************
-** File: sample_device.h
+** File:
+**  sample_device.h
 **
 ** Purpose:
-**   This is the header file for the SAMPLE device.
+**   This file is the header file for the Sample device
+**
 **
 *******************************************************************************/
+
 #ifndef _SAMPLE_DEVICE_H_
 #define _SAMPLE_DEVICE_H_
 
-/*
-** Required header files.
-*/
-#include "sample_app.h"
+#include "sample_device_msg.h"
 
 /*
-** Type definitions
-** TODO: Make specific to your application
-*/
-//#define SAMPLE_DEBUG
+ * Buffers to hold telemetry data prior to sending
+ * Defined as a union to ensure proper alignment for a CFE_SB_Msg_t type
+ */
 
-#define SAMPLE_DEVICE_HDR          0xDEAD
-#define SAMPLE_DEVICE_HDR_0        0xDE
-#define SAMPLE_DEVICE_HDR_1        0xAD
-#define SAMPLE_DEVICE_HDR_LEN      2
-
-#define SAMPLE_DEVICE_CFG_CMD      0x01
-#define SAMPLE_DEVICE_OTHER_CMD    0x02
-
-#define SAMPLE_DEVICE_TRAILER      0xBEEF
-#define SAMPLE_DEVICE_TRAILER_0    0xBE
-#define SAMPLE_DEVICE_TRAILER_1    0xEF
-
-/*
-** SAMPLE device command
-*/
-typedef struct 
+typedef union
 {
-    uint16  DeviceHeader;
-    uint8   DeviceCmd;
-    uint32  DevicePayload;
-    uint16  DeviceTrailer;
+    CFE_SB_Msg_t         MsgHdr;
+    SAMPLE_DeviceHkTlm_t HkTlm;
+} SAMPLE_DeviceHkBuffer_t;
 
-} OS_PACK SAMPLE_Device_cmd_t;
-#define SAMPLE_DEVICE_CMD_LNGTH sizeof ( SAMPLE_Device_cmd_t )
-
-
-/*
-** SAMPLE device streamed telemetry definition
-*/
-typedef struct
+typedef union
 {
-    uint16  DeviceHeader;
-    uint32  DeviceCounter;
-    uint16  DeviceData[3];
-    uint16  DeviceTrailer;
-
-} OS_PACK SAMPLE_Device_Stream_tlm_t;
-#define SAMPLE_DEVICE_STREAM_LNGTH sizeof ( SAMPLE_Device_Stream_tlm_t )
-
+    CFE_SB_Msg_t             MsgHdr;
+    SAMPLE_DeviceSampleTlm_t SampleTlm;
+} SAMPLE_DeviceSampleBuffer_t;
 
 /*
-** Prototypes
+** Run Status variable used in the main processing loop.  If the device is asynchronous, this Status
+** variable is also used in the device child processing loop.
 */
-int32 SAMPLE_RawIO(void);
-int32 SAMPLE_CommandDevice(uint8* cmd);
-int32 SAMPLE_Configuration(void);
-int32 SAMPLE_DeviceTask(void);
+extern uint32 RunStatus;
 
+/****************************************************************************/
+/*
+** Function prototypes.
+**
+*/
+int32 SAMPLE_DeviceInit(void);
+int32 SAMPLE_DeviceShutdown(void);
+void  SAMPLE_DeviceResetCounters(void);
 
-#endif /* _SAMPLE_DEVICE_H_ */
+void  SAMPLE_DeviceGetSampleDataCommand(void);
+void  SAMPLE_DeviceConfigurationCommand(uint32_t millisecond_stream_delay);
+void  SAMPLE_DeviceOtherCommand(void);
+void  SAMPLE_DeviceRawCommand(const uint8 cmd[], const uint32_t cmd_length);
+
+void SAMPLE_ReportDeviceHousekeeping(void);
+void SAMPLE_ReportDeviceSampleData(void);
+
+#endif
+
+/************************/
+/*  End of File Comment */
+/************************/
