@@ -1,5 +1,5 @@
 /*******************************************************************************
-** File: sample_app.h
+** File: sample_device.h
 **
 ** Purpose:
 **   This is the header file for the SAMPLE device.
@@ -11,14 +11,15 @@
 /*
 ** Required header files.
 */
-#include "sample_app.h"
+#include "device_cfg.h"
+#include "hwlib.h"
+#include "sample_platform_cfg.h"
+
 
 /*
 ** Type definitions
 ** TODO: Make specific to your application
 */
-//#define SAMPLE_DEBUG
-
 #define SAMPLE_DEVICE_HDR          0xDEAD
 #define SAMPLE_DEVICE_HDR_0        0xDE
 #define SAMPLE_DEVICE_HDR_1        0xAD
@@ -36,36 +37,47 @@
 */
 typedef struct 
 {
-    uint16  DeviceHeader;
-    uint8   DeviceCmd;
-    uint32  DevicePayload;
-    uint16  DeviceTrailer;
+    uint16_t  DeviceHeader;
+    uint8_t   DeviceCmd;
+    uint32_t  DevicePayload;
+    uint16_t  DeviceTrailer;
 
 } OS_PACK SAMPLE_Device_cmd_t;
 #define SAMPLE_DEVICE_CMD_LNGTH sizeof ( SAMPLE_Device_cmd_t )
 
 
 /*
-** SAMPLE device streamed telemetry definition
+** SAMPLE device housekeeping telemetry definition
 */
 typedef struct
 {
-    uint16  DeviceHeader;
-    uint32  DeviceCounter;
-    float   DeviceData;
-    uint16  DeviceTrailer;
+    uint32_t  DeviceCounter;
+    uint32_t  DeviceConfig;
+    uint32_t  DeviceStatus;
 
-} OS_PACK SAMPLE_Device_Stream_tlm_t;
-#define SAMPLE_DEVICE_STREAM_LNGTH sizeof ( SAMPLE_Device_Stream_tlm_t )
+} OS_PACK SAMPLE_Device_HK_tlm_t;
+#define SAMPLE_DEVICE_HK_LNGTH sizeof ( SAMPLE_Device_HK_tlm_t )
+
+
+/*
+** SAMPLE device data telemetry definition
+*/
+typedef struct
+{
+    uint32_t  DeviceCounter;
+    float     DeviceData;
+
+} OS_PACK SAMPLE_Device_Data_tlm_t;
+#define SAMPLE_DEVICE_DATA_LNGTH sizeof ( SAMPLE_Device_Data_tlm_t )
 
 
 /*
 ** Prototypes
 */
-int32 SAMPLE_RawIO(void);
-int32 SAMPLE_CommandDevice(uint8* cmd);
-int32 SAMPLE_Configuration(void);
-int32 SAMPLE_RequestData(void);
+int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t* cmd);
+int32_t SAMPLE_Configuration(int32_t handle, uint32_t config);
+int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data);
+int32_t SAMPLE_RequestHK(int32_t handle);
 
 
 #endif /* _SAMPLE_DEVICE_H_ */

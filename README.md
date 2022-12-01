@@ -1,6 +1,6 @@
-# Sample - cFS Application
+# Sample - NOS3 Component
 
-This repository contains the Sample cFS application.
+This repository contains the NOS3 Sample Component.
 
 ## Overview
 The example assumes a UART based device that streams telemetry at a fixed rate.

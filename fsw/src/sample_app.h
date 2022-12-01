@@ -21,20 +21,19 @@
 #include "sample_version.h"
 #include "hwlib.h"
 
-/*
-** Macros
-** TODO: Put any custom app-specific macros here
-*/
 
 /*
 ** Specified pipe depth - how many messages will be queued in the pipe
 */
 #define SAMPLE_PIPE_DEPTH            32
 
+
 /*
-** Type Definitions
-** TODO: Put any type definitions here
+** Enabled and Disabled Definitions
 */
+#define SAMPLE_DEVICE_DISABLED       0
+#define SAMPLE_DEVICE_ENABLED        1
+
 
 /*
 ** SAMPLE global data structure
@@ -67,16 +66,17 @@ typedef struct
     ** Device protocol
     ** TODO: Make specific to your application
     */ 
-    SAMPLE_RawIO_tlm_t RawIO;           /* Raw IO data packet */
-    uart_info_t sampleUart;             /* Hardware protocol definition */
+    uart_info_t SampleUart;             /* Hardware protocol definition */
 
 } SAMPLE_AppData_t;
+
 
 /*
 ** Exported Data
 ** Extern the global struct in the header for the Unit Test Framework (UTF).
 */
 extern SAMPLE_AppData_t SAMPLE_AppData; /* SAMPLE App Data */
+
 
 /*
 **
@@ -89,8 +89,12 @@ void  SAMPLE_AppMain(void);
 int32 SAMPLE_AppInit(void);
 void  SAMPLE_ProcessCommandPacket(void);
 void  SAMPLE_ProcessGroundCommand(void);
+void  SAMPLE_ProcessTelemetryRequest(void);
 void  SAMPLE_ReportHousekeeping(void);
+void  SAMPLE_ReportDeviceTelemetry(void);
 void  SAMPLE_ResetCounters(void);
+void  SAMPLE_Enable(void);
+void  SAMPLE_Disable(void);
 int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
 
 #endif /* _SAMPLE_APP_H_ */
