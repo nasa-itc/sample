@@ -1,33 +1,104 @@
 # Sample - NOS3 Component
-
 This repository contains the NOS3 Sample Component.
+This includes flight software (FSW), ground software (GSW), simulation, and support directories.
 
 ## Overview
-The example assumes a UART based device that streams telemetry at a fixed rate.
-A single configuration command is recognized that allows modifying the streaming rate.
-The device confirms receipt of command by echoing the data back.
-The latest streamed data is available upon request via a command.
-All streamed data is packed into a larger telemetry packet to be sent to the ground.
+This sample component is a UART device that accepts multiple commands, including requests for telemetry and data.
+The available FSW is for use in the core Flight System (cFS) while the GSW supports COSMOS.
+A NOS3 simulation is available which includes both sample and 42 data providers.
 
-## Documentation
-If this sample application had an ICD and/or test procedure, they would be linked here.
 
-## Platform Support
-Currently support exists for the following cFS versions:
-* [cFS 6.7/6.8](https://cfs.gsfc.nasa.gov/)
+# Device Communications
+The protocol, commands, and telemetry of the component are captured below.
 
-Currently this application is only tested to support the Linux operating system.
+## Protocol
+The protocol in use is UART 115200 8N1.
+The device is speak when spoken too.
+All communications with the device require / contain a header of 0xDEAD and a trailer of 0xBEEF.
 
-## Configuration
+## Commands
+All commands received by the device are echoed back to the sender to confirm receipt.
+Device commands are all formatted in the same manner and are fixed in size:
+* uint8, command identifier
+  - (0) Get Housekeeping
+  - (1) Get Sample
+  - (2) Set Configuration
+* uint32, command payload
+  - Unused for all but set configuration command
+
+## Telemetry
+Telemetry formats are as follows:
+* Housekeeping
+  - uint32, Command Counter
+    * Increments for each command received
+  - uint32, Configuration
+    * Internal configuration number in use by the device
+  - uint32, Status
+    * Self reported status of the component where zero is completely healthy and each bit represents different errors
+* Sample
+  - uint32, Command Counter
+    * Increments for each command received
+  - float, Data
+    * A single samples worth of data from the device
+
+
+# Configuration
+The various configuration parameters available for each portion of the component are captured below.
+
+## FSW
 Refer to the file [fsw/platform_inc/sample_platform_cfg.h](fsw/platform_inc/sample_platform_cfg.h) for the default
 configuration settings, as well as a summary on overriding parameters in mission-specific repositories.
 
-## Commanding
-Refer to the file [fsw/platform_inc/sample_msgids.h](fsw/platform_inc/sample_msgids.h) for the Sample app message IDs
+## Simulation
+The default configuration returns data that is two times the request count:
+```
+<simulator>
+    <name>sample_sim</name>
+    <active>true</active>
+    <library>libsample_sim.so</library>
+    <hardware-model>
+        <type>SAMPLE</type>
+        <connections>
+            <connection><type>command</type>
+                <bus-name>command</bus-name>
+                <node-name>sample-sim-command-node</node-name>
+            </connection>
+            <connection><type>usart</type>
+                <bus-name>usart_29</bus-name>
+                <node-port>29</node-port>
+            </connection>
+            <connection><type>period</type>
+                <init-time-seconds>5.0</init-time-seconds>
+                <ms-period>1000</ms-period>
+            </connection>
+        </connections>
+        <data-provider>
+            <type>SAMPLE_PROVIDER</type>
+        </data-provider>
+    </hardware-model>
+</simulator>
+```
 
-Refer to the file [fsw/src/sample_msg.h](fsw/src/sample_msg.h) for the Sample app command codes
+## 42
+Optionally the 42 data provider can be configured in the `nos3-simulator.xml`:
+```
+        <data-provider>
+            <type>SAMPLE_42_PROVIDER</type>
+            <hostname>localhost</hostname>
+            <port>4242</port>
+            <max-connection-attempts>5</max-connection-attempts>
+            <retry-wait-seconds>5</retry-wait-seconds>
+            <spacecraft>0</spacecraft>
+        </data-provider>
+```
 
-## Versions
+
+# Documentation
+If this sample application had an ICD and/or test procedure, they would be linked here.
+
+## Releases
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the tags on this repository.
-
-v0.1.0 - Sept. 9 2021 - Initial release with version tagging.
+* v1.0.0 - X/Y/Z 
+  - Updated to be a component repository including FSW, GSW, Sim, and Standalone checkout
+* v0.1.0 - 10/9/2021 
+  - Initial release with version tagging

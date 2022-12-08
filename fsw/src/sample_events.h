@@ -12,38 +12,41 @@
 
 /* Standard app event IDs */
 #define SAMPLE_RESERVED_EID              0
-#define SAMPLE_STARTUP_INF_EID           1 
-#define SAMPLE_INVALID_MSGID_ERR_EID     2 
-#define SAMPLE_LEN_ERR_EID               3 
-#define SAMPLE_PIPE_ERR_EID              4
-#define SAMPLE_SUB_CMD_ERR_EID           5
-#define SAMPLE_SUB_REQ_HK_ERR_EID        6
-#define SAMPLE_SUB_REQ_DEVICE_ERR_EID    7
+#define SAMPLE_STARTUP_INF_EID           1
+#define SAMPLE_LEN_ERR_EID               2
+#define SAMPLE_PIPE_ERR_EID              3
+#define SAMPLE_SUB_CMD_ERR_EID           4
+#define SAMPLE_SUB_REQ_HK_ERR_EID        5
+#define SAMPLE_PROCESS_CMD_ERR_EID       6
+
+/* Standard command event IDs */
+#define SAMPLE_CMD_ERR_EID               10
+#define SAMPLE_CMD_NOOP_INF_EID          11
+#define SAMPLE_CMD_RESET_INF_EID         12
+#define SAMPLE_CMD_ENABLE_INF_EID        13
+#define SAMPLE_ENABLE_INF_EID            14
+#define SAMPLE_ENABLE_ERR_EID            15
+#define SAMPLE_CMD_DISABLE_INF_EID       16
+#define SAMPLE_DISABLE_INF_EID           17
+#define SAMPLE_DISABLE_ERR_EID           18
+
+/* Device specific command event IDs */
+#define SAMPLE_CMD_CONFIG_INF_EID        20
+#define SAMPLE_CONFIG_INF_EID            21
+#define SAMPLE_CONFIG_ERR_EID            22
+
+/* Standard telemetry event IDs */
+#define SAMPLE_DEVICE_TLM_ERR_EID        30
+#define SAMPLE_REQ_HK_ERR_EID            31
+
+/* Device specific telemetry event IDs */
+#define SAMPLE_REQ_DATA_ERR_EID          32
 
 /* Hardware protocol event IDs */
-#define SAMPLE_UART_INIT_ERR_EID         10
-#define SAMPLE_UART_CLOSE_ERR_EID        11
-#define SAMPLE_UART_READ_ERR_EID         12
-#define SAMPLE_UART_WRITE_ERR_EID        13
-#define SAMPLE_UART_TIMEOUT_ERR_EID      14
-
-/* Implementation specific command event IDs */
-#define SAMPLE_COMMAND_ERR_EID           20
-#define SAMPLE_COMMANDNOP_INF_EID        21
-#define SAMPLE_COMMANDRST_INF_EID        22
-#define SAMPLE_COMMANDRAW_INF_EID        23
-#define SAMPLE_COMMANDCONFIG_INF_EID     24
-#define SAMPLE_COMMANDCONFIG_ERR_EID     25
-#define SAMPLE_COMMANDREQDATA_INF_EID    26
-#define SAMPLE_COMMANDREQDATA_ERR_EID    27
-
-#define SAMPLE_ENABLE_INF_EID            30
-#define SAMPLE_ENABLE_ERR_EID            31
-#define SAMPLE_DISABLE_INF_EID           32
-#define SAMPLE_DISABLE_ERR_EID           33
-
-/* TODO: Fix these */
-#define SAMPLE_HK_ERR_EID                40
-#define SAMPLE_DEVICE_TLM_ERR_EID        41
+#define SAMPLE_UART_INIT_ERR_EID         40
+#define SAMPLE_UART_CLOSE_ERR_EID        41
+#define SAMPLE_UART_READ_ERR_EID         42
+#define SAMPLE_UART_WRITE_ERR_EID        43
+#define SAMPLE_UART_TIMEOUT_ERR_EID      44
 
 #endif /* _SAMPLE_EVENTS_H_ */

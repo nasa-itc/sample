@@ -20,17 +20,18 @@
 ** Type definitions
 ** TODO: Make specific to your application
 */
-#define SAMPLE_DEVICE_HDR          0xDEAD
-#define SAMPLE_DEVICE_HDR_0        0xDE
-#define SAMPLE_DEVICE_HDR_1        0xAD
+#define SAMPLE_DEVICE_HDR              0xDEAD
+#define SAMPLE_DEVICE_HDR_0            0xDE
+#define SAMPLE_DEVICE_HDR_1            0xAD
 
-#define SAMPLE_DEVICE_CFG_CMD      0x01
-#define SAMPLE_DEVICE_OTHER_CMD    0x02
-#define SAMPLE_DEVICE_REQ_DATA_CMD 0x03
+#define SAMPLE_DEVICE_NOOP_CMD         0x00
+#define SAMPLE_DEVICE_REQ_HK_CMD       0x01
+#define SAMPLE_DEVICE_REQ_DATA_CMD     0x02
+#define SAMPLE_DEVICE_CFG_CMD          0x03
 
-#define SAMPLE_DEVICE_TRAILER      0xBEEF
-#define SAMPLE_DEVICE_TRAILER_0    0xBE
-#define SAMPLE_DEVICE_TRAILER_1    0xEF
+#define SAMPLE_DEVICE_TRAILER          0xBEEF
+#define SAMPLE_DEVICE_TRAILER_0        0xBE
+#define SAMPLE_DEVICE_TRAILER_1        0xEF
 
 /*
 ** SAMPLE device command
@@ -74,10 +75,10 @@ typedef struct
 /*
 ** Prototypes
 */
-int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t* cmd);
-int32_t SAMPLE_Configuration(int32_t handle, uint32_t config);
+int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length);
+int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd, uint32_t payload);
+int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data);
 int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data);
-int32_t SAMPLE_RequestHK(int32_t handle);
 
 
 #endif /* _SAMPLE_DEVICE_H_ */
