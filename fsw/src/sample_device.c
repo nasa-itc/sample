@@ -141,7 +141,7 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
                 OS_printf("  SAMPLE_RequestHK = ");
                 for (uint32_t i = 0; i < sizeof(read_data); i++)
                 {
-                    OS_printf("%02x", stream_data[i]);
+                    OS_printf("%02x", read_data[i]);
                 }
                 OS_printf("\n");
                 OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
@@ -198,12 +198,12 @@ int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
                 OS_printf("  SAMPLE_RequestData = ");
                 for (uint32_t i = 0; i < sizeof(read_data); i++)
                 {
-                    OS_printf("%02x", stream_data[i]);
+                    OS_printf("%02x", read_data[i]);
                 }
                 OS_printf("\n");
                 OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
                 OS_printf("  Counter = %08x      \n", data->DeviceCounter);
-                OS_printf("  Data    = %08x, %f  \n", data->DeviceData, data->DeviceData);
+                OS_printf("  Data    = %08x, %f  \n", (uint32_t) data->DeviceData, data->DeviceData);
                 OS_printf("  Trailer = %02x%02x  \n", read_data[10], read_data[11]);
             #endif
         }

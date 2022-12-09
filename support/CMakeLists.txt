@@ -13,19 +13,13 @@ endif()
 
 project (sample_checkout)
 
-#set(TGTNAME cpu2)
-#include(../../ComponentSettings.cmake)
+set(TGTNAME cpu2)
+include(../../ComponentSettings.cmake)
 
 include_directories("./")
-#include_directories("../fsw/mission_inc")
+include_directories("../fsw/mission_inc")
 include_directories("../fsw/src")
-#include_directories("../fsw/platform_inc")
-#include_directories("../../hwlib/fsw/stubs")
-#include_directories("../../hwlib/fsw/public_inc")
 include_directories("../../../fsw/apps/hwlib/fsw/public_inc")
-#include_directories("../../../fsw/nos3_defs")
-#include_directories("../../../fsw/osal/src/os/inc")
-#include_directories("../../../fsw/cfe/fsw/cfe-core/src/inc")
 
 add_executable(sample_checkout 
                sample_checkout.c 
