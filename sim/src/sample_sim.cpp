@@ -9,9 +9,10 @@ namespace Nos3
 int
 main(int argc, char *argv[])
 {
-    std::string simulator_name = "sample_sim"; // this is the ONLY simulator specific line!
+    /* This is the ONLY simulator specific line! */
+    std::string simulator_name = "sample_sim"; 
 
-    // Determine the configuration and run the simulator
+    /* Determine the configuration and run the simulator */
     Nos3::SimConfig sc(argc, argv);
     Nos3::sim_logger->info("main:  %s simulator starting",
         simulator_name.c_str());

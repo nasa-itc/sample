@@ -25,11 +25,10 @@ namespace Nos3
     {
         sim_logger->trace("Sample42DataProvider::get_data_point:  Executed");
 
-        // Get the 42 data
-        const boost::shared_ptr<Sim42DataPoint> dp42 =
-            boost::dynamic_pointer_cast<Sim42DataPoint>(SimData42SocketProvider::get_data_point());
+        /* Get the 42 data */
+        const boost::shared_ptr<Sim42DataPoint> dp42 = boost::dynamic_pointer_cast<Sim42DataPoint>(SimData42SocketProvider::get_data_point());
 
-        // vvv Prepare the specific data... this may need changed in your use case
+        /* Prepare the specific data */
         SimIDataPoint *dp = new SampleDataPoint(_sc, dp42);
 
         return boost::shared_ptr<SimIDataPoint>(dp);

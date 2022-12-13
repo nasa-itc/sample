@@ -5,8 +5,8 @@
 ** SAMPLE Checkout Configuration
 */
 #define SAMPLE_CFG
-#define SAMPLE_CFG_STRING           "/dev/sample"
-#define SAMPLE_CFG_HANDLE           0 
+#define SAMPLE_CFG_STRING           "/dev/usart_29"
+#define SAMPLE_CFG_HANDLE           29 
 #define SAMPLE_CFG_BAUDRATE_HZ      115200
 #define SAMPLE_CFG_MS_TIMEOUT       250
 #define SAMPLE_CFG_DEBUG
