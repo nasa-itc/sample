@@ -38,8 +38,12 @@ Telemetry formats are as follows:
 * Sample
   - uint32, Command Counter
     * Increments for each command received
-  - float, Data
-    * A single samples worth of data from the device
+  - uint16, Data X
+    * X component of sample data
+  - uint16, Data Y
+    * X component of sample data
+  - uint16, Data Z
+    * X component of sample data
 
 
 # Configuration
@@ -66,10 +70,6 @@ The default configuration returns data that is two times the request count:
             <connection><type>usart</type>
                 <bus-name>usart_29</bus-name>
                 <node-port>29</node-port>
-            </connection>
-            <connection><type>period</type>
-                <init-time-seconds>5.0</init-time-seconds>
-                <ms-period>1000</ms-period>
             </connection>
         </connections>
         <data-provider>

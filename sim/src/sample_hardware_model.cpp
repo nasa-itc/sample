@@ -18,9 +18,9 @@ namespace Nos3
         sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Data provider %s created.", dp_name.c_str());
 
         /* Get on a protocol bus */
-        /* Note: Initialized to default in case value not found in config file */
+        /* Note: Initialized defaults in case value not found in config file */
         std::string bus_name = "usart_29";
-        int node_port = 0;
+        int node_port = 29;
         if (config.get_child_optional("simulator.hardware-model.connections")) 
         {
             /* Loop through the connections for hardware model */
@@ -39,7 +39,7 @@ namespace Nos3
         _uart_connection.reset(new NosEngine::Uart::Uart(_hub, config.get("simulator.name", "sample_sim"), connection_string, bus_name));
         _uart_connection->open(node_port);
         sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Now on UART bus name %s, port %d.", bus_name.c_str(), node_port);
-        
+    
         /* Configure protocol callback */
         _uart_connection->set_read_callback(std::bind(&SampleHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -61,7 +61,10 @@ namespace Nos3
             }
         }
         _time_bus.reset(new NosEngine::Client::Bus(_hub, connection_string, time_bus_name));
-        sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Now on time bus %s, executing callback to stream data.", time_bus_name.c_str());
+        sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Now on time bus named %s.", time_bus_name.c_str());
+
+        /* Construction complete */
+        sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Construction complete.");
     }
 
 
@@ -87,22 +90,41 @@ namespace Nos3
 
         /* Do something with the data */
         std::string command = dbf.data;
-        std::string response = "SampleHardwareModel::command_callback:  INVALID COMMAND! (Try STOP SAMPLE)";
+        std::string response = "SampleHardwareModel::command_callback:  INVALID COMMAND! (Try HELP)";
         boost::to_upper(command);
-        if (command.compare("STOP SAMPLE") == 0) 
+        if (command.compare("HELP") == 0) 
         {
-            _keep_running = false;
-            response = "SampleHardwareModel::command_callback:  STOPPING SAMPLE";
+            response = "SampleHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, STATUS=X, or STOP";
         }
-        if (command.compare("ENABLE SAMPLE") == 0) 
+        else if (command.compare("ENABLE") == 0) 
         {
-            _keep_running = false;
-            response = "SampleHardwareModel::command_callback:  STOPPING SAMPLE";
+            _enabled = SAMPLE_SIM_SUCCESS;
+            response = "SampleHardwareModel::command_callback:  Enabled";
         }
-        if (command.compare("DISABLE SAMPLE") == 0) 
+        else if (command.compare("DISABLE") == 0) 
+        {
+            _enabled = SAMPLE_SIM_ERROR;
+            _count = 0;
+            _config = 0;
+            _status = 0;
+            response = "SampleHardwareModel::command_callback:  Disabled";
+        }
+        else if (command.substr(0,7).compare("STATUS=") == 0)
+        {
+            try
+            {
+                _status = std::stod(command.substr(7));
+                response = "SampleHardwareModel::command_callback:  Status set";
+            }
+            catch (...)
+            {
+                response = "SampleHardwareModel::command_callback:  Status invalid";
+            }            
+        }
+        else if (command.compare("STOP") == 0) 
         {
             _keep_running = false;
-            response = "SampleHardwareModel::command_callback:  STOPPING SAMPLE";
+            response = "SampleHardwareModel::command_callback:  Stopping";
         }
         /* TODO: Add anything additional commands here */
 
@@ -114,7 +136,7 @@ namespace Nos3
     void SampleHardwareModel::create_sample_hk(std::vector<uint8_t>& out_data)
     {
         /* Prepare data size */
-        out_data.resize(14, 0x00);
+        out_data.resize(16, 0x00);
 
         /* Streaming data header - 0xDEAD */
         out_data[0] = 0xDE;
@@ -144,8 +166,10 @@ namespace Nos3
     }
 
     /* Custom function to prepare the Sample Data */
-    void SampleHardwareModel::create_sample_data(const SampleDataPoint& data_point, std::vector<uint8_t>& out_data)
+    void SampleHardwareModel::create_sample_data(std::vector<uint8_t>& out_data)
     {
+        boost::shared_ptr<SampleDataPoint> data_point = boost::dynamic_pointer_cast<SampleDataPoint>(_sample_dp->get_data_point());
+
         /* Prepare data size */
         out_data.resize(14, 0x00);
 
@@ -170,13 +194,13 @@ namespace Nos3
         ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
         **   and add 32768 so that the result fits in a uint16
         */
-        uint16_t x   = (uint16_t)(data_point.get_sample_data_x()*32767.0 + 32768.0);
+        uint16_t x   = (uint16_t)(data_point->get_sample_data_x()*32767.0 + 32768.0);
         out_data[6]  = (x >> 8) & 0x00FF;
         out_data[7]  =  x       & 0x00FF;
-        uint16_t y   = (uint16_t)(data_point.get_sample_data_y()*32767.0 + 32768.0);
+        uint16_t y   = (uint16_t)(data_point->get_sample_data_y()*32767.0 + 32768.0);
         out_data[8]  = (y >> 8) & 0x00FF;
         out_data[9]  =  y       & 0x00FF;
-        uint16_t z   = (uint16_t)(data_point.get_sample_data_z()*32767.0 + 32768.0);
+        uint16_t z   = (uint16_t)(data_point->get_sample_data_z()*32767.0 + 32768.0);
         out_data[10] = (z >> 8) & 0x00FF;
         out_data[11] =  z       & 0x00FF;
 
@@ -191,7 +215,7 @@ namespace Nos3
     {
         std::vector<uint8_t> out_data; 
         std::uint8_t valid = SAMPLE_SIM_SUCCESS;
-        boost::shared_ptr<SampleDataPoint> data_point = boost::dynamic_pointer_cast<SampleDataPoint>(_sample_dp->get_data_point());
+        
         std::uint32_t rcv_config;
 
         /* Retrieve data and log in man readable format */
@@ -202,6 +226,7 @@ namespace Nos3
         /* Check simulator is enabled */
         if (_enabled != SAMPLE_SIM_SUCCESS)
         {
+            sim_logger->debug("SampleHardwareModel::uart_read_callback:  Sample sim disabled!");
             valid = SAMPLE_SIM_ERROR;
         }
         else
@@ -255,7 +280,7 @@ namespace Nos3
                     case 2:
                         /* Request data */
                         sim_logger->debug("SampleHardwareModel::uart_read_callback:  Send data command received!");
-                        create_sample_data(*data_point, out_data);
+                        create_sample_data(out_data);
                         break;
 
                     case 3:

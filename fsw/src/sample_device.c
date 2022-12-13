@@ -43,6 +43,9 @@ int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
         bytes = uart_read_port(handle, read_data, bytes_available);
         if (bytes != bytes_available)
         {
+            #ifdef SAMPLE_CFG_DEBUG
+                OS_printf("  SAMPLE_ReadData: Bytes read != to requested! \n");
+            #endif
             status = OS_ERROR;
         } /* uart_read */
     }
@@ -107,36 +110,16 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[16];
+    uint8_t read_data[16] = {};
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_HK_CMD, 0);
-
-    /* Read HK data */
-    status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
     if (status == OS_SUCCESS)
     {
-        /* Verify data header and trailer */
-        if ((read_data[0]  == SAMPLE_DEVICE_HDR_0)     && 
-            (read_data[1]  == SAMPLE_DEVICE_HDR_1)     && 
-            (read_data[14] == SAMPLE_DEVICE_TRAILER_0) && 
-            (read_data[15] == SAMPLE_DEVICE_TRAILER_1) )
+        /* Read HK data */
+        status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
+        if (status == OS_SUCCESS)
         {
-            data->DeviceCounter  = read_data[2] << 24;
-            data->DeviceCounter |= read_data[3] << 16;
-            data->DeviceCounter |= read_data[4] << 8;
-            data->DeviceCounter |= read_data[5];
-
-            data->DeviceConfig  = read_data[6] << 24;
-            data->DeviceConfig |= read_data[7] << 16;
-            data->DeviceConfig |= read_data[8] << 8;
-            data->DeviceConfig |= read_data[9];
-
-            data->DeviceStatus  = read_data[10] << 24;
-            data->DeviceStatus |= read_data[11] << 16;
-            data->DeviceStatus |= read_data[12] << 8;
-            data->DeviceStatus |= read_data[13];
-
             #ifdef SAMPLE_CFG_DEBUG
                 OS_printf("  SAMPLE_RequestHK = ");
                 for (uint32_t i = 0; i < sizeof(read_data); i++)
@@ -144,17 +127,48 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
                     OS_printf("%02x", read_data[i]);
                 }
                 OS_printf("\n");
-                OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
-                OS_printf("  Counter = %08x      \n", data->DeviceCounter);
-                OS_printf("  Config  = %08x      \n", data->DeviceConfig);
-                OS_printf("  Status  = %08x      \n", data->DeviceStatus);
-                OS_printf("  Trailer = %02x%02x  \n", read_data[14], read_data[15]);
             #endif
-        }
-        else
-        {
-            status = OS_ERROR;
-        }
+
+            /* Verify data header and trailer */
+            if ((read_data[0]  == SAMPLE_DEVICE_HDR_0)     && 
+                (read_data[1]  == SAMPLE_DEVICE_HDR_1)     && 
+                (read_data[14] == SAMPLE_DEVICE_TRAILER_0) && 
+                (read_data[15] == SAMPLE_DEVICE_TRAILER_1) )
+            {
+                data->DeviceCounter  = read_data[2] << 24;
+                data->DeviceCounter |= read_data[3] << 16;
+                data->DeviceCounter |= read_data[4] << 8;
+                data->DeviceCounter |= read_data[5];
+
+                data->DeviceConfig  = read_data[6] << 24;
+                data->DeviceConfig |= read_data[7] << 16;
+                data->DeviceConfig |= read_data[8] << 8;
+                data->DeviceConfig |= read_data[9];
+
+                data->DeviceStatus  = read_data[10] << 24;
+                data->DeviceStatus |= read_data[11] << 16;
+                data->DeviceStatus |= read_data[12] << 8;
+                data->DeviceStatus |= read_data[13];
+
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
+                    OS_printf("  Counter = %08x      \n", data->DeviceCounter);
+                    OS_printf("  Config  = %08x      \n", data->DeviceConfig);
+                    OS_printf("  Status  = %08x      \n", data->DeviceStatus);
+                    OS_printf("  Trailer = %02x%02x  \n", read_data[14], read_data[15]);
+                #endif
+            }
+            else
+            {
+                status = OS_ERROR;
+            }
+        } /* SAMPLE_ReadData */
+    }
+    else
+    {
+        #ifdef SAMPLE_CFG_DEBUG
+            OS_printf("  SAMPLE_RequestHK: SAMPLE_CommandDevice reported error %d \n", status);
+        #endif 
     }
     return status;
 }
@@ -166,34 +180,17 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[12];
-    uint32_t tmp = 0x00000000;
+    uint8_t read_data[14] = {};
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_DATA_CMD, 0);
-
-    /* Read HK data */
-    status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
     if (status == OS_SUCCESS)
     {
-        /* Verify data header and trailer */
-        if ((read_data[0]  == SAMPLE_DEVICE_HDR_0)     && 
-            (read_data[1]  == SAMPLE_DEVICE_HDR_1)     && 
-            (read_data[14] == SAMPLE_DEVICE_TRAILER_0) && 
-            (read_data[15] == SAMPLE_DEVICE_TRAILER_1) )
+
+        /* Read HK data */
+        status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
+        if (status == OS_SUCCESS)
         {
-            data->DeviceCounter  = read_data[2] << 24;
-            data->DeviceCounter |= read_data[3] << 16;
-            data->DeviceCounter |= read_data[4] << 8;
-            data->DeviceCounter |= read_data[5];
-
-            tmp  = read_data[6] << 24;
-            tmp |= read_data[7] << 16;
-            tmp |= read_data[8] << 8;
-            tmp |= read_data[9];
-
-            data->DeviceData = (float) tmp;
-
             #ifdef SAMPLE_CFG_DEBUG
                 OS_printf("  SAMPLE_RequestData = ");
                 for (uint32_t i = 0; i < sizeof(read_data); i++)
@@ -201,16 +198,51 @@ int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
                     OS_printf("%02x", read_data[i]);
                 }
                 OS_printf("\n");
-                OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
-                OS_printf("  Counter = %08x      \n", data->DeviceCounter);
-                OS_printf("  Data    = %08x, %f  \n", (uint32_t) data->DeviceData, data->DeviceData);
-                OS_printf("  Trailer = %02x%02x  \n", read_data[10], read_data[11]);
             #endif
-        }
-        else
-        {
-            status = OS_ERROR;
-        }
+
+            /* Verify data header and trailer */
+            if ((read_data[0]  == SAMPLE_DEVICE_HDR_0)     && 
+                (read_data[1]  == SAMPLE_DEVICE_HDR_1)     && 
+                (read_data[14] == SAMPLE_DEVICE_TRAILER_0) && 
+                (read_data[15] == SAMPLE_DEVICE_TRAILER_1) )
+            {
+                data->DeviceCounter  = read_data[2] << 24;
+                data->DeviceCounter |= read_data[3] << 16;
+                data->DeviceCounter |= read_data[4] << 8;
+                data->DeviceCounter |= read_data[5];
+
+                data->DeviceDataX  = read_data[6] << 8;
+                data->DeviceDataX |= read_data[7];
+
+                data->DeviceDataY  = read_data[8] << 8;
+                data->DeviceDataY |= read_data[9];
+                
+                data->DeviceDataZ  = read_data[10] << 8;
+                data->DeviceDataZ |= read_data[11];
+
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
+                    OS_printf("  Counter = %08x      \n", data->DeviceCounter);
+                    OS_printf("  Data X  = %04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
+                    OS_printf("  Data Y  = %04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
+                    OS_printf("  Data Z  = %04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
+                    OS_printf("  Trailer = %02x%02x  \n", read_data[10], read_data[11]);
+                #endif
+            }
+            else
+            {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("  SAMPLE_RequestData: Invalid data read! \n");
+                #endif 
+                status = OS_ERROR;
+            }
+        } /* SAMPLE_ReadData */
+    }
+    else
+    {
+        #ifdef SAMPLE_CFG_DEBUG
+            OS_printf("  SAMPLE_RequestData: SAMPLE_CommandDevice reported error %d \n", status);
+        #endif 
     }
     return status;
 }

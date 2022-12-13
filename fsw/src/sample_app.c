@@ -447,18 +447,19 @@ void SAMPLE_ReportHousekeeping(void)
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
-            /* Time stamp and publish housekeeping telemetry */
-            CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
-            CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
         }
         else
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(SAMPLE_REQ_DATA_ERR_EID, CFE_EVS_ERROR, 
-                    "SAMPLE: Request device data reported error %d", status);
+            CFE_EVS_SendEvent(SAMPLE_REQ_HK_ERR_EID, CFE_EVS_ERROR, 
+                    "SAMPLE: Request device HK reported error %d", status);
         }
     }
     /* Intentionally do not report errors if disabled */
+
+    /* Time stamp and publish housekeeping telemetry */
+    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+    CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
     return;
 }
 
@@ -477,7 +478,7 @@ void SAMPLE_ReportDeviceTelemetry(void)
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
-            /* Time stamp and publish housekeeping telemetry */
+            /* Time stamp and publish data telemetry */
             CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePkt);
             CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePkt);
         }

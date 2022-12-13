@@ -66,7 +66,9 @@ typedef struct
 typedef struct
 {
     uint32_t  DeviceCounter;
-    float     DeviceData;
+    uint16_t  DeviceDataX;
+    uint16_t  DeviceDataY;
+    uint16_t  DeviceDataZ;
 
 } OS_PACK SAMPLE_Device_Data_tlm_t;
 #define SAMPLE_DEVICE_DATA_LNGTH sizeof ( SAMPLE_Device_Data_tlm_t )
