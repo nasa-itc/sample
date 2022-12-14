@@ -1,7 +1,3 @@
-#include <ItcLogger/Logger.hpp>
-
-#include <sample_data_point.hpp>
-
 #include <sample_42_data_provider.hpp>
 
 namespace Nos3

@@ -62,7 +62,7 @@ Refer to the file [fsw/platform_inc/sample_platform_cfg.h](fsw/platform_inc/samp
 configuration settings, as well as a summary on overriding parameters in mission-specific repositories.
 
 ## Simulation
-The default configuration returns data that is two times the request count:
+The default configuration returns data that is X * 0.001, Y * 0.002, and Z * 0.003 the request count after conversions:
 ```
 <simulator>
     <name>sample_sim</name>

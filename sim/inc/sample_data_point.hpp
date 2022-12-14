@@ -2,7 +2,6 @@
 #define NOS3_SAMPLEDATAPOINT_HPP
 
 #include <boost/shared_ptr.hpp>
-
 #include <sim_42data_point.hpp>
 
 namespace Nos3
@@ -11,7 +10,8 @@ namespace Nos3
     class SampleDataPoint : public SimIDataPoint
     {
     public:
-        /* Constructor */
+        /* Constructors */
+        SampleDataPoint(double count);
         SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp);
 
         /* Accessors */
@@ -23,10 +23,9 @@ namespace Nos3
         bool        is_sample_data_valid(void) const {return _sample_data_is_valid;}
     
     private:
-        /* Disallow the big 4 */
+        /* Disallow these */
         SampleDataPoint(void) {};
         SampleDataPoint(const SampleDataPoint&) {};
-        SampleDataPoint& operator=(const SampleDataPoint&) {};
         ~SampleDataPoint(void) {};
 
         /* Specific data you need to get from the data provider to the hardware model */

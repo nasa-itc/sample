@@ -1,10 +1,20 @@
 #include <ItcLogger/Logger.hpp>
-
 #include <sample_data_point.hpp>
 
 namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
+
+    SampleDataPoint::SampleDataPoint(double count)
+    {
+        sim_logger->trace("SampleDataPoint::SampleDataPoint:  Defined Constructor executed");
+
+        /* Do calculations based on provided data */
+        _sample_data_is_valid = true;
+        _sample_data[0] = count * 0.001;
+        _sample_data[1] = count * 0.002;
+        _sample_data[2] = count * 0.003;
+    }
 
     SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
     {

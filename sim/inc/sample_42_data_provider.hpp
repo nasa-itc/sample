@@ -2,7 +2,8 @@
 #define NOS3_SAMPLE42DATAPROVIDER_HPP
 
 #include <boost/property_tree/ptree.hpp>
-
+#include <ItcLogger/Logger.hpp>
+#include <sample_data_point.hpp>
 #include <sim_data_42socket_provider.hpp>
 
 namespace Nos3
