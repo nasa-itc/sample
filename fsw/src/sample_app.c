@@ -227,17 +227,6 @@ int32 SAMPLE_AppInit(void)
     SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceConfig = 0;
     SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 0;
 
-    /*
-    ** Initialize hardware interface data
-    ** TODO: Make specific to your application depending on protocol in use
-    ** Note that other components provide examples for the different protocols available
-    */ 
-    SAMPLE_AppData.SampleUart.deviceString = SAMPLE_CFG_STRING;
-    SAMPLE_AppData.SampleUart.handle = SAMPLE_CFG_HANDLE;
-    SAMPLE_AppData.SampleUart.isOpen = PORT_CLOSED;
-    SAMPLE_AppData.SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
-    SAMPLE_AppData.SampleUart.access_option = uart_access_flag_RDWR;
-
     /* 
      ** Send an information event that the app has initialized. 
      ** This is useful for debugging the loading of individual applications.
@@ -518,6 +507,17 @@ void SAMPLE_Enable(void)
     /* Check that device is disabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_DISABLED)
     {
+        /*
+        ** Initialize hardware interface data
+        ** TODO: Make specific to your application depending on protocol in use
+        ** Note that other components provide examples for the different protocols available
+        */ 
+        SAMPLE_AppData.SampleUart.deviceString = SAMPLE_CFG_STRING;
+        SAMPLE_AppData.SampleUart.handle = SAMPLE_CFG_HANDLE;
+        SAMPLE_AppData.SampleUart.isOpen = PORT_CLOSED;
+        SAMPLE_AppData.SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
+        SAMPLE_AppData.SampleUart.access_option = uart_access_flag_RDWR;
+
         /* Open device specific protocols */
         status = uart_init_port(&SAMPLE_AppData.SampleUart);
         if (status == OS_SUCCESS)
@@ -557,7 +557,7 @@ void SAMPLE_Disable(void)
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
-            SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+            SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
             CFE_EVS_SendEvent(SAMPLE_DISABLE_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Device disabled");
         }
         else
