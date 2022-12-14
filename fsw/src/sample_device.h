@@ -33,19 +33,8 @@
 #define SAMPLE_DEVICE_TRAILER_0        0xBE
 #define SAMPLE_DEVICE_TRAILER_1        0xEF
 
-/*
-** SAMPLE device command
-*/
-typedef struct 
-{
-    uint16_t  DeviceHeader;
-    uint8_t   DeviceCmd;
-    uint32_t  DevicePayload;
-    uint16_t  DeviceTrailer;
-
-} OS_PACK SAMPLE_Device_cmd_t;
-#define SAMPLE_DEVICE_CMD_LNGTH sizeof ( SAMPLE_Device_cmd_t )
-
+#define SAMPLE_DEVICE_HDR_TRL_LEN      4
+#define SAMPLE_DEVICE_CMD_SIZE         9
 
 /*
 ** SAMPLE device housekeeping telemetry definition
@@ -58,6 +47,7 @@ typedef struct
 
 } OS_PACK SAMPLE_Device_HK_tlm_t;
 #define SAMPLE_DEVICE_HK_LNGTH sizeof ( SAMPLE_Device_HK_tlm_t )
+#define SAMPLE_DEVICE_HK_SIZE SAMPLE_DEVICE_HK_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
 
 
 /*
@@ -72,6 +62,7 @@ typedef struct
 
 } OS_PACK SAMPLE_Device_Data_tlm_t;
 #define SAMPLE_DEVICE_DATA_LNGTH sizeof ( SAMPLE_Device_Data_tlm_t )
+#define SAMPLE_DEVICE_DATA_SIZE SAMPLE_DEVICE_DATA_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
 
 
 /*

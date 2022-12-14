@@ -443,7 +443,7 @@ void SAMPLE_ReportHousekeeping(void)
     /* Check that device is enabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
     {
-        status = SAMPLE_RequestHK(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_HK_tlm_t*) &SAMPLE_AppData.HkTelemetryPkt);
+        status = SAMPLE_RequestHK(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_HK_tlm_t*) &SAMPLE_AppData.HkTelemetryPkt.DeviceHK);
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
@@ -474,7 +474,7 @@ void SAMPLE_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
     {
-        status = SAMPLE_RequestData(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_Data_tlm_t*) &SAMPLE_AppData.DevicePkt);
+        status = SAMPLE_RequestData(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_Data_tlm_t*) &SAMPLE_AppData.DevicePkt.Sample);
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;

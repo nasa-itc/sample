@@ -66,38 +66,64 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
-    uint8_t read_data[SAMPLE_DEVICE_CMD_LNGTH];
+    uint8_t write_data[SAMPLE_DEVICE_CMD_SIZE] = {0};
+    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE] = {0};
+
+    payload = CFE_MAKE_BIG32(payload);
 
     /* Prepare command */
-    SAMPLE_Device_cmd_t device_cmd;
-    uint8_t* device_cmd_ptr = (uint8_t*) &device_cmd;
-    device_cmd.DeviceHeader = CFE_MAKE_BIG16(SAMPLE_DEVICE_HDR);
-    device_cmd.DeviceCmd = cmd_code;
-    device_cmd.DevicePayload = CFE_MAKE_BIG32(payload);
-    device_cmd.DeviceTrailer = CFE_MAKE_BIG16(SAMPLE_DEVICE_TRAILER);
+    write_data[0] = SAMPLE_DEVICE_HDR_0;
+    write_data[1] = SAMPLE_DEVICE_HDR_1;
+    write_data[2] = cmd_code;
+    write_data[3] = payload >> 24;
+    write_data[4] = payload >> 16;
+    write_data[5] = payload >> 8;
+    write_data[6] = payload;
+    write_data[7] = SAMPLE_DEVICE_TRAILER_0;
+    write_data[8] = SAMPLE_DEVICE_TRAILER_1;
 
     /* Flush any prior data */
     status = uart_flush(handle);
-    if (status != UART_SUCCESS)
+    if (status == UART_SUCCESS)
     {
         /* Write data */
-        bytes = uart_write_port(handle, (uint8_t*) &device_cmd, SAMPLE_DEVICE_CMD_LNGTH);
-        if (bytes == SAMPLE_DEVICE_CMD_LNGTH)
+        bytes = uart_write_port(handle, write_data, SAMPLE_DEVICE_CMD_SIZE);
+        #ifdef SAMPLE_CFG_DEBUG
+            OS_printf("  SAMPLE_CommandDevice[%d] = ", bytes);
+            for (uint32_t i = 0; i < SAMPLE_DEVICE_CMD_SIZE; i++)
+            {
+                OS_printf("%02x", write_data[i]);
+            }
+            OS_printf("\n");
+        #endif
+        if (bytes == SAMPLE_DEVICE_CMD_SIZE)
         {
-            status = SAMPLE_ReadData(handle, read_data, SAMPLE_DEVICE_CMD_LNGTH);
+            status = SAMPLE_ReadData(handle, read_data, SAMPLE_DEVICE_CMD_SIZE);
             if (status == OS_SUCCESS)
             {
                 /* Confirm echoed response */
                 bytes = 0;
-                while ((bytes < (int32_t) SAMPLE_DEVICE_CMD_LNGTH) && (status == OS_SUCCESS))
+                while ((bytes < (int32_t) SAMPLE_DEVICE_CMD_SIZE) && (status == OS_SUCCESS))
                 {
-                    if (read_data[bytes] != device_cmd_ptr[bytes])
+                    if (read_data[bytes] != write_data[bytes])
                     {
                         status = OS_ERROR;
                     }
                     bytes++;
                 }
             } /* SAMPLE_ReadData */
+            else
+            {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE_CommandDevice - SAMPLE_ReadData returned %d \n", status);
+                #endif
+            }
+        } 
+        else
+        {
+            #ifdef SAMPLE_CFG_DEBUG
+                OS_printf("SAMPLE_CommandDevice - uart_write_port returned %d, expected %d \n", bytes, SAMPLE_DEVICE_CMD_SIZE);
+            #endif
         } /* uart_write */
     } /* uart_flush*/
     return status;
@@ -110,7 +136,7 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[16] = {};
+    uint8_t read_data[SAMPLE_DEVICE_HK_SIZE] = {0};
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_HK_CMD, 0);
@@ -151,15 +177,18 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
                 data->DeviceStatus |= read_data[13];
 
                 #ifdef SAMPLE_CFG_DEBUG
-                    OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
-                    OS_printf("  Counter = %08x      \n", data->DeviceCounter);
-                    OS_printf("  Config  = %08x      \n", data->DeviceConfig);
-                    OS_printf("  Status  = %08x      \n", data->DeviceStatus);
-                    OS_printf("  Trailer = %02x%02x  \n", read_data[14], read_data[15]);
+                    OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
+                    OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
+                    OS_printf("  Config  = 0x%08x      \n", data->DeviceConfig);
+                    OS_printf("  Status  = 0x%08x      \n", data->DeviceStatus);
+                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[14], read_data[15]);
                 #endif
             }
             else
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("  SAMPLE_RequestHK: SAMPLE_ReadData reported error %d \n", status);
+                #endif 
                 status = OS_ERROR;
             }
         } /* SAMPLE_ReadData */
@@ -180,13 +209,12 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[14] = {};
+    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE] = {0};
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_DATA_CMD, 0);
     if (status == OS_SUCCESS)
     {
-
         /* Read HK data */
         status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
         if (status == OS_SUCCESS)
@@ -203,8 +231,8 @@ int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
             /* Verify data header and trailer */
             if ((read_data[0]  == SAMPLE_DEVICE_HDR_0)     && 
                 (read_data[1]  == SAMPLE_DEVICE_HDR_1)     && 
-                (read_data[14] == SAMPLE_DEVICE_TRAILER_0) && 
-                (read_data[15] == SAMPLE_DEVICE_TRAILER_1) )
+                (read_data[12] == SAMPLE_DEVICE_TRAILER_0) && 
+                (read_data[13] == SAMPLE_DEVICE_TRAILER_1) )
             {
                 data->DeviceCounter  = read_data[2] << 24;
                 data->DeviceCounter |= read_data[3] << 16;
@@ -221,21 +249,21 @@ int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
                 data->DeviceDataZ |= read_data[11];
 
                 #ifdef SAMPLE_CFG_DEBUG
-                    OS_printf("  Header  = %02x%02x  \n", read_data[0], read_data[1]);
-                    OS_printf("  Counter = %08x      \n", data->DeviceCounter);
-                    OS_printf("  Data X  = %04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
-                    OS_printf("  Data Y  = %04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
-                    OS_printf("  Data Z  = %04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
-                    OS_printf("  Trailer = %02x%02x  \n", read_data[10], read_data[11]);
+                    OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
+                    OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
+                    OS_printf("  Data X  = 0x%04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
+                    OS_printf("  Data Y  = 0x%04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
+                    OS_printf("  Data Z  = 0x%04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
+                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
                 #endif
             }
-            else
-            {
-                #ifdef SAMPLE_CFG_DEBUG
-                    OS_printf("  SAMPLE_RequestData: Invalid data read! \n");
-                #endif 
-                status = OS_ERROR;
-            }
+        } 
+        else
+        {
+            #ifdef SAMPLE_CFG_DEBUG
+                OS_printf("  SAMPLE_RequestData: Invalid data read! \n");
+            #endif 
+            status = OS_ERROR;
         } /* SAMPLE_ReadData */
     }
     else

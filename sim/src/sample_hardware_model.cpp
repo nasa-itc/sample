@@ -129,8 +129,10 @@ namespace Nos3
         /* TODO: Add anything additional commands here */
 
         /* Send a reply */
+        sim_logger->info("SampleHardwareModel::command_callback:  Sending reply: %s.", response.c_str());
         _command_node->send_reply_message_async(msg, response.size(), response.c_str());
     }
+
 
     /* Custom function to prepare the Sample HK telemetry */
     void SampleHardwareModel::create_sample_hk(std::vector<uint8_t>& out_data)
@@ -164,6 +166,7 @@ namespace Nos3
         out_data[14] = 0xBE;
         out_data[15] = 0xEF;
     }
+
 
     /* Custom function to prepare the Sample Data */
     void SampleHardwareModel::create_sample_data(std::vector<uint8_t>& out_data)
