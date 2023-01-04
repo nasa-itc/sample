@@ -1,60 +1,77 @@
 /*******************************************************************************
-** File:
-**  sample_device.h
+** File: sample_device.h
 **
 ** Purpose:
-**   This file is the header file for the Sample device
-**
+**   This is the header file for the SAMPLE device.
 **
 *******************************************************************************/
-
 #ifndef _SAMPLE_DEVICE_H_
 #define _SAMPLE_DEVICE_H_
 
-#include "sample_device_msg.h"
-
 /*
- * Buffers to hold telemetry data prior to sending
- * Defined as a union to ensure proper alignment for a CFE_SB_Msg_t type
- */
-
-typedef union
-{
-    CFE_SB_Msg_t         MsgHdr;
-    SAMPLE_DeviceHkTlm_t HkTlm;
-} SAMPLE_DeviceHkBuffer_t;
-
-typedef union
-{
-    CFE_SB_Msg_t             MsgHdr;
-    SAMPLE_DeviceSampleTlm_t SampleTlm;
-} SAMPLE_DeviceSampleBuffer_t;
-
-/*
-** Run Status variable used in the main processing loop.  If the device is asynchronous, this Status
-** variable is also used in the device child processing loop.
+** Required header files.
 */
-extern uint32 RunStatus;
+#include "device_cfg.h"
+#include "hwlib.h"
+#include "sample_platform_cfg.h"
 
-/****************************************************************************/
+
 /*
-** Function prototypes.
-**
+** Type definitions
+** TODO: Make specific to your application
 */
-int32 SAMPLE_DeviceInit(void);
-int32 SAMPLE_DeviceShutdown(void);
-void  SAMPLE_DeviceResetCounters(void);
+#define SAMPLE_DEVICE_HDR              0xDEAD
+#define SAMPLE_DEVICE_HDR_0            0xDE
+#define SAMPLE_DEVICE_HDR_1            0xAD
 
-void  SAMPLE_DeviceGetSampleDataCommand(void);
-void  SAMPLE_DeviceConfigurationCommand(uint32_t millisecond_stream_delay);
-void  SAMPLE_DeviceOtherCommand(void);
-void  SAMPLE_DeviceRawCommand(const uint8 cmd[], const uint32_t cmd_length);
+#define SAMPLE_DEVICE_NOOP_CMD         0x00
+#define SAMPLE_DEVICE_REQ_HK_CMD       0x01
+#define SAMPLE_DEVICE_REQ_DATA_CMD     0x02
+#define SAMPLE_DEVICE_CFG_CMD          0x03
 
-void SAMPLE_ReportDeviceHousekeeping(void);
-void SAMPLE_ReportDeviceSampleData(void);
+#define SAMPLE_DEVICE_TRAILER          0xBEEF
+#define SAMPLE_DEVICE_TRAILER_0        0xBE
+#define SAMPLE_DEVICE_TRAILER_1        0xEF
 
-#endif
+#define SAMPLE_DEVICE_HDR_TRL_LEN      4
+#define SAMPLE_DEVICE_CMD_SIZE         9
 
-/************************/
-/*  End of File Comment */
-/************************/
+/*
+** SAMPLE device housekeeping telemetry definition
+*/
+typedef struct
+{
+    uint32_t  DeviceCounter;
+    uint32_t  DeviceConfig;
+    uint32_t  DeviceStatus;
+
+} OS_PACK SAMPLE_Device_HK_tlm_t;
+#define SAMPLE_DEVICE_HK_LNGTH sizeof ( SAMPLE_Device_HK_tlm_t )
+#define SAMPLE_DEVICE_HK_SIZE SAMPLE_DEVICE_HK_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
+
+
+/*
+** SAMPLE device data telemetry definition
+*/
+typedef struct
+{
+    uint32_t  DeviceCounter;
+    uint16_t  DeviceDataX;
+    uint16_t  DeviceDataY;
+    uint16_t  DeviceDataZ;
+
+} OS_PACK SAMPLE_Device_Data_tlm_t;
+#define SAMPLE_DEVICE_DATA_LNGTH sizeof ( SAMPLE_Device_Data_tlm_t )
+#define SAMPLE_DEVICE_DATA_SIZE SAMPLE_DEVICE_DATA_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
+
+
+/*
+** Prototypes
+*/
+int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length);
+int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd, uint32_t payload);
+int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data);
+int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data);
+
+
+#endif /* _SAMPLE_DEVICE_H_ */

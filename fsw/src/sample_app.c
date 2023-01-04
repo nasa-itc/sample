@@ -1,461 +1,608 @@
 /*******************************************************************************
-** File: 
-**  sample_app.c
+** File: sample_app.c
 **
 ** Purpose:
-**   This file contains the source code for the Sample App.
+**   This file contains the source code for the SAMPLE application.
 **
 *******************************************************************************/
 
 /*
-** Include Files:
+** Include Files
 */
-
-//#include "string.h"
-//#include "sample_app_events.h"
-
 #include "sample_app.h"
-#include "sample_app_version.h"
-#include "sample_app_msgids.h"
-#include "sample_app_perfids.h"
-#include "sample_device.h"
-#include "cfe_error.h"
+
 
 /*
-** global data
+** Global Data
 */
 SAMPLE_AppData_t SAMPLE_AppData;
 
-// Forward declarations
-static int32 SAMPLE_AppInit(void);
-static void  SAMPLE_ProcessCommandPacket(CFE_SB_MsgPtr_t Msg);
-static void  SAMPLE_ProcessGroundCommand(CFE_SB_MsgPtr_t Msg);
-static int32 SAMPLE_ReportHousekeeping(const CFE_SB_CmdHdr_t *Msg);
-static int32 SAMPLE_ResetCounters(const SAMPLE_ResetCounters_t *Msg);
-static int32 SAMPLE_Noop(const SAMPLE_Noop_t *Msg);
-static bool SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength);
+static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
+{   /* Event ID    mask */
+    {SAMPLE_RESERVED_EID,           0x0000},
+    {SAMPLE_STARTUP_INF_EID,        0x0000},
+    {SAMPLE_LEN_ERR_EID,            0x0000},
+    {SAMPLE_PIPE_ERR_EID,           0x0000},
+    {SAMPLE_SUB_CMD_ERR_EID,        0x0000},
+    {SAMPLE_SUB_REQ_HK_ERR_EID,     0x0000},
+    {SAMPLE_PROCESS_CMD_ERR_EID,    0x0000},
+    {SAMPLE_CMD_ERR_EID,            0x0000},
+    {SAMPLE_CMD_NOOP_INF_EID,       0x0000},
+    {SAMPLE_CMD_RESET_INF_EID,      0x0000},
+    {SAMPLE_CMD_ENABLE_INF_EID,     0x0000},
+    {SAMPLE_ENABLE_INF_EID,         0x0000},
+    {SAMPLE_ENABLE_ERR_EID,         0x0000},
+    {SAMPLE_CMD_DISABLE_INF_EID,    0x0000},
+    {SAMPLE_DISABLE_INF_EID,        0x0000},
+    {SAMPLE_DISABLE_ERR_EID,        0x0000},
+    {SAMPLE_CMD_CONFIG_INF_EID,     0x0000},
+    {SAMPLE_CONFIG_INF_EID,         0x0000},
+    {SAMPLE_CONFIG_ERR_EID,         0x0000},
+    {SAMPLE_DEVICE_TLM_ERR_EID,     0x0000},
+    {SAMPLE_REQ_HK_ERR_EID,         0x0000},
+    {SAMPLE_REQ_DATA_ERR_EID,       0x0000},
+    {SAMPLE_UART_INIT_ERR_EID,      0x0000},
+    {SAMPLE_UART_CLOSE_ERR_EID,     0x0000},
+    {SAMPLE_UART_READ_ERR_EID,      0x0000},
+    {SAMPLE_UART_WRITE_ERR_EID,     0x0000},
+    {SAMPLE_UART_TIMEOUT_ERR_EID,   0x0000},
+    /* TODO: Add additional event IDs (EID) to the table as created */
+};
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
-/*                                                                            */
-/* Name:  SAMPLE_AppMain()                                                    */
-/* Purpose:                                                                   */
-/*        Application entry point and main process loop                       */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
+
+/*
+** Application entry point and main process loop
+*/
 void SAMPLE_AppMain(void)
 {
-    int32 status;
+    int32 status = OS_SUCCESS;
 
     /*
-    ** Register the app with Executive services
+    ** Register the application with executive services
     */
     CFE_ES_RegisterApp();
 
     /*
     ** Create the first Performance Log entry
     */
-    CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
+    CFE_ES_PerfLogEntry(SAMPLE_PERF_ID);
 
-    /*
-    ** Perform application specific initialization
-    ** If the Initialization fails, set the RunStatus to
-    ** CFE_ES_RunStatus_APP_ERROR and the App will not enter the RunLoop
+    /* 
+    ** Perform application initialization
     */
     status = SAMPLE_AppInit();
     if (status != CFE_SUCCESS)
     {
-        RunStatus = CFE_ES_RunStatus_APP_ERROR;
+        SAMPLE_AppData.RunStatus = CFE_ES_APP_ERROR;
     }
 
     /*
-    ** SAMPLE Runloop
+    ** Main loop
     */
-    while (CFE_ES_RunLoop(&RunStatus) == true)
+    while (CFE_ES_RunLoop(&SAMPLE_AppData.RunStatus) == TRUE)
     {
         /*
-        ** Performance Log Exit Stamp
+        ** Performance log exit stamp
         */
-        CFE_ES_PerfLogExit(SAMPLE_APP_PERF_ID);
+        CFE_ES_PerfLogExit(SAMPLE_PERF_ID);
 
-        /* Pend on receipt of command packet */
-        status = CFE_SB_RcvMsg(&SAMPLE_AppData.MsgPtr, SAMPLE_AppData.CommandPipe, CFE_SB_PEND_FOREVER);
+        /* 
+        ** Pend on the arrival of the next Software Bus message
+        ** Note that this is the standard, but timeouts are available
+        */
+        status = CFE_SB_RcvMsg(&SAMPLE_AppData.MsgPtr, SAMPLE_AppData.CmdPipe, CFE_SB_PEND_FOREVER);
+        
+        /* 
+        ** Begin performance metrics on anything after this line. This will help to determine
+        ** where we are spending most of the time during this app execution.
+        */
+        CFE_ES_PerfLogEntry(SAMPLE_PERF_ID);
 
         /*
-        ** Performance Log Entry Stamp
+        ** If the CFE_SB_RcvMsg was successful, then continue to process the command packet
+        ** If not, then exit the application in error.
+        ** Note that a SB read error should not always result in an app quitting.
         */
-        CFE_ES_PerfLogEntry(SAMPLE_APP_PERF_ID);
-
         if (status == CFE_SUCCESS)
         {
-            SAMPLE_ProcessCommandPacket(SAMPLE_AppData.MsgPtr);
+            SAMPLE_ProcessCommandPacket();
         }
         else
         {
-            CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "SAMPLE APP: SB Pipe Read Error, App Will Exit");
-
-            RunStatus = CFE_ES_RunStatus_APP_ERROR;
+            CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_ERROR, "SAMPLE: SB Pipe Read Error = %d", (int) status);
+            SAMPLE_AppData.RunStatus = CFE_ES_APP_ERROR;
         }
     }
 
-    RunStatus = CFE_ES_RunStatus_APP_EXIT; // we are wanting to exit... make sure everyone knows it
-
-    status = SAMPLE_DeviceShutdown();
-    if (status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("Sample App: Error Shutting Down Device, RC = 0x%08lX\n", (unsigned long)status);
-    }
+    /*
+    ** Disable component, which cleans up the interface, upon exit
+    */
+    SAMPLE_Disable();
 
     /*
-    ** Performance Log Exit Stamp
+    ** Performance log exit stamp
     */
-    CFE_ES_PerfLogExit(SAMPLE_APP_PERF_ID);
+    CFE_ES_PerfLogExit(SAMPLE_PERF_ID);
 
-    CFE_ES_ExitApp(RunStatus);
+    /*
+    ** Exit the application
+    */
+    CFE_ES_ExitApp(SAMPLE_AppData.RunStatus);
+} 
 
-} /* End of SAMPLE_AppMain() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
-/*                                                                            */
-/* Name:  SAMPLE_AppInit()                                                    */
-/*                                                                            */
-/* Purpose:                                                                   */
-/*        Initialization                                                      */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-static int32 SAMPLE_AppInit(void)
+/* 
+** Initialize application
+*/
+int32 SAMPLE_AppInit(void)
 {
-    int32 status;
-
-    RunStatus = CFE_ES_RunStatus_APP_RUN;
-
-    /*
-    ** Initialize app command execution counters
-    */
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandCounter = 0;
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter = 0;
-
-    /*
-    ** Initialize app configuration data
-    */
-    SAMPLE_AppData.PipeDepth = SAMPLE_PIPE_DEPTH;
-
-    /*
-    ** Initialize event filter table...
-    */
-    SAMPLE_AppData.EventFilters[0].EventID = SAMPLE_STARTUP_INF_EID;
-    SAMPLE_AppData.EventFilters[0].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[1].EventID = SAMPLE_COMMAND_ERR_EID;
-    SAMPLE_AppData.EventFilters[1].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[2].EventID = SAMPLE_COMMANDNOP_INF_EID;
-    SAMPLE_AppData.EventFilters[2].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[3].EventID = SAMPLE_COMMANDRST_INF_EID;
-    SAMPLE_AppData.EventFilters[3].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[4].EventID = SAMPLE_INVALID_MSGID_ERR_EID;
-    SAMPLE_AppData.EventFilters[4].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[5].EventID = SAMPLE_LEN_ERR_EID;
-    SAMPLE_AppData.EventFilters[5].Mask    = 0x0000;
-    SAMPLE_AppData.EventFilters[6].EventID = SAMPLE_PIPE_ERR_EID;
-    SAMPLE_AppData.EventFilters[6].Mask    = 0x0000;
+    int32 status = OS_SUCCESS;
+    
+    SAMPLE_AppData.RunStatus = CFE_ES_APP_RUN;
 
     /*
     ** Register the events
-    */
-    status = CFE_EVS_Register(SAMPLE_AppData.EventFilters, SAMPLE_EVENT_COUNTS, CFE_EVS_EventFilter_BINARY);
+    */ 
+    status = CFE_EVS_Register(SAMPLE_EventFilters,
+                              sizeof(SAMPLE_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
+                              CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Sample App: Error Registering Events, RC = 0x%08lX\n", (unsigned long)status);
-        return (status);
+        CFE_ES_WriteToSysLog("SAMPLE: Error registering for event services: 0x%08X\n", (unsigned int) status);
+       return status;
     }
 
     /*
-    ** Initialize housekeeping packet (clear user data area).
+    ** Create the Software Bus command pipe 
     */
-    CFE_SB_InitMsg(&SAMPLE_AppData.HkBuf.MsgHdr, SAMPLE_APP_HK_TLM_MID, sizeof(SAMPLE_AppData.HkBuf), true);
-
-    /*
-    ** Create Software Bus message pipe.
-    */
-    status = CFE_SB_CreatePipe(&SAMPLE_AppData.CommandPipe, SAMPLE_AppData.PipeDepth, "SAMPLE_CMD_PIPE");
+    status = CFE_SB_CreatePipe(&SAMPLE_AppData.CmdPipe, SAMPLE_PIPE_DEPTH, "SAMPLE_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Sample App: Error creating pipe, RC = 0x%08lX\n", (unsigned long)status);
-        return (status);
+        CFE_EVS_SendEvent(SAMPLE_PIPE_ERR_EID, CFE_EVS_ERROR,
+            "Error Creating SB Pipe,RC=0x%08X",(unsigned int) status);
+       return status;
     }
-
+    
     /*
-    ** Subscribe to Housekeeping request commands
+    ** Subscribe to ground commands
     */
-    status = CFE_SB_Subscribe(SAMPLE_APP_SEND_HK_MID, SAMPLE_AppData.CommandPipe);
+    status = CFE_SB_Subscribe(SAMPLE_CMD_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Sample App: Error Subscribing to HK request, RC = 0x%08lX\n", (unsigned long)status);
-        return (status);
+        CFE_EVS_SendEvent(SAMPLE_SUB_CMD_ERR_EID, CFE_EVS_ERROR,
+            "Error Subscribing to HK Gnd Cmds, MID=0x%04X, RC=0x%08X",
+            SAMPLE_CMD_MID, (unsigned int) status);
+        return status;
     }
 
     /*
-    ** Subscribe to ground command packets
+    ** Subscribe to housekeeping (hk) message requests
     */
-    status = CFE_SB_Subscribe(SAMPLE_APP_CMD_MID, SAMPLE_AppData.CommandPipe);
+    status = CFE_SB_Subscribe(SAMPLE_REQ_HK_MID, SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Sample App: Error Subscribing to Command, RC = 0x%08lX\n", (unsigned long)status);
-
-        return (status);
+        CFE_EVS_SendEvent(SAMPLE_SUB_REQ_HK_ERR_EID, CFE_EVS_ERROR,
+            "Error Subscribing to HK Request, MID=0x%04X, RC=0x%08X",
+            SAMPLE_REQ_HK_MID, (unsigned int) status);
+        return status;
     }
 
-    status = SAMPLE_DeviceInit();
+    /*
+    ** TODO: Subscribe to any other messages here
+    */
+
+
+    /* 
+    ** Initialize the published HK message - this HK message will contain the 
+    ** telemetry that has been defined in the SAMPLE_HkTelemetryPkt for this app.
+    */
+    CFE_SB_InitMsg(&SAMPLE_AppData.HkTelemetryPkt,
+                   SAMPLE_HK_TLM_MID,
+                   SAMPLE_HK_TLM_LNGTH, TRUE);
+
+    /*
+    ** Initialize the device packet message
+    ** This packet is specific to your application
+    */
+    CFE_SB_InitMsg(&SAMPLE_AppData.DevicePkt,
+                   SAMPLE_DEVICE_TLM_MID,
+                   SAMPLE_DEVICE_TLM_LNGTH, TRUE);
+
+    /*
+    ** TODO: Initialize any other messages that this app will publish
+    */
+
+
+    /* 
+    ** Always reset all counters during application initialization 
+    */
+    SAMPLE_ResetCounters();
+
+    /*
+    ** Initialize application data
+    ** Note that counters are excluded as they were reset in the previous code block
+    */
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceCounter = 0;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceConfig = 0;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 0;
+
+    /* 
+     ** Send an information event that the app has initialized. 
+     ** This is useful for debugging the loading of individual applications.
+     */
+    status = CFE_EVS_SendEvent(SAMPLE_STARTUP_INF_EID, CFE_EVS_INFORMATION,
+               "SAMPLE App Initialized. Version %d.%d.%d.%d",
+                SAMPLE_MAJOR_VERSION,
+                SAMPLE_MINOR_VERSION, 
+                SAMPLE_REVISION, 
+                SAMPLE_MISSION_REV);	
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Sample App: Error Initializing Device, RC = 0x%08lX\n", (unsigned long)status);
-
-        return (status);
+        CFE_ES_WriteToSysLog("SAMPLE: Error sending initialization event: 0x%08X\n", (unsigned int) status);
     }
+    return status;
+} 
 
-    CFE_EVS_SendEvent(SAMPLE_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                      "SAMPLE App Initialized. Version %d.%d.%d.%d",
-                      SAMPLE_APP_MAJOR_VERSION,
-                      SAMPLE_APP_MINOR_VERSION,
-                      SAMPLE_APP_REVISION,
-                      SAMPLE_APP_MISSION_REV);
 
-    return (CFE_SUCCESS);
-
-} /* End of SAMPLE_AppInit() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  SAMPLE_ProcessCommandPacket                                        */
-/*                                                                            */
-/*  Purpose:                                                                  */
-/*     This routine will process any packet that is received on the SAMPLE    */
-/*     command pipe.                                                          */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-static void SAMPLE_ProcessCommandPacket(CFE_SB_MsgPtr_t Msg)
+/* 
+** Process packets received on the SAMPLE command pipe
+*/
+void SAMPLE_ProcessCommandPacket(void)
 {
-    CFE_SB_MsgId_t MsgId;
-
-    MsgId = CFE_SB_GetMsgId(Msg);
-
+    CFE_SB_MsgId_t MsgId = CFE_SB_GetMsgId(SAMPLE_AppData.MsgPtr);
     switch (MsgId)
     {
-        case SAMPLE_APP_CMD_MID:
-            SAMPLE_ProcessGroundCommand(Msg);
+        /*
+        ** Ground Commands with command codes fall under the SAMPLE_CMD_MID (Message ID)
+        */
+        case SAMPLE_CMD_MID:
+            SAMPLE_ProcessGroundCommand();
             break;
 
-        case SAMPLE_APP_SEND_HK_MID:
-            SAMPLE_ReportHousekeeping((CFE_SB_CmdHdr_t *)Msg);
+        /*
+        ** All other messages, other than ground commands, add to this case statement.
+        */
+        case SAMPLE_REQ_HK_MID:
+            SAMPLE_ProcessTelemetryRequest();
             break;
 
+        /*
+        ** All other invalid messages that this app doesn't recognize, 
+        ** increment the command error counter and log as an error event.  
+        */
         default:
-            CFE_EVS_SendEvent(SAMPLE_INVALID_MSGID_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "SAMPLE: invalid command packet,MID = 0x%x", (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+            SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_PROCESS_CMD_ERR_EID,CFE_EVS_ERROR, "SAMPLE: Invalid command packet, MID = 0x%x", MsgId);
             break;
     }
-
     return;
+} 
 
-} /* End SAMPLE_ProcessCommandPacket */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* Name:  SAMPLE_ProcessGroundCommand()                                       */
-/*                                                                            */
-/* Purpose:                                                                   */
-/*        SAMPLE ground commands                                              */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-static void SAMPLE_ProcessGroundCommand(CFE_SB_MsgPtr_t Msg)
+/*
+** Process ground commands
+** TODO: Add additional commands required by the specific component
+*/
+void SAMPLE_ProcessGroundCommand(void)
 {
-    uint16 CommandCode = CFE_SB_GetCmdCode(Msg);
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandCounter++;
+    int32 status = OS_SUCCESS;
 
     /*
-    ** Process "known" SAMPLE app ground commands
+    ** MsgId is only needed if the command code is not recognized. See default case
     */
+    CFE_SB_MsgId_t MsgId = CFE_SB_GetMsgId(SAMPLE_AppData.MsgPtr);   
+
+    /*
+    ** Ground Commands, by definition, have a command code (_CC) associated with them
+    ** Pull this command code from the message and then process
+    */
+    uint16 CommandCode = CFE_SB_GetCmdCode(SAMPLE_AppData.MsgPtr);
     switch (CommandCode)
     {
-        case SAMPLE_APP_NOOP_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_Noop_t)))
+        /*
+        ** NOOP Command
+        */
+        case SAMPLE_NOOP_CC:
+            /*
+            ** First, verify the command length immediately after CC identification 
+            ** Note that VerifyCmdLength handles the command and command error counters
+            */
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                SAMPLE_Noop((SAMPLE_Noop_t *)Msg);
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
+                /* Second, send EVS event on successful receipt ground commands*/
+                CFE_EVS_SendEvent(SAMPLE_CMD_NOOP_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: NOOP command received");
+                /* Third, do the desired command action if applicable, in the case of NOOP it is no operation */
             }
-
             break;
 
-        case SAMPLE_APP_RESET_COUNTERS_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_ResetCounters_t)))
+        /*
+        ** Reset Counters Command
+        */
+        case SAMPLE_RESET_COUNTERS_CC:
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                SAMPLE_ResetCounters((SAMPLE_ResetCounters_t *)Msg);
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
+                CFE_EVS_SendEvent(SAMPLE_CMD_RESET_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: RESET counters command received");
+                SAMPLE_ResetCounters();
             }
+            break;
 
+        /*
+        ** Enable Command
+        */
+        case SAMPLE_ENABLE_CC:
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
+            {
+                CFE_EVS_SendEvent(SAMPLE_CMD_ENABLE_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Enable command received");
+                SAMPLE_Enable();
+            }
+            break;
+
+        /*
+        ** Disable Command
+        */
+        case SAMPLE_DISABLE_CC:
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
+            {
+                CFE_EVS_SendEvent(SAMPLE_CMD_DISABLE_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Disable command received");
+                SAMPLE_Disable();
+            }
             break;
 
         /*
         ** TODO: Edit and add more command codes as appropriate for the application
+        ** Set Configuration Command
+        ** Note that this is an example of a command that has additional arguments
         */
-        case SAMPLE_APP_RESET_DEV_CNTRS_CC:
-            SAMPLE_DeviceResetCounters();
-            break;
-
-        case SAMPLE_GET_DEV_DATA_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_GetDevData_cmd_t))) {
-                SAMPLE_DeviceGetSampleDataCommand();
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
-            }
-            break;
-
         case SAMPLE_CONFIG_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_Config_cmd_t)))
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
             {
-                SAMPLE_DeviceConfigurationCommand(((SAMPLE_Config_cmd_t *)Msg)->MillisecondStreamDelay);
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
+                CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received");
+                /* Command device to send HK */
+                status = SAMPLE_CommandDevice(SAMPLE_AppData.SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, ((SAMPLE_Config_cmd_t*) SAMPLE_AppData.MsgPtr)->DeviceCfg);
+                if (status == OS_SUCCESS)
+                {
+                    SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+                }
+                else
+                {
+                    SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+                }
             }
             break;
 
-        case SAMPLE_OTHER_CMD_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_Other_cmd_t)))
-            {
-                SAMPLE_DeviceOtherCommand();
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
-            }
-            break;
-
-        case SAMPLE_RAW_CMD_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_Raw_cmd_t)))
-            {
-                SAMPLE_DeviceRawCommand(((SAMPLE_Raw_cmd_t *)Msg)->RawCmd, sizeof(((SAMPLE_Raw_cmd_t *)Msg)->RawCmd));
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
-            }
-            break;
-
-        case SAMPLE_SEND_DEV_HK_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_SendDevHk_cmd_t))) {
-                SAMPLE_ReportDeviceHousekeeping();
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
-            }
-            break;
-
-        case SAMPLE_SEND_DEV_DATA_CC:
-            if (SAMPLE_VerifyCmdLength(Msg, sizeof(SAMPLE_SendDevData_cmd_t))) {
-                SAMPLE_ReportDeviceSampleData();
-            } else {
-                SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
-            }
-            break;
-
-        /* default case already found during FC vs length test */
+        /*
+        ** Invalid Command Codes
+        */
         default:
-            CFE_EVS_SendEvent(SAMPLE_COMMAND_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid ground command code: CC = %d",
-                              CommandCode);
-            SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
+            /* Increment the error counter upon receipt of an invalid command */
+            SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_CMD_ERR_EID, CFE_EVS_ERROR, 
+                "SAMPLE: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
             break;
     }
-
     return;
+} 
 
-} /* End of SAMPLE_ProcessGroundCommand() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  SAMPLE_ReportHousekeeping                                          */
-/*                                                                            */
-/*  Purpose:                                                                  */
-/*         This function is triggered in response to a task telemetry request */
-/*         from the housekeeping task. This function will gather the Apps     */
-/*         telemetry, packetize it and send it to the housekeeping task via   */
-/*         the software bus                                                   */
-/* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-static int32 SAMPLE_ReportHousekeeping(const CFE_SB_CmdHdr_t *Msg)
+/*
+** Process Telemetry Request - Triggered in response to a telemetery request
+** TODO: Add additional telemetry required by the specific component
+*/
+void SAMPLE_ProcessTelemetryRequest(void)
 {
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandCounter++;
+    int32 status = OS_SUCCESS;
 
-    /*
-    ** Send housekeeping telemetry packet...
-    */
-    CFE_SB_TimeStampMsg(&SAMPLE_AppData.HkBuf.MsgHdr);
-    CFE_SB_SendMsg(&SAMPLE_AppData.HkBuf.MsgHdr);
+    /* MsgId is only needed if the command code is not recognized. See default case */
+    CFE_SB_MsgId_t MsgId = CFE_SB_GetMsgId(SAMPLE_AppData.MsgPtr);   
 
-    return CFE_SUCCESS;
-
-} /* End of SAMPLE_ReportHousekeeping() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* Name:  SAMPLE_Noop                                                         */
-/*                                                                            */
-/* Purpose:                                                                   */
-/*        SAMPLE NOOP command                                                 */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-static int32 SAMPLE_Noop(const SAMPLE_Noop_t *Msg)
-{
-
-    CFE_EVS_SendEvent(SAMPLE_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: NOOP command");
-
-    return CFE_SUCCESS;
-
-} /* End of SAMPLE_Noop */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  SAMPLE_ResetCounters                                               */
-/*                                                                            */
-/*  Purpose:                                                                  */
-/*         This function resets all the global counter variables that are     */
-/*         part of the task telemetry.                                        */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-static int32 SAMPLE_ResetCounters(const SAMPLE_ResetCounters_t *Msg)
-{
-
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandCounter = 0;
-    SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter = 0;
-
-    CFE_EVS_SendEvent(SAMPLE_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: RESET command");
-
-    return CFE_SUCCESS;
-
-} /* End of SAMPLE_ResetCounters() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* Name:  SAMPLE_VerifyCmdLength()                                            */
-/*                                                                            */
-/* Purpose:                                                                   */
-/*        Verify command packet length                                        */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-static bool SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
-{
-    bool result = true;
-
-    uint16 ActualLength = CFE_SB_GetTotalMsgLength(Msg);
-
-    /*
-    ** Verify the command packet length.
-    */
-    if (ExpectedLength != ActualLength)
+    /* Pull this command code from the message and then process */
+    uint16 CommandCode = CFE_SB_GetCmdCode(SAMPLE_AppData.MsgPtr);
+    switch (CommandCode)
     {
-        CFE_SB_MsgId_t MessageID   = CFE_SB_GetMsgId(Msg);
-        uint16         CommandCode = CFE_SB_GetCmdCode(Msg);
+        case SAMPLE_REQ_HK_TLM:
+            SAMPLE_ReportHousekeeping();
+            break;
 
-        CFE_EVS_SendEvent(SAMPLE_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Invalid Msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
-                          (unsigned int)CFE_SB_MsgIdToValue(MessageID), CommandCode, ActualLength, ExpectedLength);
+        case SAMPLE_REQ_DATA_TLM:
+            SAMPLE_ReportDeviceTelemetry();
+            break;
 
-        result = false;
-
-        SAMPLE_AppData.HkBuf.HkTlm.Payload.CommandErrorCounter++;
+        /*
+        ** Invalid Command Codes
+        */
+        default:
+            /* Increment the error counter upon receipt of an invalid command */
+            SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_DEVICE_TLM_ERR_EID, CFE_EVS_ERROR, 
+                "SAMPLE: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", MsgId, CommandCode);
+            break;
     }
+    return;
+}
 
-    return (result);
 
-} /* End of SAMPLE_VerifyCmdLength() */
+/* 
+** Report Application Housekeeping
+*/
+void SAMPLE_ReportHousekeeping(void)
+{
+    int32 status = OS_SUCCESS;
+
+    /* Check that device is enabled */
+    if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
+    {
+        status = SAMPLE_RequestHK(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_HK_tlm_t*) &SAMPLE_AppData.HkTelemetryPkt.DeviceHK);
+        if (status == OS_SUCCESS)
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+        }
+        else
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_REQ_HK_ERR_EID, CFE_EVS_ERROR, 
+                    "SAMPLE: Request device HK reported error %d", status);
+        }
+    }
+    /* Intentionally do not report errors if disabled */
+
+    /* Time stamp and publish housekeeping telemetry */
+    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+    CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkTelemetryPkt);
+    return;
+}
+
+
+/*
+** Collect and Report Device Telemetry
+*/
+void SAMPLE_ReportDeviceTelemetry(void)
+{
+    int32 status = OS_SUCCESS;
+
+    /* Check that device is enabled */
+    if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
+    {
+        status = SAMPLE_RequestData(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_Data_tlm_t*) &SAMPLE_AppData.DevicePkt.Sample);
+        if (status == OS_SUCCESS)
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+            /* Time stamp and publish data telemetry */
+            CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePkt);
+            CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.DevicePkt);
+        }
+        else
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_REQ_DATA_ERR_EID, CFE_EVS_ERROR, 
+                    "SAMPLE: Request device data reported error %d", status);
+        }
+    }
+    /* Intentionally do not report errors if disabled */
+    return;
+}
+
+
+/*
+** Reset all global counter variables
+*/
+void SAMPLE_ResetCounters(void)
+{
+    SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount = 0;
+    SAMPLE_AppData.HkTelemetryPkt.CommandCount = 0;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount = 0;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceCount = 0;
+    return;
+} 
+
+
+/*
+** Enable Component
+** TODO: Edit for your specific component implementation
+*/
+void SAMPLE_Enable(void)
+{
+    int32 status = OS_SUCCESS;
+
+    /* Check that device is disabled */
+    if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_DISABLED)
+    {
+        /*
+        ** Initialize hardware interface data
+        ** TODO: Make specific to your application depending on protocol in use
+        ** Note that other components provide examples for the different protocols available
+        */ 
+        SAMPLE_AppData.SampleUart.deviceString = SAMPLE_CFG_STRING;
+        SAMPLE_AppData.SampleUart.handle = SAMPLE_CFG_HANDLE;
+        SAMPLE_AppData.SampleUart.isOpen = PORT_CLOSED;
+        SAMPLE_AppData.SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
+        SAMPLE_AppData.SampleUart.access_option = uart_access_flag_RDWR;
+
+        /* Open device specific protocols */
+        status = uart_init_port(&SAMPLE_AppData.SampleUart);
+        if (status == OS_SUCCESS)
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+            SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+            CFE_EVS_SendEvent(SAMPLE_ENABLE_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Device enabled");
+        }
+        else
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_UART_INIT_ERR_EID, CFE_EVS_ERROR, "SAMPLE: UART port initialization error %d", status);
+        }
+    }
+    else
+    {
+        SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        CFE_EVS_SendEvent(SAMPLE_ENABLE_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Device enable failed, already enabled");
+    }
+    return;
+}
+
+
+/*
+** Disable Component
+** TODO: Edit for your specific component implementation
+*/
+void SAMPLE_Disable(void)
+{
+    int32 status = OS_SUCCESS;
+
+    /* Check that device is enabled */
+    if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
+    {
+        /* Open device specific protocols */
+        status = uart_close_port(SAMPLE_AppData.SampleUart.handle);
+        if (status == OS_SUCCESS)
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+            SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+            CFE_EVS_SendEvent(SAMPLE_DISABLE_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Device disabled");
+        }
+        else
+        {
+            SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+            CFE_EVS_SendEvent(SAMPLE_UART_CLOSE_ERR_EID, CFE_EVS_ERROR, "SAMPLE: UART port close error %d", status);
+        }
+    }
+    else
+    {
+        SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        CFE_EVS_SendEvent(SAMPLE_DISABLE_ERR_EID, CFE_EVS_ERROR, "SAMPLE: Device disable failed, already disabled");
+    }
+    return;
+}
+
+
+/*
+** Verify command packet length matches expected
+*/
+int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length)
+{     
+    int32 status = OS_SUCCESS;
+    CFE_SB_MsgId_t msg_id = 0xFFFF;
+    uint16 cmd_code = 0xFFFF;
+    uint16 actual_length = CFE_SB_GetTotalMsgLength(msg);
+
+    if (expected_length == actual_length)
+    {
+        /* Increment the command counter upon receipt of an invalid command */
+        SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
+    }
+    else
+    {
+        msg_id = CFE_SB_GetMsgId(msg);
+        cmd_code = CFE_SB_GetCmdCode(msg);
+
+        CFE_EVS_SendEvent(SAMPLE_LEN_ERR_EID, CFE_EVS_ERROR,
+           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
+              msg_id, cmd_code, actual_length, expected_length);
+
+        status = OS_ERROR;
+
+        /* Increment the command error counter upon receipt of an invalid command */
+        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
+    }
+    return status;
+} 
