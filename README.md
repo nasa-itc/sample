@@ -9,7 +9,7 @@ A NOS3 simulation is available which includes both sample and 42 data providers.
 
 
 # Device Communications
-The protocol, commands, and telemetry of the component are captured below.
+The protocol, commands, and responses of the component are captured below.
 
 ## Protocol
 The protocol in use is UART 115200 8N1.
@@ -29,8 +29,8 @@ Device commands are all formatted in the same manner and are fixed in size:
   - Unused for all but set configuration command
 * uint16, 0xBEEF
 
-## Telemetry
-Telemetry formats are as follows:
+## Response
+Response formats are as follows:
 * Housekeeping
   - uint16, 0xDEAD
   - uint32, Command Counter
