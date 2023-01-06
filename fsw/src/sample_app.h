@@ -58,8 +58,8 @@ typedef struct
 
     /*
 	** Device data 
+    ** TODO: Make specific to your application
 	*/
-	uint32 DeviceID;		            /* Device ID provided by CFS on initialization */
     SAMPLE_Device_tlm_t DevicePkt;      /* Device specific data packet */
 
     /* 

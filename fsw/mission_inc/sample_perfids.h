@@ -17,6 +17,5 @@
 ** metrics.
 */
 #define SAMPLE_PERF_ID          500
-#define SAMPLE_DEVICE_PERF_ID   501
 
 #endif /* _SAMPLE_PERFIDS_H_ */

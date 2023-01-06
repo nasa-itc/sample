@@ -36,16 +36,11 @@ static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
     {SAMPLE_DISABLE_INF_EID,        0x0000},
     {SAMPLE_DISABLE_ERR_EID,        0x0000},
     {SAMPLE_CMD_CONFIG_INF_EID,     0x0000},
-    {SAMPLE_CONFIG_INF_EID,         0x0000},
-    {SAMPLE_CONFIG_ERR_EID,         0x0000},
     {SAMPLE_DEVICE_TLM_ERR_EID,     0x0000},
     {SAMPLE_REQ_HK_ERR_EID,         0x0000},
     {SAMPLE_REQ_DATA_ERR_EID,       0x0000},
     {SAMPLE_UART_INIT_ERR_EID,      0x0000},
     {SAMPLE_UART_CLOSE_ERR_EID,     0x0000},
-    {SAMPLE_UART_READ_ERR_EID,      0x0000},
-    {SAMPLE_UART_WRITE_ERR_EID,     0x0000},
-    {SAMPLE_UART_TIMEOUT_ERR_EID,   0x0000},
     /* TODO: Add additional event IDs (EID) to the table as created */
 };
 
