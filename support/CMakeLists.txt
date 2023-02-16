@@ -17,7 +17,7 @@ set(TGTNAME cpu2)
 include(../../ComponentSettings.cmake)
 
 include_directories("./")
-include_directories("../fsw/mission_inc")
+include_directories("../fsw/platform_inc")
 include_directories("../fsw/src")
 include_directories("../../../fsw/apps/hwlib/fsw/public_inc")
 

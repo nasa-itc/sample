@@ -32,8 +32,6 @@
 
 /* Device specific command event IDs */
 #define SAMPLE_CMD_CONFIG_INF_EID        20
-#define SAMPLE_CONFIG_INF_EID            21
-#define SAMPLE_CONFIG_ERR_EID            22
 
 /* Standard telemetry event IDs */
 #define SAMPLE_DEVICE_TLM_ERR_EID        30
@@ -45,8 +43,5 @@
 /* Hardware protocol event IDs */
 #define SAMPLE_UART_INIT_ERR_EID         40
 #define SAMPLE_UART_CLOSE_ERR_EID        41
-#define SAMPLE_UART_READ_ERR_EID         42
-#define SAMPLE_UART_WRITE_ERR_EID        43
-#define SAMPLE_UART_TIMEOUT_ERR_EID      44
 
 #endif /* _SAMPLE_EVENTS_H_ */

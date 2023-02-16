@@ -6,7 +6,8 @@ namespace Nos3
 
     extern ItcLogger::Logger *sim_logger;
 
-    SampleHardwareModel::SampleHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0), _count(0), _config(0), _status(0)
+    SampleHardwareModel::SampleHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), 
+    _enabled(SAMPLE_SIM_ERROR), _count(0), _config(0), _status(0)
     {
         /* Get the NOS engine connection string */
         std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001"); 
@@ -96,12 +97,12 @@ namespace Nos3
         {
             response = "SampleHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, STATUS=X, or STOP";
         }
-        else if (command.compare("ENABLE") == 0) 
+        else if (command.compare(0,6,"ENABLE") == 0) 
         {
             _enabled = SAMPLE_SIM_SUCCESS;
-            response = "SampleHardwareModel::command_callback:  Enabled";
+            response = "SampleHardwareModel::command_callback:  Enabled\n";
         }
-        else if (command.compare("DISABLE") == 0) 
+        else if (command.compare(0,7,"DISABLE") == 0) 
         {
             _enabled = SAMPLE_SIM_ERROR;
             _count = 0;
@@ -121,7 +122,7 @@ namespace Nos3
                 response = "SampleHardwareModel::command_callback:  Status invalid";
             }            
         }
-        else if (command.compare("STOP") == 0) 
+        else if (command.compare(0,4,"STOP") == 0) 
         {
             _keep_running = false;
             response = "SampleHardwareModel::command_callback:  Stopping";
@@ -129,7 +130,7 @@ namespace Nos3
         /* TODO: Add anything additional commands here */
 
         /* Send a reply */
-        sim_logger->info("SampleHardwareModel::command_callback:  Sending reply: %s.", response.c_str());
+        sim_logger->info("SampleHardwareModel::command_callback:  Sending reply: %s", response.c_str());
         _command_node->send_reply_message_async(msg, response.size(), response.c_str());
     }
 
