@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.6.4)
 
 project (sample_checkout)
 
-#set(TGTNAME cpu2)
+if (NOT DEFINED TGTNAME)
+  message(FATAL_ERROR "TGTNAME must be defined on the cmake command line (e.g. \"-DTGTNAME=cpu1\")")
+endif()
 
 if(${TGTNAME} STREQUAL cpu1)
   SET(CMAKE_C_FLAGS_INIT "-m32" CACHE STRING "C Flags required by platform")
