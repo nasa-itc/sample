@@ -9,6 +9,7 @@
 /*
 ** Include Files
 */
+#include <arpa/inet.h>
 #include "sample_app.h"
 
 
@@ -352,9 +353,10 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_CONFIG_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received");
+                uint32_t config = ntohl(((SAMPLE_Config_cmd_t*) SAMPLE_AppData.MsgPtr)->DeviceCfg); // command is defined as big-endian... need to convert to host representation
+                CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received: %u", config);
                 /* Command device to send HK */
-                status = SAMPLE_CommandDevice(SAMPLE_AppData.SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, ((SAMPLE_Config_cmd_t*) SAMPLE_AppData.MsgPtr)->DeviceCfg);
+                status = SAMPLE_CommandDevice(SAMPLE_AppData.SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, config);
                 if (status == OS_SUCCESS)
                 {
                     SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;

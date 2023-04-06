@@ -99,7 +99,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
 {
     int32_t status = OS_SUCCESS;
     int32_t exit_status = OS_SUCCESS;
-    int config;
+    uint32_t config;
 
     /* Process command */
     switch(cc) 
@@ -164,7 +164,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 status = SAMPLE_CommandDevice(SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, config);
                 if (status == OS_SUCCESS)
                 {
-                    OS_printf("Configuration command success with value %d\n", config);
+                    OS_printf("Configuration command success with value %u\n", config);
                 }
                 else
                 {
