@@ -95,11 +95,11 @@ int get_command(const char* str)
 }
 
 
-int process_command(int cc, int num_tokens, char* tokens)
+int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_INPUT_TOKEN_SIZE])
 {
     int32_t status = OS_SUCCESS;
     int32_t exit_status = OS_SUCCESS;
-    int config;
+    uint32_t config;
 
     /* Process command */
     switch(cc) 
@@ -113,7 +113,7 @@ int process_command(int cc, int num_tokens, char* tokens)
             break;
 
         case CMD_NOOP:
-            if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
+            if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
                 status = SAMPLE_CommandDevice(SampleUart.handle, SAMPLE_DEVICE_NOOP_CMD, 0);
                 if (status == OS_SUCCESS)
@@ -128,7 +128,7 @@ int process_command(int cc, int num_tokens, char* tokens)
             break;
 
         case CMD_HK:
-            if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
+            if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
                 status = SAMPLE_RequestHK(SampleUart.handle, &SampleHK);
                 if (status == OS_SUCCESS)
@@ -143,16 +143,16 @@ int process_command(int cc, int num_tokens, char* tokens)
             break;
 
         case CMD_SAMPLE:
-            if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
+            if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
                 status = SAMPLE_RequestData(SampleUart.handle, &SampleData);
                 if (status == OS_SUCCESS)
                 {
-                    OS_printf("SAMPLE_RequestHK command success\n");
+                    OS_printf("SAMPLE_RequestData command success\n");
                 }
                 else
                 {
-                    OS_printf("SAMPLE_RequestHK command failed!\n");
+                    OS_printf("SAMPLE_RequestData command failed!\n");
                 }
             }
             break;
@@ -160,11 +160,11 @@ int process_command(int cc, int num_tokens, char* tokens)
         case CMD_CFG:
             if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
             {
-                config = atoi(&tokens[0]);
+                config = atoi(tokens[0]);
                 status = SAMPLE_CommandDevice(SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, config);
                 if (status == OS_SUCCESS)
                 {
-                    OS_printf("Configuration command success with value %d\n", config);
+                    OS_printf("Configuration command success with value %u\n", config);
                 }
                 else
                 {
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
         if(num_input_tokens >= 0)
         {
             /* Process command */
-            run_status = process_command(cmd, num_input_tokens, token_ptr);
+            run_status = process_command(cmd, num_input_tokens, input_tokens);
         }
     }
 

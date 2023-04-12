@@ -198,15 +198,20 @@ namespace Nos3
         ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
         **   and add 32768 so that the result fits in a uint16
         */
-        uint16_t x   = (uint16_t)(data_point->get_sample_data_x()*32767.0 + 32768.0);
+        double dx = data_point->get_sample_data_x();
+        double dy = data_point->get_sample_data_y();
+        double dz = data_point->get_sample_data_z();
+        uint16_t x   = (uint16_t)(dx*32767.0 + 32768.0);
         out_data[6]  = (x >> 8) & 0x00FF;
         out_data[7]  =  x       & 0x00FF;
-        uint16_t y   = (uint16_t)(data_point->get_sample_data_y()*32767.0 + 32768.0);
+        uint16_t y   = (uint16_t)(dy*32767.0 + 32768.0);
         out_data[8]  = (y >> 8) & 0x00FF;
         out_data[9]  =  y       & 0x00FF;
-        uint16_t z   = (uint16_t)(data_point->get_sample_data_z()*32767.0 + 32768.0);
+        uint16_t z   = (uint16_t)(dz*32767.0 + 32768.0);
         out_data[10] = (z >> 8) & 0x00FF;
         out_data[11] =  z       & 0x00FF;
+
+        sim_logger->debug("SampleHardwareModel::create_sample_data: data_point=%f, %f, %f, converted values=%u, %u, %u.", dx, dy, dz, x, y, z);
 
         /* Streaming data trailer - 0xBEEF */
         out_data[12] = 0xBE;

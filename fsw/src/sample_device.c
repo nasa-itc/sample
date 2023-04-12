@@ -66,10 +66,8 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
-    uint8_t write_data[SAMPLE_DEVICE_CMD_SIZE] = {0};
-    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE] = {0};
-
-    payload = CFE_MAKE_BIG32(payload);
+    uint8_t write_data[SAMPLE_DEVICE_CMD_SIZE];
+    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE];
 
     /* Prepare command */
     write_data[0] = SAMPLE_DEVICE_HDR_0;
@@ -136,7 +134,7 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[SAMPLE_DEVICE_HK_SIZE] = {0};
+    uint8_t read_data[SAMPLE_DEVICE_HK_SIZE];
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_HK_CMD, 0);
@@ -209,7 +207,7 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
-    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE] = {0};
+    uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE];
 
     /* Command device to send HK */
     status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_DATA_CMD, 0);
@@ -254,7 +252,7 @@ int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
                     OS_printf("  Data X  = 0x%04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
                     OS_printf("  Data Y  = 0x%04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
                     OS_printf("  Data Z  = 0x%04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
-                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[10], read_data[11]);
+                    OS_printf("  Trailer = 0x%02x%02x  \n", read_data[12], read_data[13]);
                 #endif
             }
         } 
