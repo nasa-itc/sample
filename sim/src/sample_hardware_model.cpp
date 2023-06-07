@@ -225,8 +225,6 @@ namespace Nos3
         std::vector<uint8_t> out_data; 
         std::uint8_t valid = SAMPLE_SIM_SUCCESS;
         
-        std::uint32_t rcv_config;
-
         /* Retrieve data and log in man readable format */
         std::vector<uint8_t> in_data(buf, buf + len);
         sim_logger->debug("SampleHardwareModel::uart_read_callback:  REQUEST %s",

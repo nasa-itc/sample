@@ -39,7 +39,7 @@ namespace Nos3
         std::vector<std::string> lines = dp->get_lines();
         try 
         {
-            for (int i = 0; i < lines.size(); i++) 
+            for (unsigned int i = 0; i < lines.size(); i++) 
             {
                 /* Compare prefix */
                 if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
