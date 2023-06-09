@@ -18,34 +18,6 @@
 */
 SAMPLE_AppData_t SAMPLE_AppData;
 
-static CFE_EVS_BinFilter_t  SAMPLE_EventFilters[] =
-{   /* Event ID    mask */
-    {SAMPLE_RESERVED_EID,           0x0000},
-    {SAMPLE_STARTUP_INF_EID,        0x0000},
-    {SAMPLE_LEN_ERR_EID,            0x0000},
-    {SAMPLE_PIPE_ERR_EID,           0x0000},
-    {SAMPLE_SUB_CMD_ERR_EID,        0x0000},
-    {SAMPLE_SUB_REQ_HK_ERR_EID,     0x0000},
-    {SAMPLE_PROCESS_CMD_ERR_EID,    0x0000},
-    {SAMPLE_CMD_ERR_EID,            0x0000},
-    {SAMPLE_CMD_NOOP_INF_EID,       0x0000},
-    {SAMPLE_CMD_RESET_INF_EID,      0x0000},
-    {SAMPLE_CMD_ENABLE_INF_EID,     0x0000},
-    {SAMPLE_ENABLE_INF_EID,         0x0000},
-    {SAMPLE_ENABLE_ERR_EID,         0x0000},
-    {SAMPLE_CMD_DISABLE_INF_EID,    0x0000},
-    {SAMPLE_DISABLE_INF_EID,        0x0000},
-    {SAMPLE_DISABLE_ERR_EID,        0x0000},
-    {SAMPLE_CMD_CONFIG_INF_EID,     0x0000},
-    {SAMPLE_DEVICE_TLM_ERR_EID,     0x0000},
-    {SAMPLE_REQ_HK_ERR_EID,         0x0000},
-    {SAMPLE_REQ_DATA_ERR_EID,       0x0000},
-    {SAMPLE_UART_INIT_ERR_EID,      0x0000},
-    {SAMPLE_UART_CLOSE_ERR_EID,     0x0000},
-    /* TODO: Add additional event IDs (EID) to the table as created */
-};
-
-
 /*
 ** Application entry point and main process loop
 */
@@ -139,9 +111,7 @@ int32 SAMPLE_AppInit(void)
     /*
     ** Register the events
     */ 
-    status = CFE_EVS_Register(SAMPLE_EventFilters,
-                              sizeof(SAMPLE_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
-                              CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
+    status = CFE_EVS_Register(NULL, 0, CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("SAMPLE: Error registering for event services: 0x%08X\n", (unsigned int) status);
