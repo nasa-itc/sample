@@ -20,7 +20,7 @@ namespace Nos3
     private:
         /* Disallow these */
         ~SampleDataProvider(void) {};
-        SampleDataProvider& operator=(const SampleDataProvider&) {};
+        SampleDataProvider& operator=(const SampleDataProvider&) {return *this;};
 
         mutable double _request_count;
     };

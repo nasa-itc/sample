@@ -21,7 +21,7 @@ namespace Nos3
     private:
         /* Disallow these */
         ~Sample42DataProvider(void) {};
-        Sample42DataProvider& operator=(const Sample42DataProvider&) {};
+        Sample42DataProvider& operator=(const Sample42DataProvider&) {return *this;};
 
         int16_t _sc;  /* Which spacecraft number to parse out of 42 data */
     };
