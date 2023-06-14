@@ -15,7 +15,7 @@
 /* 
 ** Generic read data from device
 */
-int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
+int32_t SAMPLE_ReadData(uart_info_t* device, uint8_t* read_data, uint8_t data_length)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
@@ -23,12 +23,12 @@ int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
     uint8_t ms_timeout_counter = 0;
 
     /* Wait until all data received or timeout occurs */
-    bytes_available = uart_bytes_available(handle);
+    bytes_available = uart_bytes_available(device);
     while((bytes_available < data_length) && (ms_timeout_counter < SAMPLE_CFG_MS_TIMEOUT))
     {
         ms_timeout_counter++;
         OS_TaskDelay(1);
-        bytes_available = uart_bytes_available(handle);
+        bytes_available = uart_bytes_available(device);
     }
 
     if (ms_timeout_counter < SAMPLE_CFG_MS_TIMEOUT)
@@ -40,7 +40,7 @@ int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
         }
         
         /* Read data */
-        bytes = uart_read_port(handle, read_data, bytes_available);
+        bytes = uart_read_port(device, read_data, bytes_available);
         if (bytes != bytes_available)
         {
             #ifdef SAMPLE_CFG_DEBUG
@@ -62,7 +62,7 @@ int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length)
 ** Generic command to device
 ** Note that confirming the echoed response is specific to this implementation
 */
-int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
+int32_t SAMPLE_CommandDevice(uart_info_t* device, uint8_t cmd_code, uint32_t payload)
 {
     int32_t status = OS_SUCCESS;
     int32_t bytes = 0;
@@ -81,11 +81,11 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
     write_data[8] = SAMPLE_DEVICE_TRAILER_1;
 
     /* Flush any prior data */
-    status = uart_flush(handle);
+    status = uart_flush(device);
     if (status == UART_SUCCESS)
     {
         /* Write data */
-        bytes = uart_write_port(handle, write_data, SAMPLE_DEVICE_CMD_SIZE);
+        bytes = uart_write_port(device, write_data, SAMPLE_DEVICE_CMD_SIZE);
         #ifdef SAMPLE_CFG_DEBUG
             OS_printf("  SAMPLE_CommandDevice[%d] = ", bytes);
             for (uint32_t i = 0; i < SAMPLE_DEVICE_CMD_SIZE; i++)
@@ -96,7 +96,7 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
         #endif
         if (bytes == SAMPLE_DEVICE_CMD_SIZE)
         {
-            status = SAMPLE_ReadData(handle, read_data, SAMPLE_DEVICE_CMD_SIZE);
+            status = SAMPLE_ReadData(device, read_data, SAMPLE_DEVICE_CMD_SIZE);
             if (status == OS_SUCCESS)
             {
                 /* Confirm echoed response */
@@ -131,17 +131,17 @@ int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd_code, uint32_t payload)
 /*
 ** Request housekeeping command
 */
-int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
+int32_t SAMPLE_RequestHK(uart_info_t* device, SAMPLE_Device_HK_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
     uint8_t read_data[SAMPLE_DEVICE_HK_SIZE];
 
     /* Command device to send HK */
-    status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_HK_CMD, 0);
+    status = SAMPLE_CommandDevice(device, SAMPLE_DEVICE_REQ_HK_CMD, 0);
     if (status == OS_SUCCESS)
     {
         /* Read HK data */
-        status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
+        status = SAMPLE_ReadData(device, read_data, sizeof(read_data));
         if (status == OS_SUCCESS)
         {
             #ifdef SAMPLE_CFG_DEBUG
@@ -204,17 +204,17 @@ int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data)
 /*
 ** Request data command
 */
-int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data)
+int32_t SAMPLE_RequestData(uart_info_t* device, SAMPLE_Device_Data_tlm_t* data)
 {
     int32_t status = OS_SUCCESS;
     uint8_t read_data[SAMPLE_DEVICE_DATA_SIZE];
 
     /* Command device to send HK */
-    status = SAMPLE_CommandDevice(handle, SAMPLE_DEVICE_REQ_DATA_CMD, 0);
+    status = SAMPLE_CommandDevice(device, SAMPLE_DEVICE_REQ_DATA_CMD, 0);
     if (status == OS_SUCCESS)
     {
         /* Read HK data */
-        status = SAMPLE_ReadData(handle, read_data, sizeof(read_data));
+        status = SAMPLE_ReadData(device, read_data, sizeof(read_data));
         if (status == OS_SUCCESS)
         {
             #ifdef SAMPLE_CFG_DEBUG
