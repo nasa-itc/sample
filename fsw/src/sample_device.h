@@ -68,10 +68,10 @@ typedef struct
 /*
 ** Prototypes
 */
-int32_t SAMPLE_ReadData(int32_t handle, uint8_t* read_data, uint8_t data_length);
-int32_t SAMPLE_CommandDevice(int32_t handle, uint8_t cmd, uint32_t payload);
-int32_t SAMPLE_RequestHK(int32_t handle, SAMPLE_Device_HK_tlm_t* data);
-int32_t SAMPLE_RequestData(int32_t handle, SAMPLE_Device_Data_tlm_t* data);
+int32_t SAMPLE_ReadData(uart_info_t* device, uint8_t* read_data, uint8_t data_length);
+int32_t SAMPLE_CommandDevice(uart_info_t* device, uint8_t cmd, uint32_t payload);
+int32_t SAMPLE_RequestHK(uart_info_t* device, SAMPLE_Device_HK_tlm_t* data);
+int32_t SAMPLE_RequestData(uart_info_t* device, SAMPLE_Device_Data_tlm_t* data);
 
 
 #endif /* _SAMPLE_DEVICE_H_ */

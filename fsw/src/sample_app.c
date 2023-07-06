@@ -326,7 +326,7 @@ void SAMPLE_ProcessGroundCommand(void)
                 uint32_t config = ntohl(((SAMPLE_Config_cmd_t*) SAMPLE_AppData.MsgPtr)->DeviceCfg); // command is defined as big-endian... need to convert to host representation
                 CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "SAMPLE: Configuration command received: %u", config);
                 /* Command device to send HK */
-                status = SAMPLE_CommandDevice(SAMPLE_AppData.SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, config);
+                status = SAMPLE_CommandDevice(&SAMPLE_AppData.SampleUart, SAMPLE_DEVICE_CFG_CMD, config);
                 if (status == OS_SUCCESS)
                 {
                     SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
@@ -399,7 +399,7 @@ void SAMPLE_ReportHousekeeping(void)
     /* Check that device is enabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
     {
-        status = SAMPLE_RequestHK(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_HK_tlm_t*) &SAMPLE_AppData.HkTelemetryPkt.DeviceHK);
+        status = SAMPLE_RequestHK(&SAMPLE_AppData.SampleUart, (SAMPLE_Device_HK_tlm_t*) &SAMPLE_AppData.HkTelemetryPkt.DeviceHK);
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
@@ -430,7 +430,7 @@ void SAMPLE_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
     {
-        status = SAMPLE_RequestData(SAMPLE_AppData.SampleUart.handle, (SAMPLE_Device_Data_tlm_t*) &SAMPLE_AppData.DevicePkt.Sample);
+        status = SAMPLE_RequestData(&SAMPLE_AppData.SampleUart, (SAMPLE_Device_Data_tlm_t*) &SAMPLE_AppData.DevicePkt.Sample);
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
@@ -520,7 +520,7 @@ void SAMPLE_Disable(void)
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled == SAMPLE_DEVICE_ENABLED)
     {
         /* Open device specific protocols */
-        status = uart_close_port(SAMPLE_AppData.SampleUart.handle);
+        status = uart_close_port(&SAMPLE_AppData.SampleUart);
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
