@@ -38,7 +38,7 @@
 typedef struct
 {
     /* Every command requires a header used to identify it */
-    uint8    CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint8    CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
 
 } SAMPLE_NoArgs_cmd_t;
 
@@ -48,7 +48,7 @@ typedef struct
 */
 typedef struct
 {
-    uint8    CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint8    CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
     uint32   DeviceCfg;
 
 } SAMPLE_Config_cmd_t;
@@ -59,10 +59,10 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    uint8   TlmHeader[sizeof(CFE_MSG_TelemetryHeader_t)];
     SAMPLE_Device_Data_tlm_t Sample;
 
-} OS_PACK SAMPLE_Device_tlm_t;
+} __attribute__((packed)) SAMPLE_Device_tlm_t;
 #define SAMPLE_DEVICE_TLM_LNGTH sizeof ( SAMPLE_Device_tlm_t )
 
 
@@ -71,7 +71,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    uint8   TlmHeader[sizeof(CFE_MSG_TelemetryHeader_t)];
     uint8   CommandErrorCount;
     uint8   CommandCount;
     uint8   DeviceErrorCount;
@@ -83,7 +83,7 @@ typedef struct
     uint8   DeviceEnabled;
     SAMPLE_Device_HK_tlm_t DeviceHK;
 
-} OS_PACK SAMPLE_Hk_tlm_t;
+} __attribute__((packed)) SAMPLE_Hk_tlm_t;
 #define SAMPLE_HK_TLM_LNGTH sizeof ( SAMPLE_Hk_tlm_t )
 
 #endif /* _SAMPLE_MSG_H_ */
