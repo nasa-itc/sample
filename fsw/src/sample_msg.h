@@ -38,7 +38,7 @@
 typedef struct
 {
     /* Every command requires a header used to identify it */
-    uint8    CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
+    CFE_MSG_CommandHeader_t CmdHeader;
 
 } SAMPLE_NoArgs_cmd_t;
 
@@ -48,7 +48,7 @@ typedef struct
 */
 typedef struct
 {
-    uint8    CmdHeader[sizeof(CFE_MSG_CommandHeader_t)];
+    CFE_MSG_CommandHeader_t CmdHeader;
     uint32   DeviceCfg;
 
 } SAMPLE_Config_cmd_t;
@@ -59,7 +59,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[sizeof(CFE_MSG_TelemetryHeader_t)];
+    CFE_MSG_TelemetryHeader_t TlmHeader;
     SAMPLE_Device_Data_tlm_t Sample;
 
 } __attribute__((packed)) SAMPLE_Device_tlm_t;
@@ -71,7 +71,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[sizeof(CFE_MSG_TelemetryHeader_t)];
+    CFE_MSG_TelemetryHeader_t TlmHeader;
     uint8   CommandErrorCount;
     uint8   CommandCount;
     uint8   DeviceErrorCount;
