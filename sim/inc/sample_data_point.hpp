@@ -7,7 +7,7 @@
 namespace Nos3
 {
     /* Standard for a data point used transfer data between a data provider and a hardware model */
-    class SampleDataPoint : public SimIDataPoint
+    class SampleDataPoint : public Sim42DataPoint
     {
     public:
         /* Constructors */
@@ -25,7 +25,7 @@ namespace Nos3
     private:
         /* Disallow these */
         SampleDataPoint(void) {};
-        SampleDataPoint(const SampleDataPoint&) {};
+        SampleDataPoint(const SampleDataPoint& sdp) : Sim42DataPoint(sdp) {};
         ~SampleDataPoint(void) {};
 
         /* Specific data you need to get from the data provider to the hardware model */
