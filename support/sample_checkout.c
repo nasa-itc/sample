@@ -115,7 +115,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_NOOP:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = SAMPLE_CommandDevice(SampleUart.handle, SAMPLE_DEVICE_NOOP_CMD, 0);
+                status = SAMPLE_CommandDevice(&SampleUart, SAMPLE_DEVICE_NOOP_CMD, 0);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("NOOP command success\n");
@@ -130,7 +130,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_HK:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = SAMPLE_RequestHK(SampleUart.handle, &SampleHK);
+                status = SAMPLE_RequestHK(&SampleUart, &SampleHK);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("SAMPLE_RequestHK command success\n");
@@ -145,7 +145,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
         case CMD_SAMPLE:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = SAMPLE_RequestData(SampleUart.handle, &SampleData);
+                status = SAMPLE_RequestData(&SampleUart, &SampleData);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("SAMPLE_RequestData command success\n");
@@ -161,7 +161,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
             if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
             {
                 config = atoi(tokens[0]);
-                status = SAMPLE_CommandDevice(SampleUart.handle, SAMPLE_DEVICE_CFG_CMD, config);
+                status = SAMPLE_CommandDevice(&SampleUart, SAMPLE_DEVICE_CFG_CMD, config);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("Configuration command success with value %u\n", config);
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
     }
 
     // Close the device 
-    uart_close_port(SampleUart.handle);
+    uart_close_port(&SampleUart);
 
     OS_printf("Cleanly exiting sample application...\n\n"); 
     return 1;
