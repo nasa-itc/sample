@@ -16,14 +16,17 @@ namespace Nos3
         _sample_data[2] = count * 0.003;
     }
 
-    SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
+    SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)
     {
         sim_logger->trace("SampleDataPoint::SampleDataPoint:  42 Constructor executed");
 
         /* Initialize data */
         _sample_data_is_valid = false;
         _sample_data[0] = _sample_data[1] = _sample_data[2] = 0.0;
-
+    }
+    
+    void SampleDataPoint::do_parsing(void) const
+    {
         try {
             /*
             ** Declare 42 telemetry string prefix
@@ -31,10 +34,10 @@ namespace Nos3
             ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
             */
             std::string key;
-            key.append("SC[").append(std::to_string(spacecraft)).append("].svb"); // SC[N].svb
+            key.append("SC[").append(std::to_string(_sc)).append("].svb"); // SC[N].svb
 
             /* Parse 42 telemetry */
-            std::string values = dp->get_value_for_key(key);
+            std::string values = _dp.get_value_for_key(key);
 
             std::vector<double> data;
             parse_double_vector(values, data);
@@ -45,6 +48,9 @@ namespace Nos3
 
             /* Mark data as valid */
             _sample_data_is_valid = true;
+
+            _not_parsed = false;
+
             /* Debug print */
             sim_logger->trace("SampleDataPoint::SampleDataPoint:  Parsed svb = %f %f %f", _sample_data[0], _sample_data[1], _sample_data[2]);
         } catch (const std::exception &e) {
