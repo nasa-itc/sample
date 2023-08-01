@@ -16,56 +16,45 @@ namespace Nos3
         _sample_data[2] = count * 0.003;
     }
 
-    SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
+    SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)
     {
         sim_logger->trace("SampleDataPoint::SampleDataPoint:  42 Constructor executed");
 
         /* Initialize data */
         _sample_data_is_valid = false;
-        _sample_data[0] = 0.0;
-        _sample_data[1] = 0.0;
-        _sample_data[2] = 0.0;
+        _sample_data[0] = _sample_data[1] = _sample_data[2] = 0.0;
+    }
+    
+    void SampleDataPoint::do_parsing(void) const
+    {
+        try {
+            /*
+            ** Declare 42 telemetry string prefix
+            ** 42 variables defined in `42/Include/42types.h`
+            ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
+            */
+            std::string key;
+            key.append("SC[").append(std::to_string(_sc)).append("].svb"); // SC[N].svb
 
-        /*
-        ** Declare 42 telemetry string prefix
-        ** 42 variables defined in `42/Include/42types.h`
-        ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
-        */
-        std::ostringstream MatchString;
-        MatchString << "SC[" << spacecraft << "].svb = "; /* TODO: Change me to match the data from 42 you are interested in */
-        size_t MSsize = MatchString.str().size();
+            /* Parse 42 telemetry */
+            std::string values = _dp.get_value_for_key(key);
 
-        /* Parse 42 telemetry */
-        std::vector<std::string> lines = dp->get_lines();
-        try 
-        {
-            for (unsigned int i = 0; i < lines.size(); i++) 
-            {
-                /* Compare prefix */
-                if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
-                {
-                    size_t found = lines[i].find_first_of("=");
-                    /* Parse line */
-                    std::istringstream iss(lines[i].substr(found+1, lines[i].size()-found-1));
-                    /* Custom work to extract the data from the 42 string and save it off in the member data of this data point */
-                    std::string s;
-                    iss >> s;
-                    _sample_data[0] = std::stod(s);
-                    iss >> s;
-                    _sample_data[1] = std::stod(s);
-                    iss >> s;
-                    _sample_data[2] = std::stod(s);
-                    /* Mark data as valid */
-                    _sample_data_is_valid = true;
-                    /* Debug print */
-                    sim_logger->trace("SampleDataPoint::SampleDataPoint:  Parsed svb = %f %f %f", _sample_data[0], _sample_data[1], _sample_data[2]);
-                }
-            }
-        } 
-        catch(const std::exception& e) 
-        {
-            /* Report error */
-            sim_logger->error("SampleDataPoint::SampleDataPoint:  Parsing exception %s", e.what());
+            std::vector<double> data;
+            parse_double_vector(values, data);
+
+            _sample_data[0] = data[0];
+            _sample_data[1] = data[1];
+            _sample_data[2] = data[2];
+
+            /* Mark data as valid */
+            _sample_data_is_valid = true;
+
+            _not_parsed = false;
+
+            /* Debug print */
+            sim_logger->trace("SampleDataPoint::SampleDataPoint:  Parsed svb = %f %f %f", _sample_data[0], _sample_data[1], _sample_data[2]);
+        } catch (const std::exception &e) {
+            sim_logger->error("SampleDataPoint::SampleDataPoint:  Error parsing svb.  Error=%s", e.what());
         }
     }
 
