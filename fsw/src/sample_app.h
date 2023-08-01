@@ -52,7 +52,7 @@ typedef struct
     /*
     ** Operational data  - not reported in housekeeping
     */
-    CFE_SB_MsgPtr_t MsgPtr;             /* Pointer to msg received on software bus */
+    CFE_MSG_Message_t * MsgPtr;             /* Pointer to msg received on software bus */
     CFE_SB_PipeId_t CmdPipe;            /* Pipe Id for HK command pipe */
     uint32 RunStatus;                   /* App run status for controlling the application state */
 
@@ -95,6 +95,6 @@ void  SAMPLE_ReportDeviceTelemetry(void);
 void  SAMPLE_ResetCounters(void);
 void  SAMPLE_Enable(void);
 void  SAMPLE_Disable(void);
-int32 SAMPLE_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
+int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length);
 
 #endif /* _SAMPLE_APP_H_ */

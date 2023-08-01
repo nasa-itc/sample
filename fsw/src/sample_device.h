@@ -45,7 +45,7 @@ typedef struct
     uint32_t  DeviceConfig;
     uint32_t  DeviceStatus;
 
-} OS_PACK SAMPLE_Device_HK_tlm_t;
+} __attribute__((packed)) SAMPLE_Device_HK_tlm_t;
 #define SAMPLE_DEVICE_HK_LNGTH sizeof ( SAMPLE_Device_HK_tlm_t )
 #define SAMPLE_DEVICE_HK_SIZE SAMPLE_DEVICE_HK_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
 
@@ -60,7 +60,7 @@ typedef struct
     uint16_t  DeviceDataY;
     uint16_t  DeviceDataZ;
 
-} OS_PACK SAMPLE_Device_Data_tlm_t;
+} __attribute__((packed)) SAMPLE_Device_Data_tlm_t;
 #define SAMPLE_DEVICE_DATA_LNGTH sizeof ( SAMPLE_Device_Data_tlm_t )
 #define SAMPLE_DEVICE_DATA_SIZE SAMPLE_DEVICE_DATA_LNGTH + SAMPLE_DEVICE_HDR_TRL_LEN
 
