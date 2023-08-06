@@ -11,6 +11,7 @@ include_directories(inc
 set(sample_sim_src
     src/sample_hardware_model.cpp
     src/sample_42_data_provider.cpp
+    src/sample_data_provider.cpp
     src/sample_data_point.cpp
 )
 
@@ -27,9 +28,4 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN/../lib") # Pick up .so i
 
 add_library(sample_sim SHARED ${sample_sim_src} ${sample_sim_inc})
 target_link_libraries(sample_sim ${sample_sim_libs})
-install(TARGETS sample_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
-
-add_executable(nos3-sample-simulator src/sample_sim.cpp)
-target_link_libraries(nos3-sample-simulator sample_sim ${sample_sim_libs})
-install(TARGETS nos3-sample-simulator RUNTIME DESTINATION bin)
 install(TARGETS sample_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
