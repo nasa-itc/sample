@@ -7,7 +7,7 @@ namespace Nos3
     extern ItcLogger::Logger *sim_logger;
 
     SampleHardwareModel::SampleHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), 
-    _enabled(SAMPLE_SIM_ERROR), _count(0), _config(0), _status(0)
+    _enabled(SAMPLE_SIM_SUCCESS), _count(0), _config(0), _status(0)
     {
         /* Get the NOS engine connection string */
         std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001"); 
