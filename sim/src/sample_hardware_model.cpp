@@ -40,6 +40,13 @@ namespace Nos3
         _uart_connection.reset(new NosEngine::Uart::Uart(_hub, config.get("simulator.name", "sample_sim"), connection_string, bus_name));
         _uart_connection->open(node_port);
         sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Now on UART bus name %s, port %d.", bus_name.c_str(), node_port);
+
+        /* Sub-Sim (Sim to Sim) connection*/
+        std::string subsim_bus_name = "usart_28";
+        int subsim_node_port = 28;
+        _uart_subsim.reset(new NosEngine::Uart::Uart(_hub, config.get("simulator.name", "sample_sim"), connection_string, subsim_bus_name));
+        _uart_subsim->open(subsim_node_port);
+        sim_logger->info("SampleHardwareModel::SampleHardwareModel:  Now on UART bus name %s, port %d.", subsim_bus_name.c_str(), subsim_node_port);
     
         /* Configure protocol callback */
         _uart_connection->set_read_callback(std::bind(&SampleHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2));
@@ -73,6 +80,7 @@ namespace Nos3
     {        
         /* Close the protocol bus */
         _uart_connection->close();
+        _uart_subsim->close();
 
         /* Clean up the data provider */
         delete _sample_dp;
@@ -227,6 +235,12 @@ namespace Nos3
         
         /* Retrieve data and log in man readable format */
         std::vector<uint8_t> in_data(buf, buf + len);
+        
+        /* Subsim variables */
+        std::vector<uint8_t> subsim_data(buf, buf + len);
+        size_t subsim_data_len = 0;
+        std::uint8_t subsim_success = SAMPLE_SIM_SUCCESS;
+
         sim_logger->debug("SampleHardwareModel::uart_read_callback:  REQUEST %s",
             SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
 
@@ -276,6 +290,36 @@ namespace Nos3
                     case 0:
                         /* NOOP */
                         sim_logger->debug("SampleHardwareModel::uart_read_callback:  NOOP command received!");
+
+                        /* Forward command to sub-sim (sim-to-sim) and confirm valid response returned */
+                        if (valid == SAMPLE_SIM_SUCCESS)
+                        {
+                            /* Forward command */
+                            subsim_data_len = in_data.size();
+                            _uart_subsim->write(&in_data[0], subsim_data_len);
+
+                            /* Read response */
+                            _uart_subsim->read(&subsim_data[0], subsim_data_len);
+                            
+                            /* Confirm command echo */
+                            for (size_t i = 0; i < subsim_data_len; i++)
+                            {
+                                if (in_data[i] != subsim_data[i])
+                                {
+                                    subsim_success = SAMPLE_SIM_ERROR;
+                                }
+                            }
+                            
+                            /* Print status */
+                            if (subsim_success == SAMPLE_SIM_SUCCESS)
+                            {
+                                sim_logger->debug("SampleHardwareModel::uart_read_callback:NOOP  SubSim communication returned success!");
+                            }
+                            else
+                            {
+                                sim_logger->debug("SampleHardwareModel::uart_read_callback:NOOP  SubSim communication returned error! What is wrong?");
+                            }
+                        }
                         break;
 
                 case 1:

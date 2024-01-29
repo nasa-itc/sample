@@ -46,6 +46,7 @@ namespace Nos3
 
         /* Private data members */
         std::unique_ptr<NosEngine::Uart::Uart>              _uart_connection; /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
+        std::unique_ptr<NosEngine::Uart::Uart>              _uart_subsim;
         std::unique_ptr<NosEngine::Client::Bus>             _time_bus; /* Standard */
 
         SimIDataProvider*                                   _sample_dp; /* Only needed if the sim has a data provider */
