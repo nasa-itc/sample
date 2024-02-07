@@ -22,6 +22,7 @@
 #define SAMPLE_ENABLE_CC               2
 #define SAMPLE_DISABLE_CC              3
 #define SAMPLE_CONFIG_CC               4
+#define SAMPLE_ALIVENESS_CC            5
 
 
 /* 

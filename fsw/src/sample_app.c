@@ -336,6 +336,23 @@ void SAMPLE_ProcessGroundCommand(void)
             }
             break;
 
+        case SAMPLE_ALIVENESS_CC:
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
+            {
+                CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: Aliveness command received");
+                /* Command device to check aliveness */
+                status = SAMPLE_CommandDevice(&SAMPLE_AppData.SampleUart, SAMPLE_DEVICE_NOOP_CMD, 0);
+                if (status == OS_SUCCESS)
+                {
+                    SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+                }
+                else
+                {
+                    SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
+                }
+            }
+            break;
+
         /*
         ** Invalid Command Codes
         */
