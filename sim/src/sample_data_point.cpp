@@ -44,6 +44,7 @@ namespace Nos3
                 std::string values = _dp.get_value_for_key(key);
 
                 std::vector<double> data;
+                data.reserve(3);
                 parse_double_vector(values, data);
 
                 _sample_data[0] = data[0];
