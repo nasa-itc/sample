@@ -10,6 +10,7 @@ namespace Nos3
         sim_logger->trace("SampleDataPoint::SampleDataPoint:  Defined Constructor executed");
 
         /* Do calculations based on provided data */
+        _42_parsing = false;
         _sample_data_is_valid = true;
         _sample_data[0] = count * 0.001;
         _sample_data[1] = count * 0.002;
@@ -21,40 +22,45 @@ namespace Nos3
         sim_logger->trace("SampleDataPoint::SampleDataPoint:  42 Constructor executed");
 
         /* Initialize data */
+        _42_parsing = true;
         _sample_data_is_valid = false;
         _sample_data[0] = _sample_data[1] = _sample_data[2] = 0.0;
     }
     
     void SampleDataPoint::do_parsing(void) const
     {
-        try {
-            /*
-            ** Declare 42 telemetry string prefix
-            ** 42 variables defined in `42/Include/42types.h`
-            ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
-            */
-            std::string key;
-            key.append("SC[").append(std::to_string(_sc)).append("].svb"); // SC[N].svb
+        if (_42_parsing)
+        {
+            try {
+                /*
+                ** Declare 42 telemetry string prefix
+                ** 42 variables defined in `42/Include/42types.h`
+                ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
+                */
+                std::string key;
+                key.append("SC[").append(std::to_string(_sc)).append("].svb"); // SC[N].svb
 
-            /* Parse 42 telemetry */
-            std::string values = _dp.get_value_for_key(key);
+                /* Parse 42 telemetry */
+                std::string values = _dp.get_value_for_key(key);
 
-            std::vector<double> data;
-            parse_double_vector(values, data);
+                std::vector<double> data;
+                data.reserve(3);
+                parse_double_vector(values, data);
 
-            _sample_data[0] = data[0];
-            _sample_data[1] = data[1];
-            _sample_data[2] = data[2];
+                _sample_data[0] = data[0];
+                _sample_data[1] = data[1];
+                _sample_data[2] = data[2];
 
-            /* Mark data as valid */
-            _sample_data_is_valid = true;
+                /* Mark data as valid */
+                _sample_data_is_valid = true;
 
-            _not_parsed = false;
+                _not_parsed = false;
 
-            /* Debug print */
-            sim_logger->trace("SampleDataPoint::SampleDataPoint:  Parsed svb = %f %f %f", _sample_data[0], _sample_data[1], _sample_data[2]);
-        } catch (const std::exception &e) {
-            sim_logger->error("SampleDataPoint::SampleDataPoint:  Error parsing svb.  Error=%s", e.what());
+                /* Debug print */
+                sim_logger->trace("SampleDataPoint::SampleDataPoint:  Parsed svb = %f %f %f", _sample_data[0], _sample_data[1], _sample_data[2]);
+            } catch (const std::exception &e) {
+                sim_logger->error("SampleDataPoint::SampleDataPoint:  Error parsing svb.  Error=%s", e.what());
+            }
         }
     }
 
