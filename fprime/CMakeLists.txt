@@ -35,7 +35,7 @@ include_directories("../fsw/src")
 include_directories("../../../fsw/apps/hwlib/fsw/public_inc")
 
 set(sample_checkout_src
-  sample_checkout.c 
+  test.cpp 
   ../fsw/src/sample_device.c
 )
 

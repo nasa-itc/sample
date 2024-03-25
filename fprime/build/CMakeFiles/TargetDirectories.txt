@@ -1,0 +1,3 @@
+/home/jstar/Desktop/github-nos3/components/sample/fprime/build/CMakeFiles/sample_checkout.dir
+/home/jstar/Desktop/github-nos3/components/sample/fprime/build/CMakeFiles/edit_cache.dir
+/home/jstar/Desktop/github-nos3/components/sample/fprime/build/CMakeFiles/rebuild_cache.dir
