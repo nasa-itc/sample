@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 2.6.4)
 project (sample_checkout)
 
 if (NOT DEFINED TGTNAME)
-  message(FATAL_ERROR "TGTNAME must be defined on the cmake command line (e.g. \"-DTGTNAME=cpu1\")")
+  set(TGTNAME "cpu1")
+  message(STATUS "Selecting cpu1 for build, can override with \"-DTGTNAME=cpu1\"")
 endif()
 
 include(../../ComponentSettings.cmake)

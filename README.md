@@ -133,11 +133,13 @@ To build the standalone version, assuming starting from top level NOS3 repositor
 * cd ./components/sample/support
 * mkdir build
 * cd build
-* cmake .. -DTGTNAME=cpu1
+* cmake .. 
+  * Can override target selection by adding `-DTGTNAME=cpu1`
 * make
 
 To run the standalone version, assuming starting rom the top level NOS3 repository:
 * Follow the build steps above
+* make
 * make checkout
   * Launches NOS Engine, NOS Time Driver, NOS Terminal, Sample Sim, and Sample Checkout
 * make stop

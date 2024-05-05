@@ -9,12 +9,12 @@ namespace Nos3
     {
         sim_logger->trace("SampleDataPoint::SampleDataPoint:  Defined Constructor executed");
 
-        /* Do calculations based on provided data */
+        /* Do calculations based on provided data - also preparing like ADC data to checkout is obvious */
         _42_parsing = false;
         _sample_data_is_valid = true;
-        _sample_data[0] = count * 0.001;
-        _sample_data[1] = count * 0.002;
-        _sample_data[2] = count * 0.003;
+        _sample_data[0] = (((count * 1) / 32767.0) - 32768.0);
+        _sample_data[1] = (((count * 2) / 32767.0) - 32768.0);
+        _sample_data[2] = (((count * 3) / 32767.0) - 32768.0);
     }
 
     SampleDataPoint::SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft)

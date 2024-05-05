@@ -248,7 +248,7 @@ int32_t SAMPLE_RequestData(uart_info_t* device, SAMPLE_Device_Data_tlm_t* data)
 
                 #ifdef SAMPLE_CFG_DEBUG
                     OS_printf("  Header  = 0x%02x%02x  \n", read_data[0], read_data[1]);
-                    OS_printf("  Counter = 0x%08x      \n", data->DeviceCounter);
+                    OS_printf("  Counter = 0x%08x, %d  \n", data->DeviceCounter, data->DeviceCounter);
                     OS_printf("  Data X  = 0x%04x, %d  \n", data->DeviceDataX, data->DeviceDataX);
                     OS_printf("  Data Y  = 0x%04x, %d  \n", data->DeviceDataY, data->DeviceDataY);
                     OS_printf("  Data Z  = 0x%04x, %d  \n", data->DeviceDataZ, data->DeviceDataZ);
