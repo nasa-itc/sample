@@ -18,8 +18,8 @@
     /* Notes: 
     **   NOS3 uart requires matching handle and bus number
     */
-    #define SAMPLE_CFG_STRING           "usart_29"
-    #define SAMPLE_CFG_HANDLE           29 
+    #define SAMPLE_CFG_STRING           "usart_16"
+    #define SAMPLE_CFG_HANDLE           16
     #define SAMPLE_CFG_BAUDRATE_HZ      115200
     #define SAMPLE_CFG_MS_TIMEOUT       50            /* Max 255 */
     /* Note: Debug flag disabled (commented out) by default */

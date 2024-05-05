@@ -6,11 +6,6 @@ if (NOT DEFINED TGTNAME)
   message(FATAL_ERROR "TGTNAME must be defined on the cmake command line (e.g. \"-DTGTNAME=cpu1\")")
 endif()
 
-if(${TGTNAME} STREQUAL cpu1)
-  SET(CMAKE_C_FLAGS_INIT "-m32" CACHE STRING "C Flags required by platform")
-  SET(CMAKE_C_FLAGS "-m32" CACHE STRING "C Flags required by platform")
-endif()
-
 include(../../ComponentSettings.cmake)
 
 if(${TGTNAME} STREQUAL cpu1)
@@ -65,5 +60,5 @@ add_executable(sample_checkout ${sample_checkout_src})
 target_link_libraries(sample_checkout ${sample_checkout_libs})
 
 if(${TGTNAME} STREQUAL cpu1)
-  set_target_properties(sample_checkout PROPERTIES COMPILE_FLAGS "-m32 -g" LINK_FLAGS "-m32 -g")
+  set_target_properties(sample_checkout PROPERTIES COMPILE_FLAGS "-g" LINK_FLAGS "-g")
 endif()
