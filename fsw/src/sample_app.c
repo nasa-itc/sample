@@ -356,7 +356,6 @@ void SAMPLE_ProcessGroundCommand(void)
 */
 void SAMPLE_ProcessTelemetryRequest(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
