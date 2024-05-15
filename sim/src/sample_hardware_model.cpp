@@ -7,7 +7,7 @@ namespace Nos3
     extern ItcLogger::Logger *sim_logger;
 
     SampleHardwareModel::SampleHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), 
-    _enabled(SAMPLE_SIM_ERROR), _count(0), _config(0), _status(0)
+    _enabled(SAMPLE_SIM_SUCCESS), _count(0), _config(0), _status(0)
     {
         /* Get the NOS engine connection string */
         std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001"); 
@@ -241,7 +241,7 @@ namespace Nos3
             /* Check if message is incorrect size */
             if (in_data.size() != 9)
             {
-                sim_logger->debug("SampleHardwareModel::uart_read_callback:  Invalid command size of %d received!", in_data.size());
+                sim_logger->debug("SampleHardwareModel::uart_read_callback:  Invalid command size of %ld received!", in_data.size());
                 valid = SAMPLE_SIM_ERROR;
             }
             else
@@ -308,10 +308,9 @@ namespace Nos3
             }
         }
 
-        /* Increment count and echo command since format valid */
+        /* Echo command since format valid */
         if (valid == SAMPLE_SIM_SUCCESS)
         {
-            _count++;
             _uart_connection->write(&in_data[0], in_data.size());
 
             /* Send response if existing */

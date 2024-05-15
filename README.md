@@ -127,6 +127,23 @@ Optionally the 42 data provider can be configured in the `nos3-simulator.xml`:
 ```
 
 
+# Standalone
+To build the standalone version, assuming starting from top level NOS3 repository:
+* make debug
+* cd ./components/sample/support
+* mkdir build
+* cd build
+* cmake .. 
+  * Can override target selection by adding `-DTGTNAME=cpu1`
+* make
+
+To run the standalone version, assuming starting rom the top level NOS3 repository:
+* Follow the build steps above
+* make
+* make checkout
+  * Launches NOS Engine, NOS Time Driver, NOS Terminal, Sample Sim, and Sample Checkout
+* make stop
+
 # Documentation
 If this sample application had an ICD and/or test procedure, they would be linked here.
 

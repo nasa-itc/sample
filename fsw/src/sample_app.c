@@ -356,7 +356,6 @@ void SAMPLE_ProcessGroundCommand(void)
 */
 void SAMPLE_ProcessTelemetryRequest(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -564,7 +563,7 @@ int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length)
         CFE_MSG_GetFcnCode(msg, &cmd_code);
 
         CFE_EVS_SendEvent(SAMPLE_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d",
+           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %ld, Expected = %d",
               CFE_SB_MsgIdToValue(msg_id), cmd_code, actual_length, expected_length);
 
         status = OS_ERROR;
