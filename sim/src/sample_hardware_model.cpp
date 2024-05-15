@@ -308,10 +308,9 @@ namespace Nos3
             }
         }
 
-        /* Increment count and echo command since format valid */
+        /* Echo command since format valid */
         if (valid == SAMPLE_SIM_SUCCESS)
         {
-            _count++;
             _uart_connection->write(&in_data[0], in_data.size());
 
             /* Send response if existing */
