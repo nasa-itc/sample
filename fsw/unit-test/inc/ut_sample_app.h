@@ -41,12 +41,11 @@
  * Necessary to include these here to get the definition of the
  * "SAMPLE_APP_Data_t" typedef.
  */
-#include "sample_app_events.h"
 #include "sample_app.h"
 
 /*
  * Allow UT access to the global "SAMPLE_APP_Data" object.
  */
-extern SAMPLE_APP_Data_t SAMPLE_APP_Data;
+//extern SAMPLE_AppData_t SAMPLE_APP_Data;
 
 #endif /* UT_SAMPLE_APP_H */
