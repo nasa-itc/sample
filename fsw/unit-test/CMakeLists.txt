@@ -22,6 +22,7 @@
 # inclusion of source files that are normally private
 include_directories(${PROJECT_SOURCE_DIR}/fsw/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
+include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 
 
 # Add a coverage test executable called "sample-ALL" that 
@@ -35,6 +36,7 @@ add_cfe_coverage_test(sample ALL
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
     "../src/sample_device.c"
+    "../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
 )
 
 # The sample uses library functions provided by sample_lib so must be linked

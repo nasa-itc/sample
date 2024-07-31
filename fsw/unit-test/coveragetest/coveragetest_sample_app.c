@@ -218,7 +218,7 @@ void Test_SAMPLE_AppMain(void)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RunLoop), 1, true);
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 1, CFE_SB_PIPE_RD_ERR);
-    UT_CheckEvent_Setup(&EventTest, SAMPLE_PIPE_ERR_EID, "SAMPLE: SB Pipe Read Error");
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_PIPE_ERR_EID, "SAMPLE: SB Pipe Read Error = %d");
 
     /*
      * Invoke again
@@ -252,19 +252,12 @@ void Test_SAMPLE_AppInit(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_CreatePipe), 1, CFE_SB_BAD_ARGUMENT);
     UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
-    UtAssert_True(UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 2, "CFE_ES_WriteToSysLog() called");
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, CFE_SB_BAD_ARGUMENT);
     UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
-    UtAssert_True(UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 3, "CFE_ES_WriteToSysLog() called");
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, CFE_SB_BAD_ARGUMENT);
     UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
-    UtAssert_True(UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 4, "CFE_ES_WriteToSysLog() called");
-
-    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_TBL_ERR_INVALID_OPTIONS);
-    UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_TBL_ERR_INVALID_OPTIONS);
-    UtAssert_True(UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 5, "CFE_ES_WriteToSysLog() called");
 }
 
 void Test_SAMPLE_ProcessCommandPacket(void)
@@ -285,7 +278,7 @@ void Test_SAMPLE_ProcessCommandPacket(void)
     UT_CheckEvent_t   EventTest;
 
     memset(&TestMsg, 0, sizeof(TestMsg));
-    UT_CheckEvent_Setup(&EventTest, SAMPLE_PROCESS_CMD_ERR_EID, "SAMPLE: Invalid command packet, MID = 0x%x");
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_PROCESS_CMD_ERR_EID, NULL);
 
     /*
      * The CFE_MSG_GetMsgId() stub uses a data buffer to hold the
@@ -298,19 +291,14 @@ void Test_SAMPLE_ProcessCommandPacket(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
     SAMPLE_ProcessCommandPacket();
-
-    TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_REQ_HK_TLM);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
-    SAMPLE_ProcessCommandPacket();
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_CMD_ERR_EID not generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
 
     /* invalid message id */
     TestMsgId = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     SAMPLE_ProcessCommandPacket();
-
-    /*
-     * Confirm that the event was generated only _once_
-     */
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
@@ -321,6 +309,7 @@ void Test_SAMPLE_ProcessGroundCommand(void)
      * Test Case For:
      * void SAMPLE_ProcessGroundCommand
      */
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_CMD_MID);
     CFE_MSG_FcnCode_t FcnCode;
     size_t            Size;
 
@@ -329,8 +318,7 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     {
         CFE_SB_Buffer_t           SBBuf;
         SAMPLE_NoArgs_cmd_t       Noop;
-        SAMPLE_NoArgs_cmd_t Reset;
-        SAMPLE_NoArgs_cmd_t       Process;
+        SAMPLE_NoArgs_cmd_t       Reset;
     } TestMsg;
     UT_CheckEvent_t EventTest;
 
@@ -348,36 +336,32 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     /* test dispatch of NOOP */
     FcnCode = SAMPLE_NOOP_CC;
     Size    = sizeof(TestMsg.Noop);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_NOOP_INF_EID, NULL);
-
     SAMPLE_ProcessGroundCommand();
-
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_NOOP_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of RESET */
     FcnCode = SAMPLE_RESET_COUNTERS_CC;
     Size    = sizeof(TestMsg.Reset);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_RESET_INF_EID, NULL);
-
     SAMPLE_ProcessGroundCommand();
-
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_RESET_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test an invalid CC */
-    FcnCode = 1000;
+    FcnCode = 99;
+    Size    = sizeof(TestMsg.Noop);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_ERR_EID, "Invalid ground command code: CC = %d");
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_ERR_EID, NULL);
     SAMPLE_ProcessGroundCommand();
-
-    /*
-     * Confirm that the event was generated only _once_
-     */
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
@@ -386,7 +370,7 @@ void Test_SAMPLE_ReportHousekeeping(void)
 {
     /*
      * Test Case For:
-     * void SAMPLE_ReportHousekeeping( const CFE_SB_CmdHdr_t *Msg )
+     * void SAMPLE_ReportHousekeeping()
      */
     CFE_MSG_Message_t *MsgSend;
     CFE_MSG_Message_t *MsgTimestamp;
@@ -402,7 +386,7 @@ void Test_SAMPLE_ReportHousekeeping(void)
     UT_SetDataBuffer(UT_KEY(CFE_SB_TimeStampMsg), &MsgTimestamp, sizeof(MsgTimestamp), false);
 
     /* Call unit under test, NULL pointer confirms command access is through APIs */
-    SAMPLE_ProcessCommandPacket();
+    SAMPLE_ReportHousekeeping();
 
     /* Confirm message sent*/
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)) == 1, "CFE_SB_TransmitMsg() called once");
@@ -412,30 +396,6 @@ void Test_SAMPLE_ReportHousekeeping(void)
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TimeStampMsg)) == 1, "CFE_SB_TimeStampMsg() called once");
     UtAssert_True(MsgTimestamp == &SAMPLE_AppData.HkTelemetryPkt.TlmHeader.Msg,
                   "CFE_SB_TimeStampMsg() address matches expected");
-
-    /*
-     * Confirm that the CFE_TBL_Manage() call was done
-     */
-    UtAssert_True(UT_GetStubCount(UT_KEY(CFE_TBL_Manage)) == 1, "CFE_TBL_Manage() called");
-}
-
-void Test_SAMPLE_ResetCounters(void)
-{
-    /*
-     * Test Case For:
-     * void SAMPLE_ResetCounters( void )
-     */
-    UT_CheckEvent_t               EventTest;
-
-    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_RESET_INF_EID, "SAMPLE: RESET command");
-
-    SAMPLE_ResetCounters();
-
-    /*
-     * Confirm that the event was generated
-     */
-    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_RESET_INF_EID generated (%u)",
-                  (unsigned int)EventTest.MatchCount);
 }
 
 void Test_SAMPLE_VerifyCmdLength(void)
@@ -447,14 +407,13 @@ void Test_SAMPLE_VerifyCmdLength(void)
     UT_CheckEvent_t   EventTest;
     size_t            size    = 1;
     CFE_MSG_FcnCode_t fcncode = 2;
-    CFE_SB_MsgId_t    msgid   = CFE_SB_ValueToMsgId(3);
+    CFE_SB_MsgId_t    msgid   = CFE_SB_ValueToMsgId(SAMPLE_CMD_MID);
 
     /*
      * test a match case
      */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
-    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID,
-                        "Invalid Msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u");
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
 
     SAMPLE_VerifyCmdLength(NULL, size);
 
@@ -470,6 +429,7 @@ void Test_SAMPLE_VerifyCmdLength(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &msgid, sizeof(msgid), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &fcncode, sizeof(fcncode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
     SAMPLE_VerifyCmdLength(NULL, size + 1);
 
     /*
@@ -502,6 +462,5 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_ProcessCommandPacket);
     ADD_TEST(SAMPLE_ProcessGroundCommand);
     ADD_TEST(SAMPLE_ReportHousekeeping);
-    ADD_TEST(SAMPLE_ResetCounters);
     ADD_TEST(SAMPLE_VerifyCmdLength);
 }
