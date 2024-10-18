@@ -36,7 +36,7 @@ add_cfe_coverage_test(sample ALL
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
     "../src/sample_device.c"
-    "../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
+    "../../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
 )
 
 # The sample uses library functions provided by sample_lib so must be linked
