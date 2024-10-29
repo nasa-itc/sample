@@ -35,7 +35,7 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 add_cfe_coverage_test(sample ALL 
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
-    "../src/sample_device.c"
+    "../../shared/sample_device.c"
     "../../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
 )
 
