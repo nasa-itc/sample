@@ -8,12 +8,14 @@ include_directories(mission_inc)
 include_directories(platform_inc)
 include_directories(src)
 
+include_directories(../shared)
 include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 
 aux_source_directory(src APP_SRC_FILES)
 
 # Create the app module
-add_cfe_app(sample ${APP_SRC_FILES})
+add_cfe_app(sample ${APP_SRC_FILES}
+            ../shared/sample_device.c)
 
 # If UT is enabled, then add the tests from the subdirectory
 # Note that this is an app, and therefore does not provide
