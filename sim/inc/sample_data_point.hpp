@@ -35,7 +35,6 @@ namespace Nos3
         mutable Sim42DataPoint _dp;
         int16_t _sc;
         // mutable below so parsing can be on demand:
-        mutable bool _42_parsing;
         mutable bool _not_parsed;
         /* Specific data you need to get from the data provider to the hardware model */
         /* You only get to this data through the accessors above */
