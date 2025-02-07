@@ -439,6 +439,8 @@ void Test_SAMPLE_ReportHousekeeping(void)
     /* Set up to capture timestamp message address */
     UT_SetDataBuffer(UT_KEY(CFE_SB_TimeStampMsg), &MsgTimestamp, sizeof(MsgTimestamp), false);
 
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    
     /* Call unit under test, NULL pointer confirms command access is through APIs */
     SAMPLE_ReportHousekeeping();
 
