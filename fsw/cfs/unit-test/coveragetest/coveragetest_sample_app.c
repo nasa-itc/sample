@@ -337,6 +337,7 @@ void Test_SAMPLE_ProcessGroundCommand(void)
         SAMPLE_NoArgs_cmd_t       Reset;
         SAMPLE_NoArgs_cmd_t       Enable;
         SAMPLE_NoArgs_cmd_t       Disable;
+        SAMPLE_Config_cmd_t       Config;
     } TestMsg;
     UT_CheckEvent_t EventTest;
 
@@ -393,6 +394,19 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_DISABLE_INF_EID, NULL);
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_DISABLE_INF_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    /* test dispatch of CONFIG */
+    FcnCode = SAMPLE_CONFIG_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_CONFIG_INF_EID, NULL);
+    CFE_MSG_Message_t msgPtr;
+    SAMPLE_AppData.MsgPtr = &msgPtr;
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_CONFIG_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test an invalid CC */
