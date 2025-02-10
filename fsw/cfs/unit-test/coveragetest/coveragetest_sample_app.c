@@ -264,6 +264,16 @@ void Test_SAMPLE_AppInit(void)
 
 }
 
+void Test_SAMPLE_ProcessTelemetryRequest(void)
+{
+    CFE_MSG_FcnCode_t FcnCode;
+    FcnCode = SAMPLE_REQ_DATA_TLM;
+
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    SAMPLE_ProcessTelemetryRequest();
+}
+
 void Test_SAMPLE_ProcessCommandPacket(void)
 {
     /*
@@ -528,4 +538,5 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_ReportHousekeeping);
     ADD_TEST(SAMPLE_VerifyCmdLength);
     ADD_TEST(SAMPLE_ReportDeviceTelemetry);
+    ADD_TEST(SAMPLE_ProcessTelemetryRequest);
 }
