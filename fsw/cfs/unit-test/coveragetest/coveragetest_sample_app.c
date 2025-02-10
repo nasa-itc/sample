@@ -266,12 +266,19 @@ void Test_SAMPLE_AppInit(void)
 
 void Test_SAMPLE_ProcessTelemetryRequest(void)
 {
+    CFE_SB_MsgId_t    TestMsgId;
+    UT_CheckEvent_t   EventTest;
     CFE_MSG_FcnCode_t FcnCode;
     FcnCode = SAMPLE_REQ_DATA_TLM;
 
+    TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_CMD_MID);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_REQ_DATA_ERR_EID, NULL);
     SAMPLE_ProcessTelemetryRequest();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
 }
 
 void Test_SAMPLE_ProcessCommandPacket(void)
