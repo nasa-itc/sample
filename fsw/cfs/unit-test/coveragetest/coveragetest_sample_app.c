@@ -495,6 +495,14 @@ void Test_SAMPLE_VerifyCmdLength(void)
                   (unsigned int)EventTest.MatchCount);
 }
 
+void Test_SAMPLE_ReportDeviceTelemetry(void)
+{
+    SAMPLE_ReportDeviceTelemetry();
+
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 2, OS_SUCCESS);
+    SAMPLE_ReportDeviceTelemetry();
+}
+
 /*
  * Setup function prior to every test
  */
@@ -519,4 +527,5 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_ProcessGroundCommand);
     ADD_TEST(SAMPLE_ReportHousekeeping);
     ADD_TEST(SAMPLE_VerifyCmdLength);
+    ADD_TEST(SAMPLE_ReportDeviceTelemetry);
 }
