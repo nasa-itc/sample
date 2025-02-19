@@ -3,11 +3,10 @@ cmake_minimum_required(VERSION 2.6.4)
 project (sample_checkout)
 
 if (NOT DEFINED TGTNAME)
-  set(TGTNAME "cpu1")
-  message(STATUS "Selecting cpu1 for build, can override with \"-DTGTNAME=cpu1\"")
+  message(FATAL_ERROR "TGTNAME must be defined on the cmake command line (e.g. \"-DTGTNAME=cpu1\")")
 endif()
 
-include(../../ComponentSettings.cmake)
+include(../../../ComponentSettings.cmake)
 
 if(${TGTNAME} STREQUAL cpu1)
   find_path(_ITC_CMAKE_MODULES_
@@ -26,24 +25,25 @@ if(${TGTNAME} STREQUAL cpu1)
 endif()
 
 include_directories("./")
-include_directories("../fsw/platform_inc")
-include_directories("../fsw/src")
-include_directories("../../../fsw/apps/hwlib/fsw/public_inc")
+include_directories("../cfs/platform_inc")
+include_directories("../cfs/src")
+include_directories("../shared")
+include_directories("../../../../fsw/apps/hwlib/fsw/public_inc")
 
 set(sample_checkout_src
   sample_checkout.c 
-  ../fsw/src/sample_device.c
+  ../shared/sample_device.c
 )
 
 if(${TGTNAME} STREQUAL cpu1)
-  include_directories("../../../fsw/apps/hwlib/sim/inc")
+  include_directories("../../../../fsw/apps/hwlib/sim/inc")
   set(sample_checkout_src 
     ${sample_checkout_src}
-    ../../../fsw/apps/hwlib/sim/src/libuart.c
-    ../../../fsw/apps/hwlib/sim/src/libcan.c
-    ../../../fsw/apps/hwlib/sim/src/libi2c.c
-    ../../../fsw/apps/hwlib/sim/src/libspi.c
-    ../../../fsw/apps/hwlib/sim/src/nos_link.c
+    ../../../../fsw/apps/hwlib/sim/src/libuart.c
+    ../../../../fsw/apps/hwlib/sim/src/libcan.c
+    ../../../../fsw/apps/hwlib/sim/src/libi2c.c
+    ../../../../fsw/apps/hwlib/sim/src/libspi.c
+    ../../../../fsw/apps/hwlib/sim/src/nos_link.c
   )
   set(sample_checkout_libs
     ${ITC_Common_LIBRARIES}
@@ -53,7 +53,7 @@ endif()
 if(${TGTNAME} STREQUAL cpu2)
   set(sample_checkout_src 
     ${sample_checkout_src}
-    ../../../fsw/apps/hwlib/fsw/linux/libuart.c
+    ../../../../fsw/apps/hwlib/fsw/linux/libuart.c
   )
 endif()
 

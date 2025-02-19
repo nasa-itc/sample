@@ -27,6 +27,9 @@
 #include "device_cfg.h"
 #include "sample_device.h"
 
+#if TGTNAME == cpu1
+    #include "nos_link.h"
+#endif
 
 /*
 ** Standard Defines
@@ -36,7 +39,6 @@
 #define MAX_INPUT_TOKENS      	64
 #define MAX_INPUT_TOKEN_SIZE  	50
 #define TELEM_BUF_LEN           8
-
 
 /*
 ** Command Defines
@@ -49,7 +51,6 @@
 #define CMD_SAMPLE   4
 #define CMD_CFG      5
 
-
 /*
 ** Prototypes
 */
@@ -57,12 +58,10 @@ void print_help(void);
 int  get_command(const char* str);
 int  main(int argc, char *argv[]);
 
-
 /*
 ** Generic Prototypes
 */
 int check_number_arguments(int actual, int expected);
 void to_lower(char* str);
-
 
 #endif /* _SAMPLE_CHECKOUT_H_ */

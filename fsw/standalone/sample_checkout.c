@@ -12,7 +12,6 @@
 */
 #include "sample_checkout.h"
 
-
 /*
 ** Global Variables
 */
@@ -191,6 +190,11 @@ int main(int argc, char *argv[])
     char* token_ptr;
     uint8_t run_status = OS_SUCCESS;
 
+    /* Initialize HWLIB */
+    #ifdef _NOS_ENGINE_LINK_
+        nos_init_link();
+    #endif
+
     /* Open device specific protocols */
     SampleUart.deviceString = SAMPLE_CFG_STRING;
     SampleUart.handle = SAMPLE_CFG_HANDLE;
@@ -245,6 +249,10 @@ int main(int argc, char *argv[])
 
     // Close the device 
     uart_close_port(&SampleUart);
+
+    #ifdef _NOS_ENGINE_LINK_
+        nos_destroy_link();
+    #endif
 
     OS_printf("Cleanly exiting sample application...\n\n"); 
     return 1;
