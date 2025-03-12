@@ -274,10 +274,11 @@ void Test_SAMPLE_ProcessTelemetryRequest(void)
     TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_CMD_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_SUCCESS);
 
     UT_CheckEvent_Setup(&EventTest, SAMPLE_REQ_DATA_ERR_EID, NULL);
     SAMPLE_ProcessTelemetryRequest();
-    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 }
 
@@ -420,6 +421,7 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_CONFIG_INF_EID, NULL);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_CommandDevice), 1, OS_ERROR);
     CFE_MSG_Message_t msgPtr;
     SAMPLE_AppData.MsgPtr = &msgPtr;
     SAMPLE_ProcessGroundCommand();

@@ -17,6 +17,11 @@
 #    The primary objective is to get line/path coverage on the FSW 
 #    code units.
 #
+
+add_cfe_coverage_stubs(sample-internal stubs/sample_device_stubs.c) 
+target_link_libraries(coverage-sample-internal-stubs ut_core_api_stubs ut_assert)
+target_include_directories(coverage-sample-internal-stubs PUBLIC $<TARGET_PROPERTY:sample,INCLUDE_DIRECTORIES>)
+
  
 # Use the UT assert public API, and allow direct
 # inclusion of source files that are normally private
@@ -35,9 +40,11 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 add_cfe_coverage_test(sample ALL 
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
-    "../../shared/sample_device.c"
     "../../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
 )
+
+add_cfe_coverage_dependency(sample ALL sample-internal)
+
 
 # The sample uses library functions provided by sample_lib so must be linked
 # with the sample_lib stub library (this is mainly just an example of how this 
