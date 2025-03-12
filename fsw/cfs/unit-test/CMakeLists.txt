@@ -40,7 +40,6 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 add_cfe_coverage_test(sample ALL 
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
-    "../../../../../fsw/apps/hwlib/fsw/stubs/libuart.c"
 )
 
 add_cfe_coverage_dependency(sample ALL sample-internal)

@@ -280,6 +280,13 @@ void Test_SAMPLE_ProcessTelemetryRequest(void)
     SAMPLE_ProcessTelemetryRequest();
     UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+
+    FcnCode = 99;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    SAMPLE_ProcessTelemetryRequest();
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
+                (unsigned int)EventTest.MatchCount);
 }
 
 void Test_SAMPLE_ProcessCommandPacket(void)
@@ -483,6 +490,11 @@ void Test_SAMPLE_ReportHousekeeping(void)
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TimeStampMsg)) == 1, "CFE_SB_TimeStampMsg() called once");
     UtAssert_True(MsgTimestamp == &SAMPLE_AppData.HkTelemetryPkt.TlmHeader.Msg,
                   "CFE_SB_TimeStampMsg() address matches expected");
+    
+    UT_CheckEvent_t EventTest;
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestHK), 1, OS_ERROR);    
+    SAMPLE_ReportHousekeeping();
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_REQ_HK_ERR_EID, "SAMPLE: Request device HK reported error -1");
 }
 
 void Test_SAMPLE_VerifyCmdLength(void)
@@ -530,8 +542,29 @@ void Test_SAMPLE_ReportDeviceTelemetry(void)
 {
     SAMPLE_ReportDeviceTelemetry();
 
-    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 2, OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_SUCCESS);
     SAMPLE_ReportDeviceTelemetry();
+
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_ERROR);
+    SAMPLE_ReportDeviceTelemetry();
+}
+
+void Test_SAMPLE_Enable(void)
+{
+    int enabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_SUCCESS);
+    SAMPLE_Enable();
+
+    enabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
+    SAMPLE_Enable();
+
+    enabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
+    SAMPLE_Enable();
 }
 
 /*
@@ -560,4 +593,5 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_VerifyCmdLength);
     ADD_TEST(SAMPLE_ReportDeviceTelemetry);
     ADD_TEST(SAMPLE_ProcessTelemetryRequest);
+    ADD_TEST(SAMPLE_Enable);
 }
