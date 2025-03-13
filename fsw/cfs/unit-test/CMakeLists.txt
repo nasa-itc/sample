@@ -18,7 +18,7 @@
 #    code units.
 #
 
-add_cfe_coverage_stubs(sample-internal stubs/sample_device_stubs.c) 
+add_cfe_coverage_stubs(sample-internal stubs/sample_device_stubs.c stubs/libuart_stubs.c) 
 target_link_libraries(coverage-sample-internal-stubs ut_core_api_stubs ut_assert)
 target_include_directories(coverage-sample-internal-stubs PUBLIC $<TARGET_PROPERTY:sample,INCLUDE_DIRECTORIES>)
 

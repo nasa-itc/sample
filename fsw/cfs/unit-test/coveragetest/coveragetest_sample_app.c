@@ -551,20 +551,28 @@ void Test_SAMPLE_ReportDeviceTelemetry(void)
 
 void Test_SAMPLE_Enable(void)
 {
-    int enabled = SAMPLE_DEVICE_DISABLED;
-    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_CheckEvent_t   EventTest;
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_ENABLE_INF_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
     UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_SUCCESS);
     SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device enabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
 
-    enabled = SAMPLE_DEVICE_DISABLED;
-    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_UART_INIT_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
     UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
     SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: UART port initialization error (%u)",
+                  (unsigned int)EventTest.MatchCount);
 
-    enabled = SAMPLE_DEVICE_ENABLED;
-    UT_SetDataBuffer(UT_KEY(SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled), &enabled, sizeof(enabled), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_ENABLE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
     UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
     SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device enable failed, already enabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
 }
 
 /*
