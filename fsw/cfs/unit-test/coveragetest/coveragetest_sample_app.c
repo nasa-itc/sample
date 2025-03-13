@@ -575,6 +575,32 @@ void Test_SAMPLE_Enable(void)
                   (unsigned int)EventTest.MatchCount);
 }
 
+void Test_SAMPLE_Disable(void)
+{
+    UT_CheckEvent_t   EventTest;
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_DISABLE_INF_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_SUCCESS);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device disabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_UART_CLOSE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_ERROR);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: UART port close error (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_DISABLE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_ERROR);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device disable failed, already disabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
+}
+
 /*
  * Setup function prior to every test
  */
@@ -602,4 +628,5 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_ReportDeviceTelemetry);
     ADD_TEST(SAMPLE_ProcessTelemetryRequest);
     ADD_TEST(SAMPLE_Enable);
+    ADD_TEST(SAMPLE_Disable);
 }
