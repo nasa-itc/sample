@@ -398,6 +398,18 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_RESET_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_RESET_COUNTERS_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)",
+        (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of ENABLE */
     FcnCode = SAMPLE_ENABLE_CC;
@@ -409,6 +421,18 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_ENABLE_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_ENABLE_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)",
+        (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of DISABLE */
     FcnCode = SAMPLE_DISABLE_CC;
@@ -420,6 +444,18 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_DISABLE_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_DISABLE_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)",
+        (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of CONFIG */
     FcnCode = SAMPLE_CONFIG_CC;
@@ -434,6 +470,18 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_CONFIG_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_CONFIG_CC;
+    Size    = sizeof(TestMsg.Reset);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)",
+        (unsigned int)EventTest.MatchCount);
 
     FcnCode = SAMPLE_CONFIG_CC;
     Size    = sizeof(TestMsg.Config);
@@ -546,6 +594,9 @@ void Test_SAMPLE_ReportDeviceTelemetry(void)
     SAMPLE_ReportDeviceTelemetry();
 
     UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_ERROR);
+    SAMPLE_ReportDeviceTelemetry();
+
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
     SAMPLE_ReportDeviceTelemetry();
 }
 
