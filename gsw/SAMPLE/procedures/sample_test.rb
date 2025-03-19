@@ -4,7 +4,7 @@ require 'mission_lib.rb'
 
 class LPT < Cosmos::Test
   def setup
-      enable_TO_and_verify()
+
   end
 
   def test_lpt
@@ -12,7 +12,7 @@ class LPT < Cosmos::Test
   end
 
   def teardown
-      cmd("CFS_RADIO TO_PAUSE_OUTPUT")
+    
   end
 end
 
