@@ -387,6 +387,18 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_NOOP_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_NOOP_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)",
+        (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of RESET */
     FcnCode = SAMPLE_RESET_COUNTERS_CC;
