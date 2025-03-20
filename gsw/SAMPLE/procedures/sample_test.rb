@@ -2,7 +2,7 @@ require 'cosmos'
 require 'cosmos/script'
 require 'mission_lib.rb'
 
-class LPT < Cosmos::Test
+class SAMPLE_LPT < Cosmos::Test
   def setup
 
   end
@@ -12,11 +12,11 @@ class LPT < Cosmos::Test
   end
 
   def teardown
-    
+
   end
 end
 
-class CPT < Cosmos::Test
+class SAMPLE_CPT < Cosmos::Test
   def setup
       
   end
@@ -33,8 +33,8 @@ end
 class Sample_Test < Cosmos::TestSuite
   def initialize
       super()
-      add_test('CPT')
-      add_test('LPT')
+      add_test('SAMPLE_CPT')
+      add_test('SAMPLE_LPT')
   end
 
   def setup

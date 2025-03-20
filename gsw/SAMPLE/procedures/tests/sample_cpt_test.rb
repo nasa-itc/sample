@@ -25,6 +25,7 @@ cmd("SAMPLE SAMPLE_ENABLE_CC")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
 
 sleep(5)
 
@@ -38,17 +39,33 @@ cmd("SAMPLE SAMPLE_ENABLE_CC")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
 
 sleep(5)
 
 ##
-## Housekeeping w/ Device
+## Device Config
+##
+initial_command_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_COUNT")
+initial_error_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
+configure_value = ask "Enter Configuration Value:"
+cmd("SAMPLE SAMPLE_CONFIG_CC with DEVICE_CONFIG #{configure_value}")
+wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+
+sleep(5)
+
+##
+## Housekeeping w/ Device (and verify config)
 ##
 initial_error_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT")
 initial_device_error_count = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
 cmd("SAMPLE SAMPLE_REQ_HK")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_CONFIG == #{configure_value}", 30)
 
 sleep(5)
 
@@ -73,6 +90,7 @@ cmd("SAMPLE SAMPLE_DISABLE_CC")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
 
 sleep(5)
 
@@ -86,6 +104,7 @@ cmd("SAMPLE SAMPLE_DISABLE_CC")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT > #{initial_device_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'", 30)
 
 sleep(5)
 
