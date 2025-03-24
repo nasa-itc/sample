@@ -21,15 +21,15 @@ jobs:
 
         - name: Install clang-format
           run: sudo apt-get update && sudo apt-get install -y clang-format
-
-        - name: Run clang-format on selected files
-          run: |
-            echo "Finding and formatting C files (excluding syn and onair)..."
-            FILES=$(find components \
-              -type f \( -name '*.c' -o -name '*.h' \) \
-              -not -path "components/syn/*" \
-              -not -path "components/onair/*")
-            echo "$FILES" | xargs clang-format -i
+          
+        - name: Run clang-format Linter
+          uses: DoozyX/clang-format-lint-action@v0.15
+          with:
+            source: '.'                       # Scan the whole repo
+            extensions: 'c,h'                # Target .c and .h files
+            clangFormatVersion: 14           # Match your local version
+            style: file                      # Use your .clang-format file
+            inplace: true                    # Auto-fix in place
 
         - name: Auto-commit formatting changes
           uses: stefanzweifel/git-auto-commit-action@v5
