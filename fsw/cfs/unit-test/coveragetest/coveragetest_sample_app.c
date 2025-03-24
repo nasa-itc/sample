@@ -258,6 +258,10 @@ void Test_SAMPLE_AppInit(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, CFE_SB_BAD_ARGUMENT);
     UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, CFE_SB_BAD_ARGUMENT);
+    UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
+
 }
 
 void Test_SAMPLE_ProcessCommandPacket(void)
@@ -295,6 +299,17 @@ void Test_SAMPLE_ProcessCommandPacket(void)
     UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_CMD_ERR_EID not generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
+    TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_REQ_HK_MID);
+    FcnCode   = SAMPLE_REQ_HK_TLM;
+    MsgSize   = sizeof(TestMsg.Noop);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+    SAMPLE_ProcessCommandPacket();
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_CMD_ERR_EID not generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
     /* invalid message id */
     TestMsgId = CFE_SB_INVALID_MSG_ID;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
@@ -320,6 +335,8 @@ void Test_SAMPLE_ProcessGroundCommand(void)
         CFE_SB_Buffer_t           SBBuf;
         SAMPLE_NoArgs_cmd_t       Noop;
         SAMPLE_NoArgs_cmd_t       Reset;
+        SAMPLE_NoArgs_cmd_t       Enable;
+        SAMPLE_NoArgs_cmd_t       Disable;
     } TestMsg;
     UT_CheckEvent_t EventTest;
 
@@ -354,6 +371,28 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_RESET_INF_EID, NULL);
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_RESET_INF_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    /* test dispatch of ENABLE */
+    FcnCode = SAMPLE_ENABLE_CC;
+    Size    = sizeof(TestMsg.Enable);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_ENABLE_INF_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_ENABLE_INF_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    /* test dispatch of DISABLE */
+    FcnCode = SAMPLE_DISABLE_CC;
+    Size    = sizeof(TestMsg.Disable);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_DISABLE_INF_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_DISABLE_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test an invalid CC */

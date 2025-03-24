@@ -1,0 +1,37 @@
+name: Build
+
+on: 
+  pull_request:
+
+env:
+  CTEST_OUTPUT_ON_FAILURE: true
+
+permissions:
+  contents: write
+  
+jobs:
+    linter:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+            submodules: recursive
+
+        - name: Install clang-format
+          run: sudo apt-get update && sudo apt-get install -y clang-format
+
+        - name: Run clang-format on selected files
+          run: |
+            echo "Finding and formatting C files (excluding syn and onair)..."
+            FILES=$(find components \
+              -type f \( -name '*.c' -o -name '*.h' \) \
+              -not -path "components/syn/*" \
+              -not -path "components/onair/*")
+            echo "$FILES" | xargs clang-format -i
+
+        - name: Auto-commit formatting changes
+          uses: stefanzweifel/git-auto-commit-action@v5
+          with:
+            commit_message: 'style: auto-format via clang-format'
