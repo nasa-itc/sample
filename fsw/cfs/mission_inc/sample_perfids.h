@@ -16,6 +16,6 @@
 ** id conflict with other apps.  Performance IDs are used for cFE performance
 ** metrics.
 */
-#define SAMPLE_PERF_ID          500
+#define SAMPLE_PERF_ID 500
 
 #endif /* _SAMPLE_PERFIDS_H_ */
