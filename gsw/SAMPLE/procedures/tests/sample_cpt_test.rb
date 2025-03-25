@@ -49,7 +49,7 @@ sleep(5)
 initial_command_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_COUNT")
 initial_error_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT")
 initial_device_error_count = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
-configure_value = ask "Enter Configuration Value:"
+configure_value = ask "Enter Configuration Value (integer between 0 and 4,294,967,295):"
 cmd("SAMPLE SAMPLE_CONFIG_CC with DEVICE_CONFIG #{configure_value}")
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
 wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)

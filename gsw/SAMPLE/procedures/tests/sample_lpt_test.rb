@@ -44,6 +44,20 @@ wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'ENABLED'", 30)
 sleep(5)
 
 ##
+## Device Config
+##
+initial_command_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_COUNT")
+initial_error_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT")
+initial_device_error_count = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
+configure_value = 2
+cmd("SAMPLE SAMPLE_CONFIG_CC with DEVICE_CONFIG #{configure_value}")
+wait_check("SAMPLE SAMPLE_HK_TLM CMD_COUNT > #{initial_command_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
+wait_check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
+
+sleep(5)
+
+##
 ## Housekeeping w/ Device
 ##
 initial_error_count = tlm("SAMPLE SAMPLE_HK_TLM CMD_ERR_COUNT")
