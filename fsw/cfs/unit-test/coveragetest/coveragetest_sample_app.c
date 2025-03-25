@@ -262,6 +262,31 @@ void Test_SAMPLE_AppInit(void)
     UT_TEST_FUNCTION_RC(SAMPLE_AppInit(), CFE_SB_BAD_ARGUMENT);
 }
 
+void Test_SAMPLE_ProcessTelemetryRequest(void)
+{
+    CFE_SB_MsgId_t    TestMsgId;
+    UT_CheckEvent_t   EventTest;
+    CFE_MSG_FcnCode_t FcnCode;
+    FcnCode = SAMPLE_REQ_DATA_TLM;
+
+    TestMsgId = CFE_SB_ValueToMsgId(SAMPLE_CMD_MID);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_SUCCESS);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_REQ_DATA_ERR_EID, NULL);
+    SAMPLE_ProcessTelemetryRequest();
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    FcnCode = 99;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    SAMPLE_ProcessTelemetryRequest();
+    UtAssert_True(EventTest.MatchCount == 0, "SAMPLE_REQ_DATA_ERR_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+}
+
 void Test_SAMPLE_ProcessCommandPacket(void)
 {
     /*
@@ -334,6 +359,7 @@ void Test_SAMPLE_ProcessGroundCommand(void)
         SAMPLE_NoArgs_cmd_t Reset;
         SAMPLE_NoArgs_cmd_t Enable;
         SAMPLE_NoArgs_cmd_t Disable;
+        SAMPLE_Config_cmd_t Config;
     } TestMsg;
     UT_CheckEvent_t EventTest;
 
@@ -358,6 +384,17 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_NOOP_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_NOOP_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of RESET */
     FcnCode = SAMPLE_RESET_COUNTERS_CC;
@@ -369,6 +406,17 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_RESET_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_RESET_COUNTERS_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of ENABLE */
     FcnCode = SAMPLE_ENABLE_CC;
@@ -380,6 +428,17 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_ENABLE_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_ENABLE_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
 
     /* test dispatch of DISABLE */
     FcnCode = SAMPLE_DISABLE_CC;
@@ -390,6 +449,54 @@ void Test_SAMPLE_ProcessGroundCommand(void)
     UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_DISABLE_INF_EID, NULL);
     SAMPLE_ProcessGroundCommand();
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_DISABLE_INF_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_DISABLE_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
+
+    /* test dispatch of CONFIG */
+    FcnCode = SAMPLE_CONFIG_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_CONFIG_INF_EID, NULL);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_CommandDevice), 1, OS_ERROR);
+    CFE_MSG_Message_t msgPtr;
+    SAMPLE_AppData.MsgPtr = &msgPtr;
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_CONFIG_INF_EID generated (%u)",
+                  (unsigned int)EventTest.MatchCount);
+    /* test failure of command length */
+    FcnCode = SAMPLE_CONFIG_CC;
+    Size    = sizeof(TestMsg.Reset);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_LEN_ERR_EID, NULL);
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
+
+    FcnCode = SAMPLE_CONFIG_CC;
+    Size    = sizeof(TestMsg.Config);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_CMD_CONFIG_INF_EID, NULL);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_CommandDevice), 1, OS_SUCCESS);
+    SAMPLE_AppData.MsgPtr = &msgPtr;
+    SAMPLE_ProcessGroundCommand();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_CMD_CONFIG_INF_EID generated (%u)",
                   (unsigned int)EventTest.MatchCount);
 
     /* test an invalid CC */
@@ -421,6 +528,8 @@ void Test_SAMPLE_ReportHousekeeping(void)
     /* Set up to capture timestamp message address */
     UT_SetDataBuffer(UT_KEY(CFE_SB_TimeStampMsg), &MsgTimestamp, sizeof(MsgTimestamp), false);
 
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+
     /* Call unit under test, NULL pointer confirms command access is through APIs */
     SAMPLE_ReportHousekeeping();
 
@@ -433,6 +542,11 @@ void Test_SAMPLE_ReportHousekeeping(void)
     UtAssert_True(UT_GetStubCount(UT_KEY(CFE_SB_TimeStampMsg)) == 1, "CFE_SB_TimeStampMsg() called once");
     UtAssert_True(MsgTimestamp == &SAMPLE_AppData.HkTelemetryPkt.TlmHeader.Msg,
                   "CFE_SB_TimeStampMsg() address matches expected");
+
+    UT_CheckEvent_t EventTest;
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestHK), 1, OS_ERROR);
+    SAMPLE_ReportHousekeeping();
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_REQ_HK_ERR_EID, "SAMPLE: Request device HK reported error -1");
 }
 
 void Test_SAMPLE_VerifyCmdLength(void)
@@ -475,6 +589,69 @@ void Test_SAMPLE_VerifyCmdLength(void)
     UtAssert_True(EventTest.MatchCount == 1, "SAMPLE_LEN_ERR_EID generated (%u)", (unsigned int)EventTest.MatchCount);
 }
 
+void Test_SAMPLE_ReportDeviceTelemetry(void)
+{
+    SAMPLE_ReportDeviceTelemetry();
+
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_SUCCESS);
+    SAMPLE_ReportDeviceTelemetry();
+
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_RequestData), 1, OS_ERROR);
+    SAMPLE_ReportDeviceTelemetry();
+
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    SAMPLE_ReportDeviceTelemetry();
+}
+
+void Test_SAMPLE_Enable(void)
+{
+    UT_CheckEvent_t EventTest;
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_ENABLE_INF_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_SUCCESS);
+    SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device enabled (%u)", (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_UART_INIT_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
+    SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: UART port initialization error (%u)",
+                  (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_ENABLE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_init_port), 1, OS_ERROR);
+    SAMPLE_Enable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device enable failed, already enabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
+}
+
+void Test_SAMPLE_Disable(void)
+{
+    UT_CheckEvent_t EventTest;
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_DISABLE_INF_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_SUCCESS);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device disabled (%u)", (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_UART_CLOSE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_ERROR);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: UART port close error (%u)", (unsigned int)EventTest.MatchCount);
+
+    UT_CheckEvent_Setup(&EventTest, SAMPLE_DISABLE_ERR_EID, NULL);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
+    UT_SetDeferredRetcode(UT_KEY(uart_close_port), 1, OS_ERROR);
+    SAMPLE_Disable();
+    UtAssert_True(EventTest.MatchCount == 1, "SAMPLE: Device disable failed, already disabled (%u)",
+                  (unsigned int)EventTest.MatchCount);
+}
+
 /*
  * Setup function prior to every test
  */
@@ -499,4 +676,8 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_ProcessGroundCommand);
     ADD_TEST(SAMPLE_ReportHousekeeping);
     ADD_TEST(SAMPLE_VerifyCmdLength);
+    ADD_TEST(SAMPLE_ReportDeviceTelemetry);
+    ADD_TEST(SAMPLE_ProcessTelemetryRequest);
+    ADD_TEST(SAMPLE_Enable);
+    ADD_TEST(SAMPLE_Disable);
 }
