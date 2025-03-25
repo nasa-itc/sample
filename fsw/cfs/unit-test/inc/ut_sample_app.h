@@ -46,6 +46,6 @@
 /*
  * Allow UT access to the global "SAMPLE_APP_Data" object.
  */
-//extern SAMPLE_AppData_t SAMPLE_APP_Data;
+// extern SAMPLE_AppData_t SAMPLE_APP_Data;
 
 #endif /* UT_SAMPLE_APP_H */

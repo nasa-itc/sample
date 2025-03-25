@@ -2,7 +2,7 @@
 ** File: sample_checkout.c
 **
 ** Purpose:
-**   This checkout can be run without cFS and is used to quickly develop and 
+**   This checkout can be run without cFS and is used to quickly develop and
 **   test functions required for a specific component.
 **
 *******************************************************************************/
@@ -15,98 +15,95 @@
 /*
 ** Global Variables
 */
-uart_info_t SampleUart;
-SAMPLE_Device_HK_tlm_t SampleHK;
+uart_info_t              SampleUart;
+SAMPLE_Device_HK_tlm_t   SampleHK;
 SAMPLE_Device_Data_tlm_t SampleData;
 
 /*
 ** Component Functions
 */
-void print_help(void) 
+void print_help(void)
 {
     printf(PROMPT "command [args]\n"
-        "---------------------------------------------------------------------\n"
-        "help                               - Display help                    \n"
-        "exit                               - Exit app                        \n"
-        "noop                               - No operation command to device  \n"
-        "  n                                - ^                               \n"
-        "hk                                 - Request device housekeeping     \n"
-        "  h                                - ^                               \n"
-        "sample                             - Request sample data             \n"
-        "  s                                - ^                               \n"
-        "cfg #                              - Send configuration #            \n"
-        "  c #                              - ^                               \n"
-        "\n"
-    );
+                  "---------------------------------------------------------------------\n"
+                  "help                               - Display help                    \n"
+                  "exit                               - Exit app                        \n"
+                  "noop                               - No operation command to device  \n"
+                  "  n                                - ^                               \n"
+                  "hk                                 - Request device housekeeping     \n"
+                  "  h                                - ^                               \n"
+                  "sample                             - Request sample data             \n"
+                  "  s                                - ^                               \n"
+                  "cfg #                              - Send configuration #            \n"
+                  "  c #                              - ^                               \n"
+                  "\n");
 }
 
-
-int get_command(const char* str)
+int get_command(const char *str)
 {
-    int status = CMD_UNKNOWN;
+    int  status = CMD_UNKNOWN;
     char lcmd[MAX_INPUT_TOKEN_SIZE];
     strncpy(lcmd, str, MAX_INPUT_TOKEN_SIZE);
 
     /* Convert command to lower case */
     to_lower(lcmd);
 
-    if(strcmp(lcmd, "help") == 0) 
+    if (strcmp(lcmd, "help") == 0)
     {
         status = CMD_HELP;
     }
-    else if(strcmp(lcmd, "exit") == 0) 
+    else if (strcmp(lcmd, "exit") == 0)
     {
         status = CMD_EXIT;
     }
-    else if(strcmp(lcmd, "noop") == 0) 
+    else if (strcmp(lcmd, "noop") == 0)
     {
         status = CMD_NOOP;
     }
-    else if(strcmp(lcmd, "n") == 0) 
+    else if (strcmp(lcmd, "n") == 0)
     {
         status = CMD_NOOP;
     }
-    else if(strcmp(lcmd, "hk") == 0) 
+    else if (strcmp(lcmd, "hk") == 0)
     {
         status = CMD_HK;
     }
-    else if(strcmp(lcmd, "h") == 0) 
+    else if (strcmp(lcmd, "h") == 0)
     {
         status = CMD_HK;
     }
-    else if(strcmp(lcmd, "sample") == 0) 
+    else if (strcmp(lcmd, "sample") == 0)
     {
         status = CMD_SAMPLE;
     }
-    else if(strcmp(lcmd, "s") == 0) 
+    else if (strcmp(lcmd, "s") == 0)
     {
         status = CMD_SAMPLE;
     }
-    else if(strcmp(lcmd, "cfg") == 0) 
+    else if (strcmp(lcmd, "cfg") == 0)
     {
         status = CMD_CFG;
     }
-    else if(strcmp(lcmd, "c") == 0) 
+    else if (strcmp(lcmd, "c") == 0)
     {
         status = CMD_CFG;
     }
     return status;
 }
 
-
 int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_INPUT_TOKEN_SIZE])
 {
-    int32_t status = OS_SUCCESS;
-    int32_t exit_status = OS_SUCCESS;
+    int32_t  status      = OS_SUCCESS;
+    int32_t  exit_status = OS_SUCCESS;
     uint32_t config;
 
     /* Process command */
-    switch(cc) 
-    {	
+    switch (cc)
+    {
         case CMD_HELP:
             print_help();
             break;
-        
+
         case CMD_EXIT:
             exit_status = OS_ERROR;
             break;
@@ -171,36 +168,35 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 }
             }
             break;
-        
-        default: 
+
+        default:
             OS_printf("Invalid command format, type 'help' for more info\n");
             break;
     }
     return exit_status;
 }
 
-
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
-    int status = OS_SUCCESS;
-    char input_buf[MAX_INPUT_BUF];
-    char input_tokens[MAX_INPUT_TOKENS][MAX_INPUT_TOKEN_SIZE];
-    int num_input_tokens;
-    int cmd;    
-    char* token_ptr;
+    int     status = OS_SUCCESS;
+    char    input_buf[MAX_INPUT_BUF];
+    char    input_tokens[MAX_INPUT_TOKENS][MAX_INPUT_TOKEN_SIZE];
+    int     num_input_tokens;
+    int     cmd;
+    char   *token_ptr;
     uint8_t run_status = OS_SUCCESS;
 
-    /* Initialize HWLIB */
-    #ifdef _NOS_ENGINE_LINK_
-        nos_init_link();
-    #endif
+/* Initialize HWLIB */
+#ifdef _NOS_ENGINE_LINK_
+    nos_init_link();
+#endif
 
     /* Open device specific protocols */
     SampleUart.deviceString = SAMPLE_CFG_STRING;
-    SampleUart.handle = SAMPLE_CFG_HANDLE;
-    SampleUart.isOpen = PORT_CLOSED;
-    SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
-    status = uart_init_port(&SampleUart);
+    SampleUart.handle       = SAMPLE_CFG_HANDLE;
+    SampleUart.isOpen       = PORT_CLOSED;
+    SampleUart.baud         = SAMPLE_CFG_BAUDRATE_HZ;
+    status                  = uart_init_port(&SampleUart);
     if (status == OS_SUCCESS)
     {
         printf("UART device %s configured with baudrate %d \n", SampleUart.deviceString, SampleUart.baud);
@@ -213,10 +209,10 @@ int main(int argc, char *argv[])
 
     /* Main loop */
     print_help();
-    while(run_status == OS_SUCCESS) 
+    while (run_status == OS_SUCCESS)
     {
         num_input_tokens = -1;
-        cmd = CMD_UNKNOWN;
+        cmd              = CMD_UNKNOWN;
 
         /* Read user input */
         printf(PROMPT);
@@ -224,14 +220,14 @@ int main(int argc, char *argv[])
 
         /* Tokenize line buffer */
         token_ptr = strtok(input_buf, " \t\n");
-        while((num_input_tokens < MAX_INPUT_TOKENS) && (token_ptr != NULL)) 
+        while ((num_input_tokens < MAX_INPUT_TOKENS) && (token_ptr != NULL))
         {
-            if(num_input_tokens == -1) 
+            if (num_input_tokens == -1)
             {
                 /* First token is command */
                 cmd = get_command(token_ptr);
             }
-            else 
+            else
             {
                 strncpy(input_tokens[num_input_tokens], token_ptr, MAX_INPUT_TOKEN_SIZE);
             }
@@ -240,24 +236,23 @@ int main(int argc, char *argv[])
         }
 
         /* Process command if valid */
-        if(num_input_tokens >= 0)
+        if (num_input_tokens >= 0)
         {
             /* Process command */
             run_status = process_command(cmd, num_input_tokens, input_tokens);
         }
     }
 
-    // Close the device 
+    // Close the device
     uart_close_port(&SampleUart);
 
-    #ifdef _NOS_ENGINE_LINK_
-        nos_destroy_link();
-    #endif
+#ifdef _NOS_ENGINE_LINK_
+    nos_destroy_link();
+#endif
 
-    OS_printf("Cleanly exiting sample application...\n\n"); 
+    OS_printf("Cleanly exiting sample application...\n\n");
     return 1;
 }
-
 
 /*
 ** Generic Functions
@@ -273,14 +268,13 @@ int check_number_arguments(int actual, int expected)
     return status;
 }
 
-void to_lower(char* str)
+void to_lower(char *str)
 {
-    char* ptr = str;
-    while(*ptr)
+    char *ptr = str;
+    while (*ptr)
     {
-        *ptr = tolower((unsigned char) *ptr);
+        *ptr = tolower((unsigned char)*ptr);
         ptr++;
     }
     return;
 }
-
