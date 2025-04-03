@@ -25,7 +25,7 @@ class SAMPLE_Automated_Scenario_Test < Cosmos::Test
     safe_sample()
   end
 
-  def test_cpt
+  def test_AST
       start("tests/sample_ast_test.rb")
   end
 
