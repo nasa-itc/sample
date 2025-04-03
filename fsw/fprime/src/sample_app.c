@@ -156,16 +156,14 @@ int32 SAMPLE_AppInit(void)
     ** Initialize the published HK message - this HK message will contain the
     ** telemetry that has been defined in the SAMPLE_HkTelemetryPkt for this app.
     */
-    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkTelemetryPkt.TlmHeader), 
-                 CFE_SB_ValueToMsgId(SAMPLE_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkTelemetryPkt.TlmHeader), CFE_SB_ValueToMsgId(SAMPLE_HK_TLM_MID),
                  SAMPLE_HK_TLM_LNGTH);
 
     /*
     ** Initialize the device packet message
     ** This packet is specific to your application
     */
-    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.DevicePkt.TlmHeader), 
-                 CFE_SB_ValueToMsgId(SAMPLE_DEVICE_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.DevicePkt.TlmHeader), CFE_SB_ValueToMsgId(SAMPLE_DEVICE_TLM_MID),
                  SAMPLE_DEVICE_TLM_LNGTH);
 
     /*
