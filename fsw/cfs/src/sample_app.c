@@ -448,6 +448,18 @@ void SAMPLE_ReportDeviceTelemetry(void)
             CFE_EVS_SendEvent(SAMPLE_REQ_DATA_ERR_EID, CFE_EVS_EventType_ERROR,
                               "SAMPLE: Request device data reported error %d", status);
         }
+
+        /* Check device status and act on error */
+        if (SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus != 0)
+        {
+            /* Any bit is an error, halting communication until device power cycled */
+            SAMPLE_Disable();
+
+            /* Send device status error to the console */
+            CFE_EVS_SendEvent(SAMPLE_REQ_DATA_STATUS_ERR_EID, CFE_EVS_EventType_ERROR,
+                "SAMPLE: Request device data reported status error %d", 
+                SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus);
+        }
     }
     /* Intentionally do not report errors if device disabled */
     return;

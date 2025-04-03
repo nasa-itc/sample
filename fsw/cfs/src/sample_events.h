@@ -42,6 +42,7 @@
 
 /* Device specific telemetry event IDs */
 #define SAMPLE_REQ_DATA_ERR_EID 32
+#define SAMPLE_REQ_DATA_STATUS_ERR_EID 33
 
 /* Hardware protocol event IDs */
 #define SAMPLE_UART_INIT_ERR_EID  40

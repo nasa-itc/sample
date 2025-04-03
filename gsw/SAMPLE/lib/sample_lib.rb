@@ -8,6 +8,7 @@ require 'cosmos/script'
 SAMPLE_CMD_SLEEP = 0.25
 SAMPLE_RESPONSE_TIMEOUT = 5
 SAMPLE_TEST_LOOP_COUNT = 1
+SAMPLE_DEVICE_LOOP_COUNT = 5
 
 #
 # Functions
@@ -87,7 +88,33 @@ def confirm_sample_data()
 end
 
 def confirm_sample_data_loop()
-    SAMPLE_TEST_LOOP_COUNT.times do |n|
+    SAMPLE_DEVICE_LOOP_COUNT.times do |n|
         confirm_sample_data()
     end
+end
+
+#
+# Simulator Functions
+#
+def sample_prepare_ast()
+    # Get to known state
+    safe_sample()
+
+    # Enable
+    enable_sample()
+
+    # Confirm data
+    confirm_sample_data_loop()
+end
+
+def sample_sim_enable()
+    cmd("SIM_CMDBUS_BRIDGE SAMPLE_SIM_ENABLE")
+end
+
+def sample_sim_disable()
+    cmd("SIM_CMDBUS_BRIDGE SAMPLE_SIM_DISABLE")
+end
+
+def sample_sim_set_status(status)
+    cmd("SIM_CMDBUS_BRIDGE SAMPLE_SIM_SET_STATUS with STATUS #{status}")
 end
