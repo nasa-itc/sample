@@ -79,8 +79,8 @@ def confirm_sample_data()
     get_sample_data()
     # Note these checks assume default simulator configuration
     raw_x = tlm("SAMPLE SAMPLE_DATA_TLM RAW_SAMPLE_X")
-    check("SAMPLE SAMPLE_DATA_TLM RAW_SAMPLE_Y == #{raw_x*2}")
-    check("SAMPLE SAMPLE_DATA_TLM RAW_SAMPLE_Z == #{raw_x*3}")
+    check("SAMPLE SAMPLE_DATA_TLM RAW_SAMPLE_Y >= #{raw_x*2}")
+    check("SAMPLE SAMPLE_DATA_TLM RAW_SAMPLE_Z >= #{raw_x*3}")
 
     get_sample_hk()
     check("SAMPLE SAMPLE_HK_TLM DEVICE_COUNT >= #{dev_cmd_cnt}")

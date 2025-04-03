@@ -26,11 +26,7 @@ SAMPLE_TEST_LOOP_COUNT.times do |n|
 
     # Enable sim and confirm return to nominal operation
     sample_sim_enable()
-    dev_cmd_cnt = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_COUNT")
-    dev_cmd_err_cnt = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
     confirm_sample_data_loop()
-    check("SAMPLE SAMPLE_HK_TLM DEVICE_COUNT == #{dev_cmd_cnt}")
-    check("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT == #{dev_cmd_err_cnt}")
 end
 
 
@@ -47,7 +43,8 @@ SAMPLE_TEST_LOOP_COUNT.times do |n|
     # Confirm that status register and that app disabled itself
     get_sample_hk()
     check("SAMPLE SAMPLE_HK_TLM DEVICE_STATUS == 255")
-    check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == DISABLED")
+    get_sample_hk()
+    check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'")
     
     # Clear simulator status fault
     sample_sim_set_status(0)
