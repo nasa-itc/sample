@@ -31,9 +31,9 @@
 #define SAMPLE_DISABLE_ERR_EID     18
 
 /* Device specific command event IDs */
-#define SAMPLE_CMD_CONFIG_EN_ERR_EID 20
+#define SAMPLE_CMD_CONFIG_EN_ERR_EID  20
 #define SAMPLE_CMD_CONFIG_VAL_ERR_EID 21
-#define SAMPLE_CMD_CONFIG_INF_EID 22
+#define SAMPLE_CMD_CONFIG_INF_EID     22
 #define SAMPLE_CMD_CONFIG_DEV_ERR_EID 23
 
 /* Standard telemetry event IDs */
@@ -41,7 +41,7 @@
 #define SAMPLE_REQ_HK_ERR_EID     31
 
 /* Device specific telemetry event IDs */
-#define SAMPLE_REQ_DATA_ERR_EID 32
+#define SAMPLE_REQ_DATA_ERR_EID        32
 #define SAMPLE_REQ_DATA_STATUS_ERR_EID 33
 
 /* Hardware protocol event IDs */

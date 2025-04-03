@@ -156,16 +156,14 @@ int32 SAMPLE_AppInit(void)
     ** Initialize the published HK message - this HK message will contain the
     ** telemetry that has been defined in the SAMPLE_HkTelemetryPkt for this app.
     */
-    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkTelemetryPkt.TlmHeader), 
-                 CFE_SB_ValueToMsgId(SAMPLE_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.HkTelemetryPkt.TlmHeader), CFE_SB_ValueToMsgId(SAMPLE_HK_TLM_MID),
                  SAMPLE_HK_TLM_LNGTH);
 
     /*
     ** Initialize the device packet message
     ** This packet is specific to your application
     */
-    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.DevicePkt.TlmHeader), 
-                 CFE_SB_ValueToMsgId(SAMPLE_DEVICE_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(SAMPLE_AppData.DevicePkt.TlmHeader), CFE_SB_ValueToMsgId(SAMPLE_DEVICE_TLM_MID),
                  SAMPLE_DEVICE_TLM_LNGTH);
 
     /*
@@ -281,10 +279,10 @@ void SAMPLE_ProcessGroundCommand(void)
                 /* Do the action, none for a NOOP */
 
                 /* Increment device success or error counter, none for NOOP as application only */
-                
+
                 /* Send event success or failure to the console, NOOP can only be successful */
                 CFE_EVS_SendEvent(SAMPLE_CMD_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                    "SAMPLE: NOOP command received");
+                                  "SAMPLE: NOOP command received");
             }
             break;
 
@@ -325,7 +323,7 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_CONFIG_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
             {
-                SAMPLE_Configure();                
+                SAMPLE_Configure();
             }
             break;
 
@@ -339,7 +337,7 @@ void SAMPLE_ProcessGroundCommand(void)
         default:
             /* Increment the command error counter upon receipt of an invalid command */
             SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
-            
+
             /* Send invalid command code failure to the console */
             CFE_EVS_SendEvent(SAMPLE_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
                               "SAMPLE: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x",
@@ -457,8 +455,8 @@ void SAMPLE_ReportDeviceTelemetry(void)
 
             /* Send device status error to the console */
             CFE_EVS_SendEvent(SAMPLE_REQ_DATA_STATUS_ERR_EID, CFE_EVS_EventType_ERROR,
-                "SAMPLE: Request device data reported status error %d", 
-                SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus);
+                              "SAMPLE: Request device data reported status error %d",
+                              SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus);
         }
     }
     /* Intentionally do not report errors if device disabled */
@@ -484,7 +482,7 @@ void SAMPLE_ResetCounters(void)
 
     /* Send event success to the console */
     CFE_EVS_SendEvent(SAMPLE_CMD_RESET_INF_EID, CFE_EVS_EventType_INFORMATION,
-        "SAMPLE: RESET counters command received");
+                      "SAMPLE: RESET counters command received");
     return;
 }
 
@@ -501,8 +499,8 @@ void SAMPLE_Enable(void)
     {
         /* Increment command success counter */
         SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
-        
-        /* 
+
+        /*
         ** Do the action, initialize hardware interface and set enabled
         ** TODO: Make specific to your application depending on protocol in use
         ** Note that other components provide examples for the different protocols
@@ -522,7 +520,8 @@ void SAMPLE_Enable(void)
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
 
             /* Send device event success to the console */
-            CFE_EVS_SendEvent(SAMPLE_ENABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: Device enabled successfully");
+            CFE_EVS_SendEvent(SAMPLE_ENABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "SAMPLE: Device enabled successfully");
         }
         else
         {
@@ -560,7 +559,7 @@ void SAMPLE_Disable(void)
         /* Increment command success counter */
         SAMPLE_AppData.HkTelemetryPkt.CommandCount++;
 
-        /* 
+        /*
         ** Do the action, close hardware interface and set disabled
         ** TODO: Make specific to your application depending on protocol in use
         ** Note that other components provide examples for the different protocols
@@ -569,12 +568,13 @@ void SAMPLE_Disable(void)
         if (status == OS_SUCCESS)
         {
             SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
-            
+
             /* Increment device success counter */
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
 
             /* Send device event success to the console */
-            CFE_EVS_SendEvent(SAMPLE_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: Device disabled successfully");
+            CFE_EVS_SendEvent(SAMPLE_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "SAMPLE: Device disabled successfully");
         }
         else
         {
@@ -582,7 +582,7 @@ void SAMPLE_Disable(void)
             SAMPLE_AppData.HkTelemetryPkt.DeviceErrorCount++;
 
             /* Send device event failure to the console */
-            CFE_EVS_SendEvent(SAMPLE_UART_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR, 
+            CFE_EVS_SendEvent(SAMPLE_UART_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
                               "SAMPLE: Device UART port close error %d", status);
         }
     }
@@ -604,20 +604,20 @@ void SAMPLE_Disable(void)
 */
 void SAMPLE_Configure(void)
 {
-    int32 status = OS_SUCCESS;
-    int32 device_status = OS_SUCCESS;
-    SAMPLE_Config_cmd_t* config_cmd = (SAMPLE_Config_cmd_t *) SAMPLE_AppData.MsgPtr;
+    int32                status        = OS_SUCCESS;
+    int32                device_status = OS_SUCCESS;
+    SAMPLE_Config_cmd_t *config_cmd    = (SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr;
 
     /* Do any necessary checks, confirm that device is currently enabled */
     if (SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled != SAMPLE_DEVICE_ENABLED)
     {
         status = OS_ERROR;
         /* Increment command error count */
-        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;  
+        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
 
         /* Send event logging failure of check to the console */
         CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_EN_ERR_EID, CFE_EVS_EventType_ERROR,
-            "SAMPLE: Configuration command invalid when device disabled");
+                          "SAMPLE: Configuration command invalid when device disabled");
     }
 
     /* Do any necessary checks, confirm valid configuration value */
@@ -625,11 +625,11 @@ void SAMPLE_Configure(void)
     {
         status = OS_ERROR;
         /* Increment command error count */
-        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;  
+        SAMPLE_AppData.HkTelemetryPkt.CommandErrorCount++;
 
         /* Send event logging failure of check to the console */
         CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_VAL_ERR_EID, CFE_EVS_EventType_ERROR,
-            "SAMPLE: Configuration command with value %u is invalid", config_cmd->DeviceCfg);
+                          "SAMPLE: Configuration command with value %u is invalid", config_cmd->DeviceCfg);
     }
 
     if (status == OS_SUCCESS)
@@ -646,7 +646,7 @@ void SAMPLE_Configure(void)
 
             /* Send device event success to the console */
             CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_INF_EID, CFE_EVS_EventType_INFORMATION,
-                "SAMPLE: Configuration command received: %u", config_cmd->DeviceCfg);
+                              "SAMPLE: Configuration command received: %u", config_cmd->DeviceCfg);
         }
         else
         {
@@ -655,7 +655,7 @@ void SAMPLE_Configure(void)
 
             /* Send device event failure to the console */
             CFE_EVS_SendEvent(SAMPLE_CMD_CONFIG_DEV_ERR_EID, CFE_EVS_EventType_ERROR,
-                "SAMPLE: Configuration command received: %u", config_cmd->DeviceCfg);
+                              "SAMPLE: Configuration command received: %u", config_cmd->DeviceCfg);
         }
     }
     return;
