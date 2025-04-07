@@ -14,7 +14,8 @@ require "sample_lib.rb"
 ## Enable / disable, control hardware communications
 ##
 SAMPLE_TEST_LOOP_COUNT.times do |n|
-    safe_sample() # Get to known state
+    # Get to known state
+    safe_sample()
 
     # Manually command to disable when already disabled
     cmd_cnt = tlm("SAMPLE SAMPLE_HK_TLM CMD_COUNT")
@@ -50,7 +51,8 @@ end
 ##   Configuration, reconfigure sample instrument register
 ##
 SAMPLE_TEST_LOOP_COUNT.times do |n|
-    safe_sample() # Get to known state
+    # Get to known state
+    safe_sample()
 
     # Confirm configuration command denied if disabled
     cmd_cnt = tlm("SAMPLE SAMPLE_HK_TLM CMD_COUNT")

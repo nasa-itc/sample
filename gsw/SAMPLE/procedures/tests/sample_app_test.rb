@@ -11,6 +11,8 @@ require "sample_lib.rb"
 ##   Invalid ground command, confirm bad lengths and codes are rejected
 ##
 
+# Get to known state
+safe_sample()
 
 ##
 ##   Housekeeping, request telemetry to be published on the software bus

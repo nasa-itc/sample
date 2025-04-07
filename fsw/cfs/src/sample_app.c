@@ -271,6 +271,10 @@ void SAMPLE_ProcessGroundCommand(void)
             */
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE: SAMPLE_NOOP_CC received \n");
+                #endif
+
                 /* Do any necessary checks, none for a NOOP */
 
                 /* Increment command success or error counter, NOOP can only be successful */
@@ -292,6 +296,9 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_RESET_COUNTERS_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE: SAMPLE_RESET_COUNTERS_CC received \n");
+                #endif
                 SAMPLE_ResetCounters();
             }
             break;
@@ -302,6 +309,9 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_ENABLE_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE: SAMPLE_ENABLE_CC received \n");
+                #endif
                 SAMPLE_Enable();
             }
             break;
@@ -312,6 +322,9 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_DISABLE_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE: SAMPLE_DISABLE_CC received \n");
+                #endif
                 SAMPLE_Disable();
             }
             break;
@@ -323,6 +336,9 @@ void SAMPLE_ProcessGroundCommand(void)
         case SAMPLE_CONFIG_CC:
             if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Config_cmd_t)) == OS_SUCCESS)
             {
+                #ifdef SAMPLE_CFG_DEBUG
+                    OS_printf("SAMPLE: SAMPLE_CONFIG_CC received \n");
+                #endif
                 SAMPLE_Configure();
             }
             break;
