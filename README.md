@@ -29,7 +29,8 @@ Expected utilization:
   * `./gsw/scripts/launch.sh`
 
 ## Overview
-In addition to being used by the template generator, the sample component provides an executable example for the user.  This sample component is a UART device that accepts multiple commands, including requests for telemetry and data.
+In addition to being used by the template generator, the sample component provides an executable example for the user.
+This sample component is a UART device that accepts multiple commands, including requests for telemetry and data.
 The available FSW is for use in the core Flight System (cFS) while the GSW supports COSMOS.
 A NOS3 simulation is available which includes both sample and 42 data providers.
 
@@ -44,7 +45,7 @@ All communications with the device require / contain a header of 0xDEAD and a tr
 
 ## Commands
 All commands received by the device are echoed back to the sender to confirm receipt.
-Should commmands involve a reply, the device immediately sends the reply after the command echo.
+Should commands involve a reply, the device immediately sends the reply after the command echo.
 Device commands are all formatted in the same manner and are fixed in size:
 * uint16, 0xDEAD
 * uint8, command identifier
@@ -63,6 +64,7 @@ Response formats are as follows:
     * Increments for each command received
   - uint32, Configuration
     * Internal configuration number in use by the device
+    * Invalid if maximum value, 0xFFFFFFFF or 4294967295
   - uint32, Status
     * Self reported status of the component where zero is completely healthy and each bit represents different errors
     * No means to clear / set status except for a power cycle to the device

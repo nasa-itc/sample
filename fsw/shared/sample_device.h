@@ -13,7 +13,10 @@
 */
 #include "device_cfg.h"
 #include "hwlib.h"
+
+#ifndef SAMPLE_CFG
 #include "sample_platform_cfg.h"
+#endif
 
 /*
 ** Type definitions
