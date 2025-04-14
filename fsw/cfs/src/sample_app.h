@@ -20,6 +20,8 @@
 #include "sample_msgids.h"
 #include "sample_version.h"
 #include "hwlib.h"
+#include "mgr_msg.h"
+#include "mgr_msgids.h"
 
 /*
 ** Specified pipe depth - how many messages will be queued in the pipe
@@ -85,6 +87,7 @@ int32 SAMPLE_AppInit(void);
 void  SAMPLE_ProcessCommandPacket(void);
 void  SAMPLE_ProcessGroundCommand(void);
 void  SAMPLE_ProcessTelemetryRequest(void);
+void  SAMPLE_ProcessMgrHk(void);
 void  SAMPLE_ReportHousekeeping(void);
 void  SAMPLE_ReportDeviceTelemetry(void);
 void  SAMPLE_ResetCounters(void);

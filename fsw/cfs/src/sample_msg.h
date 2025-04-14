@@ -56,6 +56,8 @@ typedef struct
 {
     CFE_MSG_TelemetryHeader_t TlmHeader;
     SAMPLE_Device_Data_tlm_t  Sample;
+    uint16                    PassNumber;
+    uint8                     RegionStatus;
 
 } __attribute__((packed)) SAMPLE_Device_tlm_t;
 #define SAMPLE_DEVICE_TLM_LNGTH sizeof(SAMPLE_Device_tlm_t)
