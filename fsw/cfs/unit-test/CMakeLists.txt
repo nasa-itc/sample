@@ -28,6 +28,7 @@ target_include_directories(coverage-sample-internal-stubs PUBLIC $<TARGET_PROPER
 include_directories(${PROJECT_SOURCE_DIR}/fsw/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
+include_directories(${PROJECT_SOURCE_DIR}/../../../../fsw/osal/ut_assert/inc)
 
 
 # Add a coverage test executable called "sample-ALL" that 
@@ -40,6 +41,12 @@ include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 add_cfe_coverage_test(sample ALL 
     "coveragetest/coveragetest_sample_app.c"
     "../src/sample_app.c"
+)
+
+add_cfe_coverage_test(sample DEVICE 
+    "coveragetest/coveragetest_sample_device.c"
+    "../../shared/sample_device.c"
+    "stubs/libuart_stubs.c"
 )
 
 add_cfe_coverage_dependency(sample ALL sample-internal)
