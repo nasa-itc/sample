@@ -24,6 +24,13 @@ void Test_SAMPLE_CommandDevice(void)
 
     UT_SetDeferredRetcode(UT_KEY(uart_write_port), 1, SAMPLE_DEVICE_CMD_SIZE);
     SAMPLE_CommandDevice(&device, cmd_code, payload);    
+
+    UT_SetDeferredRetcode(UT_KEY(uart_write_port), 1, SAMPLE_DEVICE_CMD_SIZE);
+    UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 9);
+    UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 9);
+    UT_SetDefaultReturnValue(UT_KEY(SAMPLE_ReadData), OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_ReadData), 1, OS_SUCCESS);
+    SAMPLE_CommandDevice(&device, cmd_code, payload);    
 }
 
 void Test_SAMPLE_RequestHK(void)
@@ -32,7 +39,8 @@ void Test_SAMPLE_RequestHK(void)
     SAMPLE_Device_HK_tlm_t data;
     SAMPLE_RequestHK(&device, &data);
 
-    UT_SetDefaultReturnValue(UT_KEY(SAMPLE_ReadData), OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 16);
+    UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 16);
     SAMPLE_RequestHK(&device, &data);    
 }
 

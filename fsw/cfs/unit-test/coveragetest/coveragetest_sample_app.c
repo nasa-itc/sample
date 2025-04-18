@@ -614,6 +614,8 @@ void Test_SAMPLE_Configure(void)
 {
     SAMPLE_Configure();
 
+    SAMPLE_Config_cmd_t command;
+    SAMPLE_AppData.MsgPtr = (CFE_MSG_Message_t *)&command;
     ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0xFFFFFFFF;
     SAMPLE_Configure();
 
