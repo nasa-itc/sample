@@ -619,6 +619,7 @@ void Test_SAMPLE_Configure(void)
     ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0xFFFFFFFF;
     SAMPLE_Configure();
 
+    ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0x0;
     SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
     SAMPLE_Configure();
 
