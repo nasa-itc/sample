@@ -10,9 +10,7 @@ include_directories(src)
 
 include_directories(../shared)
 include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
-
-include_directories(../../../mgr/fsw/cfs/src)
-include_directories(../../../mgr/fsw/cfs/platform_inc)
+include_directories(${APPLICATION_PLATFORM_INC_LIST})
 
 aux_source_directory(src APP_SRC_FILES)
 
