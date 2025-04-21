@@ -147,8 +147,7 @@ int32 SAMPLE_AppInit(void)
                           (unsigned int)status);
         return status;
     }
-    
-    
+
     /*
     ** Subscribe to MGR HK for Science Pass Information
     */
@@ -503,9 +502,9 @@ void SAMPLE_ReportDeviceTelemetry(void)
 */
 void SAMPLE_ProcessMgrHk(void)
 {
-    MGR_Hk_tlm_t *pMsg = (MGR_Hk_tlm_t *) SAMPLE_AppData.MsgPtr;
+    MGR_Hk_tlm_t *pMsg = (MGR_Hk_tlm_t *)SAMPLE_AppData.MsgPtr;
 
-    SAMPLE_AppData.DevicePkt.PassNumber = pMsg->SciPassCount;
+    SAMPLE_AppData.DevicePkt.PassNumber   = pMsg->SciPassCount;
     SAMPLE_AppData.DevicePkt.RegionStatus = pMsg->ScienceStatus;
     return;
 }
