@@ -22,6 +22,9 @@ void Test_SAMPLE_CommandDevice(void)
     uint32_t payload = 0;
     SAMPLE_CommandDevice(&device, cmd_code, payload);
 
+    UT_SetDeferredRetcode(UT_KEY(uart_flush), 1, UART_ERROR);
+    SAMPLE_CommandDevice(&device, cmd_code, payload);
+
     UT_SetDeferredRetcode(UT_KEY(uart_write_port), 1, SAMPLE_DEVICE_CMD_SIZE);
     SAMPLE_CommandDevice(&device, cmd_code, payload);    
 
@@ -39,8 +42,10 @@ void Test_SAMPLE_RequestHK(void)
     SAMPLE_Device_HK_tlm_t data;
     SAMPLE_RequestHK(&device, &data);
 
+    uint8_t read_data[] = {0xDE, 0xAD, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xBE, 0xEF};
     UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 16);
     UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 16);
+    UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
     SAMPLE_RequestHK(&device, &data);    
 }
 
