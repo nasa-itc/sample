@@ -54,6 +54,12 @@ void Test_SAMPLE_RequestData(void)
     uart_info_t device;
     SAMPLE_Device_Data_tlm_t data;
     SAMPLE_RequestData(&device, &data);
+
+    uint8_t read_data[] = {0xDE, 0xAD, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xBE, 0xEF};
+    UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 14);
+    UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 14);
+    UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
+    SAMPLE_RequestData(&device, &data);
 }
 
 /*
