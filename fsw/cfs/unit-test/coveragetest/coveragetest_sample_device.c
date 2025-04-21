@@ -47,6 +47,9 @@ void Test_SAMPLE_RequestHK(void)
     UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 16);
     UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
     SAMPLE_RequestHK(&device, &data);    
+
+    UT_SetDeferredRetcode(UT_KEY(uart_flush), 1, OS_ERROR);
+    SAMPLE_RequestHK(&device, &data);
 }
 
 void Test_SAMPLE_RequestData(void)
@@ -59,6 +62,9 @@ void Test_SAMPLE_RequestData(void)
     UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 14);
     UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 14);
     UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
+    SAMPLE_RequestData(&device, &data);
+
+    UT_SetDeferredRetcode(UT_KEY(uart_flush), 1, OS_ERROR);
     SAMPLE_RequestData(&device, &data);
 }
 
