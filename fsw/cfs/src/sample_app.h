@@ -93,6 +93,7 @@ void  SAMPLE_ReportDeviceTelemetry(void);
 void  SAMPLE_ResetCounters(void);
 void  SAMPLE_Enable(void);
 void  SAMPLE_Disable(void);
+void  SAMPLE_Configure(void);
 int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length);
 
 #endif /* _SAMPLE_APP_H_ */
