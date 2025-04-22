@@ -150,6 +150,7 @@ int32 SAMPLE_AppInit(void)
 
     /*
     ** Subscribe to MGR HK for Science Pass Information
+    ** TODO: This is specific to the sample application, remove if using template generator
     */
     status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(MGR_HK_TLM_MID), SAMPLE_AppData.CmdPipe);
     if (status != CFE_SUCCESS)
@@ -233,7 +234,10 @@ void SAMPLE_ProcessCommandPacket(void)
             SAMPLE_ProcessTelemetryRequest();
             break;
 
-        /* Update science pass information */
+        /* 
+        ** Update science pass information 
+        ** TODO: This is specific to the sample application, remove if using template generator
+        */
         case MGR_HK_TLM_MID:
             SAMPLE_ProcessMgrHk();
             break;
@@ -470,6 +474,7 @@ void SAMPLE_ReportDeviceTelemetry(void)
         {
             /* Update packet count */
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+
             /* Time stamp and publish data telemetry */
             CFE_SB_TimeStampMsg((CFE_MSG_Message_t *)&SAMPLE_AppData.DevicePkt);
             CFE_SB_TransmitMsg((CFE_MSG_Message_t *)&SAMPLE_AppData.DevicePkt, true);
@@ -498,7 +503,8 @@ void SAMPLE_ReportDeviceTelemetry(void)
 }
 
 /*
-** Ingest Science MetaData and Save It
+** Ingest science MGR data and save it
+** TODO: This is specific to the sample application, remove if using template generator
 */
 void SAMPLE_ProcessMgrHk(void)
 {

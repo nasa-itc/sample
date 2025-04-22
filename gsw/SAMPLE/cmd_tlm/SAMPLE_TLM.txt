@@ -29,7 +29,6 @@ TELEMETRY SAMPLE SAMPLE_DATA_TLM <%= CosmosCfsConfig::PROCESSOR_ENDIAN %> "SAMPL
   APPEND_ITEM    RAW_SAMPLE_X         16 UINT         "Raw sample data x component (1-65535)"
   APPEND_ITEM    RAW_SAMPLE_Y         16 UINT         "Raw sample data y component (1-65535)"
   APPEND_ITEM    RAW_SAMPLE_Z         16 UINT         "Raw sample data z component (1-65535)"
-#  APPEND_ITEM    PAD                  16 UINT         "Because the packed struct it came from has a stride address of 32 and cFS does not serialize"
   APPEND_ITEM    SAMPLE_X              0 DERIVED      "Sample data unit vector x component (-1.0 to 1.0)"
     GENERIC_READ_CONVERSION_START FLOAT 32
       (packet.read("RAW_SAMPLE_X") - 32768.0)/32767.0
@@ -42,6 +41,7 @@ TELEMETRY SAMPLE SAMPLE_DATA_TLM <%= CosmosCfsConfig::PROCESSOR_ENDIAN %> "SAMPL
     GENERIC_READ_CONVERSION_START FLOAT 32
       (packet.read("RAW_SAMPLE_Z") - 32768.0)/32767.0
     GENERIC_READ_CONVERSION_END
+# TODO: This is specific to the sample application, remove if using template generator
   APPEND_ITEM    PassNumber             16 UINT       "Science Pass Number"
   APPEND_ITEM    RegionStatus            8 UINT       "Science Region / Status"
       STATE SCIENCE_OFF             0

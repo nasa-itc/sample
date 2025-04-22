@@ -20,6 +20,8 @@
 #include "sample_msgids.h"
 #include "sample_version.h"
 #include "hwlib.h"
+
+/* TODO: This is specific to the sample application, remove if using template generator */
 #include "mgr_msg.h"
 #include "mgr_msgids.h"
 
@@ -87,7 +89,6 @@ int32 SAMPLE_AppInit(void);
 void  SAMPLE_ProcessCommandPacket(void);
 void  SAMPLE_ProcessGroundCommand(void);
 void  SAMPLE_ProcessTelemetryRequest(void);
-void  SAMPLE_ProcessMgrHk(void);
 void  SAMPLE_ReportHousekeeping(void);
 void  SAMPLE_ReportDeviceTelemetry(void);
 void  SAMPLE_ResetCounters(void);
@@ -95,5 +96,8 @@ void  SAMPLE_Enable(void);
 void  SAMPLE_Disable(void);
 void  SAMPLE_Configure(void);
 int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length);
+
+/* TODO: This is specific to the sample application, remove if using template generator */
+void  SAMPLE_ProcessMgrHk(void);
 
 #endif /* _SAMPLE_APP_H_ */

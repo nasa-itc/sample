@@ -56,6 +56,8 @@ typedef struct
 {
     CFE_MSG_TelemetryHeader_t TlmHeader;
     SAMPLE_Device_Data_tlm_t  Sample;
+
+    /* TODO: This is specific to the sample application, remove if using template generator */
     uint16                    PassNumber;
     uint8                     RegionStatus;
 
