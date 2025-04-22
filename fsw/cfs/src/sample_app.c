@@ -234,8 +234,8 @@ void SAMPLE_ProcessCommandPacket(void)
             SAMPLE_ProcessTelemetryRequest();
             break;
 
-        /* 
-        ** Update science pass information 
+        /*
+        ** Update science pass information
         ** TODO: This is specific to the sample application, remove if using template generator
         */
         case MGR_HK_TLM_MID:

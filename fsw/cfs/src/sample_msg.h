@@ -58,8 +58,8 @@ typedef struct
     SAMPLE_Device_Data_tlm_t  Sample;
 
     /* TODO: This is specific to the sample application, remove if using template generator */
-    uint16                    PassNumber;
-    uint8                     RegionStatus;
+    uint16 PassNumber;
+    uint8  RegionStatus;
 
 } __attribute__((packed)) SAMPLE_Device_tlm_t;
 #define SAMPLE_DEVICE_TLM_LNGTH sizeof(SAMPLE_Device_tlm_t)

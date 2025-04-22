@@ -98,6 +98,6 @@ void  SAMPLE_Configure(void);
 int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length);
 
 /* TODO: This is specific to the sample application, remove if using template generator */
-void  SAMPLE_ProcessMgrHk(void);
+void SAMPLE_ProcessMgrHk(void);
 
 #endif /* _SAMPLE_APP_H_ */
