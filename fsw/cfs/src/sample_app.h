@@ -21,6 +21,10 @@
 #include "sample_version.h"
 #include "hwlib.h"
 
+/* TODO: This is specific to the sample application, remove if using template generator */
+#include "mgr_msg.h"
+#include "mgr_msgids.h"
+
 /*
 ** Specified pipe depth - how many messages will be queued in the pipe
 */
@@ -92,5 +96,8 @@ void  SAMPLE_Enable(void);
 void  SAMPLE_Disable(void);
 void  SAMPLE_Configure(void);
 int32 SAMPLE_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length);
+
+/* TODO: This is specific to the sample application, remove if using template generator */
+void SAMPLE_ProcessMgrHk(void);
 
 #endif /* _SAMPLE_APP_H_ */

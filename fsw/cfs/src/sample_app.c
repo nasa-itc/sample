@@ -149,6 +149,19 @@ int32 SAMPLE_AppInit(void)
     }
 
     /*
+    ** Subscribe to MGR HK for Science Pass Information
+    ** TODO: This is specific to the sample application, remove if using template generator
+    */
+    status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(MGR_HK_TLM_MID), SAMPLE_AppData.CmdPipe);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(SAMPLE_SUB_REQ_HK_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Error Subscribing to HK Request, MID=0x%04X, RC=0x%08X", MGR_HK_TLM_MID,
+                          (unsigned int)status);
+        return status;
+    }
+
+    /*
     ** TODO: Subscribe to any other messages here
     */
 
@@ -219,6 +232,14 @@ void SAMPLE_ProcessCommandPacket(void)
         */
         case SAMPLE_REQ_HK_MID:
             SAMPLE_ProcessTelemetryRequest();
+            break;
+
+        /*
+        ** Update science pass information
+        ** TODO: This is specific to the sample application, remove if using template generator
+        */
+        case MGR_HK_TLM_MID:
+            SAMPLE_ProcessMgrHk();
             break;
 
         /*
@@ -451,7 +472,9 @@ void SAMPLE_ReportDeviceTelemetry(void)
                                     (SAMPLE_Device_Data_tlm_t *)&SAMPLE_AppData.DevicePkt.Sample);
         if (status == OS_SUCCESS)
         {
+            /* Update packet count */
             SAMPLE_AppData.HkTelemetryPkt.DeviceCount++;
+
             /* Time stamp and publish data telemetry */
             CFE_SB_TimeStampMsg((CFE_MSG_Message_t *)&SAMPLE_AppData.DevicePkt);
             CFE_SB_TransmitMsg((CFE_MSG_Message_t *)&SAMPLE_AppData.DevicePkt, true);
@@ -476,6 +499,19 @@ void SAMPLE_ReportDeviceTelemetry(void)
         }
     }
     /* Intentionally do not report errors if device disabled */
+    return;
+}
+
+/*
+** Ingest science MGR data and save it
+** TODO: This is specific to the sample application, remove if using template generator
+*/
+void SAMPLE_ProcessMgrHk(void)
+{
+    MGR_Hk_tlm_t *pMsg = (MGR_Hk_tlm_t *)SAMPLE_AppData.MsgPtr;
+
+    SAMPLE_AppData.DevicePkt.PassNumber   = pMsg->SciPassCount;
+    SAMPLE_AppData.DevicePkt.RegionStatus = pMsg->ScienceStatus;
     return;
 }
 
