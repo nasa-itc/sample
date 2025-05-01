@@ -517,7 +517,7 @@ void Test_SAMPLE_ReportHousekeeping(void)
     /*
      * Test Case For:
      * void SAMPLE_ReportHousekeeping()
-     */ 
+     */
     CFE_MSG_Message_t *MsgSend;
     CFE_MSG_Message_t *MsgTimestamp;
     CFE_SB_MsgId_t     MsgId = CFE_SB_ValueToMsgId(SAMPLE_REQ_HK_TLM);
@@ -606,7 +606,7 @@ void Test_SAMPLE_ReportDeviceTelemetry(void)
     SAMPLE_ReportDeviceTelemetry();
 
     SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 1;
-    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled         = SAMPLE_DEVICE_ENABLED;
     SAMPLE_ReportDeviceTelemetry();
 }
 
@@ -615,12 +615,12 @@ void Test_SAMPLE_Configure(void)
     SAMPLE_Configure();
 
     SAMPLE_Config_cmd_t command;
-    SAMPLE_AppData.MsgPtr = (CFE_MSG_Message_t *)&command;
+    SAMPLE_AppData.MsgPtr                                     = (CFE_MSG_Message_t *)&command;
     ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0xFFFFFFFF;
     SAMPLE_Configure();
 
     ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0x0;
-    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled               = SAMPLE_DEVICE_ENABLED;
     SAMPLE_Configure();
 
     UT_SetDeferredRetcode(UT_KEY(SAMPLE_CommandDevice), 1, OS_ERROR);
