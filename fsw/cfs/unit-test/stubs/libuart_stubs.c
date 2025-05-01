@@ -81,7 +81,7 @@ int32_t uart_read_port(uart_info_t *device, uint8_t data[], const uint32_t numBy
     UT_GenStub_SetupReturnBuffer(uart_read_port, int32_t);
 
     UT_GenStub_AddParam(uart_read_port, uart_info_t *, device);
-    UT_GenStub_AddParam(uart_read_port, uint8_t, data);
+    UT_GenStub_AddParam(uart_read_port, uint8_t *, data);
     UT_GenStub_AddParam(uart_read_port, const uint32_t, numBytes);
 
     UT_GenStub_Execute(uart_read_port, Basic, NULL);

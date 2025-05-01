@@ -42,7 +42,7 @@ void Test_SAMPLE_RequestHK(void)
     SAMPLE_Device_HK_tlm_t data;
     SAMPLE_RequestHK(&device, &data);
 
-    uint8_t read_data[] = {0xDE, 0xAD, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xBE, 0xEF};
+    uint8_t read_data[] = {0xDE, 0xAD, 0x00, 0x00, 0x00, 0x07, 0x00, 0x06, 0x00, 0x0C, 0x00, 0x12, 0x00, 0x00, 0xBE, 0xEF};
     UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 16);
     UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 16);
     UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
@@ -58,14 +58,18 @@ void Test_SAMPLE_RequestData(void)
     SAMPLE_Device_Data_tlm_t data;
     SAMPLE_RequestData(&device, &data);
 
-    uint8_t read_data[] = {0xDE, 0xAD, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xBE, 0xEF};
-    UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 14);
-    UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 14);
+    uint8_t read_data[] = {0xDE, 0xAD, 0x00, 0x00, 0x00, 0x07, 0x00, 0x06, 0x00, 0x0C, 0x00, 0x12, 0x00, 0x00, 0xBE, 0xEF};
+    UT_SetDeferredRetcode(UT_KEY(uart_bytes_available), 1, 16);
+    UT_SetDeferredRetcode(UT_KEY(uart_read_port), 1, 16);
     UT_SetDataBuffer(UT_KEY(uart_read_port), &read_data, sizeof(read_data), false);
     SAMPLE_RequestData(&device, &data);
 
     UT_SetDeferredRetcode(UT_KEY(uart_flush), 1, OS_ERROR);
     SAMPLE_RequestData(&device, &data);
+}
+
+void Test_SAMPLE_RequestData_Hook(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context, va_list va)
+{
 }
 
 /*
@@ -86,6 +90,7 @@ void Sample_UT_TearDown(void) {}
  */
 void UtTest_Setup(void)
 {
+    UT_SetVaHandlerFunction(UT_KEY(Test_SAMPLE_RequestData), Test_SAMPLE_RequestData_Hook, NULL);
     ADD_TEST(SAMPLE_ReadData);
     ADD_TEST(SAMPLE_CommandDevice);
     ADD_TEST(SAMPLE_RequestHK);
