@@ -187,6 +187,9 @@ void Test_SAMPLE_AppMain(void)
                   "SAMPLE_AppData.RunStatus (%lu) == CFE_ES_RunStatus_APP_ERROR",
                   (unsigned long)SAMPLE_AppData.RunStatus);
 
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 5, CFE_EVS_INVALID_PARAMETER);
+    SAMPLE_AppMain();
+
     /*
      * Note that CFE_ES_RunLoop returns a boolean value,
      * so in order to exercise the internal "while" loop,
@@ -601,6 +604,28 @@ void Test_SAMPLE_ReportDeviceTelemetry(void)
 
     SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
     SAMPLE_ReportDeviceTelemetry();
+
+    SAMPLE_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 1;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled         = SAMPLE_DEVICE_ENABLED;
+    SAMPLE_ReportDeviceTelemetry();
+}
+
+void Test_SAMPLE_Configure(void)
+{
+    SAMPLE_Configure();
+
+    SAMPLE_Config_cmd_t command;
+    SAMPLE_AppData.MsgPtr                                     = (CFE_MSG_Message_t *)&command;
+    ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0xFFFFFFFF;
+    SAMPLE_Configure();
+
+    ((SAMPLE_Config_cmd_t *)SAMPLE_AppData.MsgPtr)->DeviceCfg = 0x0;
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled               = SAMPLE_DEVICE_ENABLED;
+    SAMPLE_Configure();
+
+    UT_SetDeferredRetcode(UT_KEY(SAMPLE_CommandDevice), 1, OS_ERROR);
+    SAMPLE_AppData.HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    SAMPLE_Configure();
 }
 
 void Test_SAMPLE_Enable(void)
@@ -678,6 +703,7 @@ void UtTest_Setup(void)
     ADD_TEST(SAMPLE_VerifyCmdLength);
     ADD_TEST(SAMPLE_ReportDeviceTelemetry);
     ADD_TEST(SAMPLE_ProcessTelemetryRequest);
+    ADD_TEST(SAMPLE_Configure);
     ADD_TEST(SAMPLE_Enable);
     ADD_TEST(SAMPLE_Disable);
 }
