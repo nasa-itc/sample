@@ -43,12 +43,15 @@ namespace Nos3
             data.reserve(3);
             parse_double_vector(values, data);
 
-            _sample_data[0] = data[0];
-            _sample_data[1] = data[1];
-            _sample_data[2] = data[2];
-
-            /* Mark data as valid */
-            _sample_data_is_valid = true;
+            if (data.size() < 3) {
+                _sample_data_is_valid = false;
+            } else {
+                _sample_data[0] = data[0];
+                _sample_data[1] = data[1];
+                _sample_data[2] = data[2];
+                /* Mark data as valid */
+                _sample_data_is_valid = true;
+            }
 
             _not_parsed = false;
 
