@@ -4,7 +4,7 @@
 // \brief  cpp file for SampleSim component implementation class
 // ======================================================================
 
-#include "Components/SampleSim/SampleSim.hpp"
+#include "sample_src/SampleSim.hpp"
 #include <Fw/Logger/Logger.hpp>
 #include "FpConfig.hpp"
 

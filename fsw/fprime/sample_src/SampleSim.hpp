@@ -7,7 +7,7 @@
 #ifndef Components_SampleSim_HPP
 #define Components_SampleSim_HPP
 
-#include "Components/SampleSim/SampleSimComponentAc.hpp"
+#include "sample_src/SampleSimComponentAc.hpp"
 
 namespace Components {
 
