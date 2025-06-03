@@ -2,18 +2,7 @@ module Components {
     @ Component for F Prime FSW framework.
     active component SampleSim {
 
-        # One async command/port is required for active components
-        # This should be overridden by the developers with a useful command/port
-        @ Command to issue greeting with maximum length of 20 characters
-        async command SAY_HELLO(
-            greeting: string size 20 @< Greeting to repeat in the Hello event
-        )
-
-        @ Greeting event with maximum greeting length of 20 characters
-        event Hello(
-            greeting: string size 20 @< Greeting supplied from the SAY_HELLO command
-        ) severity activity high format "I say: {}"
-
+        # # One async command/port is required for active components
         @ Command to Request Housekeeping
         async command REQUEST_HOUSEKEEPING(
         )
@@ -26,29 +15,51 @@ module Components {
         async command SAMPLE_SEQ(
         )
 
+        async command ENABLE(
+        )
+
+        async command DISABLE(
+        )
+
+        async command RESET_COUNTERS(
+        )
+
+        async command CONFIGURE(
+            config: U32 @< Configuration Integer
+        )
+
         #@ Command to initialize Sequence Sample HK
         #async command SAMPLE_SEQ_CANCEL(
         #)priority 10
 
-        @ Greeting event with maximum greeting length of 30 characters
+        @ Greeting event with maximum greeting length of 40 characters
         event TELEM(
-            log_info: string size 30 @< 
+            log_info: string size 40 @< 
         ) severity activity high format "SampleSim: {}"
 
         #@ text event with maximum length of 30 characters
         #event TEXTTELEM severity diagnostic format "This is testing noop"
 
-        @ A count of the number of greetings issued
-        telemetry GreetingCount: U32
-
          @ A count of the number of greetings issued
-        telemetry DeviceCounter: U32
+        telemetry ReportedComponentCount: U32
 
-         @ A count of the number of greetings issued
+         @ Device Config
         telemetry DeviceConfig: U32
 
-         @ A count of the number of greetings issued
+         @ Device Status
         telemetry DeviceStatus: U32
+
+        @ Device Count
+        telemetry DeviceCount: U32
+
+        @ Device Error Count
+        telemetry DeviceErrorCount: U32
+
+        @ A Count of Successful Commands from FSW to Sample
+        telemetry CommandCount: U32
+
+        @ A Count of Unsuccessful Commands from FSW to Sample
+        telemetry CommandErrorCount: U32
 
         ##############################################################################
         #### Uncomment the following examples to start customizing your component ####
