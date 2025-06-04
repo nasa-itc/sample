@@ -28,7 +28,7 @@
 #include "sample_device.h"
 
 #if TGTNAME == cpu1
-#include "nos_link.h"
+#include "simulith_uart.h"
 #endif
 
 /*

@@ -11,6 +11,7 @@
 ** Include Files
 */
 #include "sample_checkout.h"
+#include "simulith_uart.h"
 
 /*
 ** Global Variables
@@ -186,19 +187,25 @@ int main(int argc, char *argv[])
     char   *token_ptr;
     uint8_t run_status = OS_SUCCESS;
 
-/* Initialize HWLIB */
-#ifdef _NOS_ENGINE_LINK_
-    nos_init_link();
-#endif
+    /* Initialize UART with Simulith */
+    simulith_uart_config_t uart_config = {
+        .baud_rate = SAMPLE_CFG_BAUDRATE_HZ,
+        .data_bits = 8,
+        .stop_bits = 1,
+        .parity = SIMULITH_UART_PARITY_NONE,
+        .flow_control = SIMULITH_UART_FLOW_NONE
+    };
 
     /* Open device specific protocols */
     SampleUart.deviceString = SAMPLE_CFG_STRING;
     SampleUart.handle       = SAMPLE_CFG_HANDLE;
     SampleUart.isOpen       = PORT_CLOSED;
     SampleUart.baud         = SAMPLE_CFG_BAUDRATE_HZ;
-    status                  = uart_init_port(&SampleUart);
-    if (status == OS_SUCCESS)
+
+    status = simulith_uart_init(SampleUart.handle, &uart_config, NULL);
+    if (status == 0)
     {
+        SampleUart.isOpen = PORT_OPEN;
         printf("UART device %s configured with baudrate %d \n", SampleUart.deviceString, SampleUart.baud);
     }
     else
@@ -244,14 +251,13 @@ int main(int argc, char *argv[])
     }
 
     // Close the device
-    uart_close_port(&SampleUart);
+    if (SampleUart.isOpen == PORT_OPEN)
+    {
+        simulith_uart_close(SampleUart.handle);
+        SampleUart.isOpen = PORT_CLOSED;
+    }
 
-#ifdef _NOS_ENGINE_LINK_
-    nos_destroy_link();
-#endif
-
-    OS_printf("Cleanly exiting sample application...\n\n");
-    return 1;
+    return status;
 }
 
 /*

@@ -22,6 +22,12 @@ if(${TGTNAME} STREQUAL cpu1)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${_ITC_CMAKE_MODULES_})
 
   find_package(NOSENGINE REQUIRED QUIET COMPONENTS common transport client uart can i2c spi)
+  
+  # Find Simulith headers
+  set(SIMULITH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../sims/simulith" CACHE PATH "Path to Simulith directory")
+  if(NOT EXISTS "${SIMULITH_DIR}/include/simulith_uart.h")
+      message(FATAL_ERROR "Could not find simulith_uart.h in ${SIMULITH_DIR}/include. Please set SIMULITH_DIR to the correct path.")
+  endif()
 endif()
 
 include_directories("./")
@@ -36,9 +42,12 @@ set(sample_checkout_src
 )
 
 if(${TGTNAME} STREQUAL cpu1)
+  include_directories("${SIMULITH_DIR}/include")
   include_directories("../../../../fsw/apps/hwlib/sim/inc")
   set(sample_checkout_src 
     ${sample_checkout_src}
+    ${SIMULITH_DIR}/src/simulith_uart.c
+    ${SIMULITH_DIR}/src/simulith_common.c
     ../../../../fsw/apps/hwlib/sim/src/libuart.c
     ../../../../fsw/apps/hwlib/sim/src/libcan.c
     ../../../../fsw/apps/hwlib/sim/src/libi2c.c
@@ -48,6 +57,8 @@ if(${TGTNAME} STREQUAL cpu1)
   set(sample_checkout_libs
     ${ITC_Common_LIBRARIES}
     ${NOSENGINE_LIBRARIES}
+    ${ZeroMQ_LIBRARIES}
+    simulith
   )
 endif()
 if(${TGTNAME} STREQUAL cpu2)
