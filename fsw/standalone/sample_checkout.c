@@ -119,7 +119,7 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 }
                 else
                 {
-                    OS_printf("NOOP command failed!\n");
+                    OS_printf("NOOP command failed with error %d!\n", status);
                 }
             }
             break;
@@ -187,25 +187,16 @@ int main(int argc, char *argv[])
     char   *token_ptr;
     uint8_t run_status = OS_SUCCESS;
 
-    /* Initialize UART with Simulith */
-    simulith_uart_config_t uart_config = {
-        .baud_rate = SAMPLE_CFG_BAUDRATE_HZ,
-        .data_bits = 8,
-        .stop_bits = 1,
-        .parity = SIMULITH_UART_PARITY_NONE,
-        .flow_control = SIMULITH_UART_FLOW_NONE
-    };
-
-    /* Open device specific protocols */
+    /* Initialize UART */
     SampleUart.deviceString = SAMPLE_CFG_STRING;
-    SampleUart.handle       = SAMPLE_CFG_HANDLE;
-    SampleUart.isOpen       = PORT_CLOSED;
-    SampleUart.baud         = SAMPLE_CFG_BAUDRATE_HZ;
+    SampleUart.handle = SAMPLE_CFG_HANDLE;
+    SampleUart.isOpen = PORT_CLOSED;
+    SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
+    SampleUart.access_option = uart_access_flag_RDWR;
 
-    status = simulith_uart_init(SampleUart.handle, &uart_config, NULL);
-    if (status == 0)
+    status = uart_init_port(&SampleUart);
+    if (status == OS_SUCCESS)
     {
-        SampleUart.isOpen = PORT_OPEN;
         printf("UART device %s configured with baudrate %d \n", SampleUart.deviceString, SampleUart.baud);
     }
     else

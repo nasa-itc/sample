@@ -123,6 +123,10 @@ int32_t SAMPLE_CommandDevice(uart_info_t *device, uint8_t cmd_code, uint32_t pay
 #endif
         } /* uart_write */
     }     /* uart_flush*/
+    else
+    {
+        OS_printf("SAMPLE_CommandDevice - uart_flush returned %d \n", status);
+    }
     return status;
 }
 
