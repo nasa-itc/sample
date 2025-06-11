@@ -8,6 +8,7 @@
 #define Components_SampleSim_HPP
 
 #include "sample_src/SampleSimComponentAc.hpp"
+#include "sample_src/SampleSim_ActiveStateEnumAc.hpp"
 
 extern "C"{
 #include "sample_device.h"
@@ -24,7 +25,7 @@ typedef struct
     uint8_t                     CommandCount;
     uint8_t                     DeviceErrorCount;
     uint8_t                     DeviceCount;
-    uint8_t                  DeviceEnabled;
+    uint8_t                     DeviceEnabled;
 } __attribute__((packed)) SAMPLE_Hk_tlm_t;
 #define SAMPLE_HK_TLM_LNGTH sizeof(SAMPLE_Hk_tlm_t)
 
@@ -99,11 +100,7 @@ namespace Components {
         const U32 config
       )override;
 
-
-      //  void SAMPLE_SEQ_CANCEL_cmdHandler(
-      //   FwOpcodeType opCode, 
-      //   U32 cmdSeq
-      // )override;
+      inline SampleSim_ActiveState get_active_state(uint8_t DeviceEnabled);
 
   };
 

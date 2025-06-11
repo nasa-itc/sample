@@ -22,8 +22,9 @@ namespace Components {
     SampleUart.isOpen = PORT_CLOSED;
     SampleUart.baud = SAMPLE_CFG_BAUDRATE_HZ;
     status = uart_init_port(&SampleUart);
+    status = uart_close_port(&SampleUart);
 
-    HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
+    HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
     HkTelemetryPkt.CommandCount = 0;
     HkTelemetryPkt.CommandErrorCount = 0;
     HkTelemetryPkt.DeviceCount = 0;
@@ -51,6 +52,7 @@ namespace Components {
     this->tlmWrite_ReportedComponentCount(SampleHK.DeviceCounter);
     this->tlmWrite_DeviceConfig(SampleHK.DeviceConfig);
     this->tlmWrite_DeviceStatus(SampleHK.DeviceStatus);
+    this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
   }
@@ -89,6 +91,7 @@ namespace Components {
     this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+    this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
     // Tell the fprime command system that we have completed the processing of the supplied command with OK status
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
@@ -135,6 +138,7 @@ namespace Components {
       this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
       this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
       this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+      this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
     }
 
@@ -182,6 +186,7 @@ namespace Components {
     this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+    this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
     this->tlmWrite_ReportedComponentCount(SampleHK.DeviceCounter);
     this->tlmWrite_DeviceConfig(SampleHK.DeviceConfig);
     this->tlmWrite_DeviceStatus(SampleHK.DeviceStatus);
@@ -223,6 +228,7 @@ namespace Components {
     this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+    this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
     this->tlmWrite_ReportedComponentCount(SampleHK.DeviceCounter);
     this->tlmWrite_DeviceConfig(SampleHK.DeviceConfig);
     this->tlmWrite_DeviceStatus(SampleHK.DeviceStatus);
@@ -299,6 +305,22 @@ namespace Components {
     this->tlmWrite_DeviceStatus(SampleHK.DeviceStatus);
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
 
+  }
+
+  inline SampleSim_ActiveState SampleSim :: get_active_state(uint8_t DeviceEnabled)
+  {
+    SampleSim_ActiveState state;
+
+    if(DeviceEnabled == SAMPLE_DEVICE_ENABLED)
+    {
+      state.e = SampleSim_ActiveState::ENABLED;
+    }
+    else
+    {
+      state.e = SampleSim_ActiveState::DISABLED;
+    }
+
+    return state;
   }
 
   //  void SampleSim :: SAMPLE_SEQ_CANCEL_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {

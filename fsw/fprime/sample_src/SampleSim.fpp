@@ -2,6 +2,12 @@ module Components {
     @ Component for F Prime FSW framework.
     active component SampleSim {
 
+        @ Component Enable State
+        enum ActiveState {
+            DISABLED @< DISABLED
+            ENABLED @< ENABLED
+        }
+
         # # One async command/port is required for active components
         @ Command to Request Housekeeping
         async command REQUEST_HOUSEKEEPING(
@@ -60,6 +66,9 @@ module Components {
 
         @ A Count of Unsuccessful Commands from FSW to Sample
         telemetry CommandErrorCount: U32
+
+        @ Device Enabled
+        telemetry DeviceEnabled: ActiveState
 
         ##############################################################################
         #### Uncomment the following examples to start customizing your component ####
