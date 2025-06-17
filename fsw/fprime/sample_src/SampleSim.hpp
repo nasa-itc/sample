@@ -8,6 +8,27 @@
 #define Components_SampleSim_HPP
 
 #include "sample_src/SampleSimComponentAc.hpp"
+#include "sample_src/SampleSim_ActiveStateEnumAc.hpp"
+
+extern "C"{
+#include "sample_device.h"
+#include "libuart.h"
+}
+  
+
+#define SAMPLE_DEVICE_DISABLED 0
+#define SAMPLE_DEVICE_ENABLED  1
+
+typedef struct
+{
+    uint8_t                     CommandErrorCount;
+    uint8_t                     CommandCount;
+    uint8_t                     DeviceErrorCount;
+    uint8_t                     DeviceCount;
+    uint8_t                     DeviceEnabled;
+} __attribute__((packed)) SAMPLE_Hk_tlm_t;
+#define SAMPLE_HK_TLM_LNGTH sizeof(SAMPLE_Hk_tlm_t)
+
 
 namespace Components {
 
@@ -16,6 +37,13 @@ namespace Components {
   {
 
     public:
+
+    uart_info_t SampleUart; 
+    SAMPLE_Device_HK_tlm_t SampleHK; 
+    SAMPLE_Device_Data_tlm_t SampleData;
+    int32_t status = OS_SUCCESS;
+
+    SAMPLE_Hk_tlm_t HkTelemetryPkt;
 
       // ----------------------------------------------------------------------
       // Component construction and destruction
@@ -34,15 +62,7 @@ namespace Components {
       // ----------------------------------------------------------------------
       // Handler implementations for commands
       // ----------------------------------------------------------------------
-      U32 m_greetingCount;
-      //! Handler implementation for command SAY_HELLO
-      //!
-      //! Command to issue greeting with maximum length of 20 characters
-      void SAY_HELLO_cmdHandler(
-          FwOpcodeType opCode, //!< The opcode
-          U32 cmdSeq, //!< The command sequence number
-          const Fw::CmdStringArg& greeting //!< Greeting to repeat in the Hello event
-      ) override;
+
 
       void REQUEST_HOUSEKEEPING_cmdHandler(
         FwOpcodeType opCode, 
@@ -59,11 +79,28 @@ namespace Components {
         U32 cmdSeq
       )override;
 
+      void ENABLE_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq
+      )override;
 
-      //  void SAMPLE_SEQ_CANCEL_cmdHandler(
-      //   FwOpcodeType opCode, 
-      //   U32 cmdSeq
-      // )override;
+      void DISABLE_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq
+      )override;
+
+      void RESET_COUNTERS_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq
+      )override;
+
+      void CONFIGURE_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq,
+        const U32 config
+      )override;
+
+      inline SampleSim_ActiveState get_active_state(uint8_t DeviceEnabled);
 
   };
 
