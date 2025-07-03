@@ -6,6 +6,7 @@
 
 #include "sample_src/SampleSim.hpp"
 #include <Fw/Logger/Logger.hpp>
+#include <Fw/Log/LogString.hpp>
 #include "FpConfig.hpp"
 
 namespace Components {
@@ -44,8 +45,9 @@ namespace Components {
   void SampleSim :: NOOP_cmdHandler(FwOpcodeType opCode, U32 cmdSeq) {
 
     status = SAMPLE_CommandDevice(&SampleUart, SAMPLE_DEVICE_NOOP_CMD, 0);
-    this->log_ACTIVITY_HI_TELEM("NOOP SENT");
-    OS_printf("NOOP SENT\n");
+    Fw::LogStringArg log_msg("NOOP SENT");
+    this->log_ACTIVITY_HI_TELEM(log_msg);
+    // OS_printf("NOOP SENT\n");
 
     this->tlmWrite_CommandCount(++HkTelemetryPkt.CommandCount);
 
@@ -66,22 +68,25 @@ namespace Components {
       if (status == OS_SUCCESS)
       {
           HkTelemetryPkt.DeviceCount++;
-          this->log_ACTIVITY_HI_TELEM("RequestHK command success\n");
-          OS_printf("Request Housekeeping Successful\n");
+          Fw::LogStringArg log_msg("RequestHK command success\n");
+          this->log_ACTIVITY_HI_TELEM(log_msg);
+          // OS_printf("Request Housekeeping Successful\n");
       }
       else
       {
           HkTelemetryPkt.DeviceErrorCount++;
-          this->log_ACTIVITY_HI_TELEM("RequestHK command failed!\n");
-          OS_printf("Request Housekeeping Failed\n");
+          Fw::LogStringArg log_msg("RequestHK command failed!\n");
+          this->log_ACTIVITY_HI_TELEM(log_msg);
+          // OS_printf("Request Housekeeping Failed\n");
       }
 
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("RequestHK failed: Device Disabled");
-      OS_printf("Request Housekeeping failed, Device Disabled\n");
+      Fw::LogStringArg log_msg("RequestHK failed: Device Disabled\n");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
+      // OS_printf("Request Housekeeping failed, Device Disabled\n");
     }
     
     this->tlmWrite_ReportedComponentCount(SampleHK.DeviceCounter);
@@ -116,19 +121,22 @@ namespace Components {
         if (status == OS_SUCCESS)
         {
             HkTelemetryPkt.DeviceCount++;
-            this->log_ACTIVITY_HI_TELEM("RequestHK command success\n");
+            Fw::LogStringArg log_msg("RequestHK command success\n");
+            this->log_ACTIVITY_HI_TELEM(log_msg);
         }
         else
         {
             HkTelemetryPkt.DeviceErrorCount++;
-            this->log_ACTIVITY_HI_TELEM("RequestHK command failed!\n");
+            Fw::LogStringArg log_msg("RequestHK command failed!\n");
+            this->log_ACTIVITY_HI_TELEM(log_msg);
         }
 
       }
       else
       {
         HkTelemetryPkt.CommandErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("RequestHK failed: Device Disabled");
+        Fw::LogStringArg log_msg("RequestHK failed: Device Disabled\n");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
       }
       
       this->tlmWrite_ReportedComponentCount(SampleHK.DeviceCounter);
@@ -165,21 +173,24 @@ namespace Components {
         HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_ENABLED;
         HkTelemetryPkt.DeviceCount++;
         
-        this->log_ACTIVITY_HI_TELEM("Successfully Enabled");  
-        OS_printf("SampleSim Enable Succeeded\n");  
+        Fw::LogStringArg log_msg("Successfully Enabled");
+        this->log_ACTIVITY_HI_TELEM(log_msg);  
+        // OS_printf("SampleSim Enable Succeeded\n");  
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("Enable failed, failed to init UART port");  
-        OS_printf("SampleSim Enable Failed to init UART port\n");  
+        Fw::LogStringArg log_msg("Enable failed, failed to init UART port");
+        this->log_ACTIVITY_HI_TELEM(log_msg);  
+        // OS_printf("SampleSim Enable Failed to init UART port\n");  
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("Failed, Already Enabled");  
-      OS_printf("SampleSim Enable Failed, Already Enabled\n");
+      Fw::LogStringArg log_msg("Failed, Already Enabled");
+      this->log_ACTIVITY_HI_TELEM(log_msg);  
+      // OS_printf("SampleSim Enable Failed, Already Enabled\n");
     }
 
     this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
@@ -207,21 +218,24 @@ namespace Components {
         HkTelemetryPkt.DeviceEnabled = SAMPLE_DEVICE_DISABLED;
         HkTelemetryPkt.DeviceCount++;
 
-        this->log_ACTIVITY_HI_TELEM("Disabled Successfully");  
-        OS_printf("SampleSim Disable Succeeded\n");
+        Fw::LogStringArg log_msg("Disabled Successfully");
+        this->log_ACTIVITY_HI_TELEM(log_msg);  
+        // OS_printf("SampleSim Disable Succeeded\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("Disable Failed to close UART port");  
-        OS_printf("SampleSim Disable Failed to close UART port\n");
+        Fw::LogStringArg log_msg("Disable Failed to close UART port");
+        this->log_ACTIVITY_HI_TELEM(log_msg);  
+        // OS_printf("SampleSim Disable Failed to close UART port\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-      this->log_ACTIVITY_HI_TELEM("Failed, Already Disabled");  
-      OS_printf("SampleSim Disable Failed, device already disabled\n");
+      Fw::LogStringArg log_msg("Failed, Already Disabled");
+      this->log_ACTIVITY_HI_TELEM(log_msg);  
+      // OS_printf("SampleSim Disable Failed, device already disabled\n");
     }
 
     this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
@@ -246,8 +260,9 @@ namespace Components {
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
 
-    this->log_ACTIVITY_HI_TELEM("Counters have been Reset");
-    OS_printf("Counters have been Reset\n");
+    Fw::LogStringArg log_msg("Counters have been Reset");
+    this->log_ACTIVITY_HI_TELEM(log_msg);
+    // OS_printf("Counters have been Reset\n");
 
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
 
@@ -263,8 +278,9 @@ namespace Components {
 
       HkTelemetryPkt.CommandErrorCount++;
 
-      this->log_ACTIVITY_HI_TELEM("Configure Failed, Device Disabled");
-      OS_printf("Configure Failed, Device Disabled\n");
+      Fw::LogStringArg log_msg("Configure Failed, Device Disabled");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
+      // OS_printf("Configure Failed, Device Disabled\n");
     }
 
     if(config == 0xFFFFFFFF) // 4294967295
@@ -273,8 +289,9 @@ namespace Components {
 
       HkTelemetryPkt.CommandErrorCount++;
 
-      this->log_ACTIVITY_HI_TELEM("Configure Failed, Invalid Configuration");
-      OS_printf("Configure Failed, Invalid Configuration Given\n");
+      Fw::LogStringArg log_msg("Configure Failed, Invalid Configuration");
+      this->log_ACTIVITY_HI_TELEM(log_msg);
+      // OS_printf("Configure Failed, Invalid Configuration Given\n");
     }
 
     if(status == OS_SUCCESS)
@@ -285,14 +302,16 @@ namespace Components {
       if(status == OS_SUCCESS)
       {
         HkTelemetryPkt.DeviceCount++;
-        this->log_ACTIVITY_HI_TELEM("Successfully Configured Device");
-        OS_printf("Device Successfully Configured\n");
+        Fw::LogStringArg log_msg("Successfully Configured Device");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
+        // OS_printf("Device Successfully Configured\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        this->log_ACTIVITY_HI_TELEM("Failed to Configure Device");
-        OS_printf("Device Configuration Failed\n");
+        Fw::LogStringArg log_msg("Failed to Configure Device");
+        this->log_ACTIVITY_HI_TELEM(log_msg);
+        // OS_printf("Device Configuration Failed\n");
       }
     }
 
