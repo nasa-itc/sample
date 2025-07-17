@@ -11,7 +11,6 @@
 ** Include Files
 */
 #include "sample_checkout.h"
-#include "simulith_uart.h"
 
 /*
 ** Global Variables
@@ -244,7 +243,7 @@ int main(int argc, char *argv[])
     // Close the device
     if (SampleUart.isOpen == PORT_OPEN)
     {
-        simulith_uart_close(SampleUart.handle);
+        uart_close_port(&SampleUart);
         SampleUart.isOpen = PORT_CLOSED;
     }
 
