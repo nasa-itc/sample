@@ -13,6 +13,8 @@ namespace Nos3
         /* Constructors */
         SampleDataPoint(double count);
         SampleDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp);
+        SampleDataPoint(double x, double y, double z);
+        ~SampleDataPoint(void) {};
 
         /* Accessors */
         /* Provide the hardware model a way to get the specific data out of the data point */
@@ -26,7 +28,6 @@ namespace Nos3
         /* Disallow these */
         SampleDataPoint(void) {};
         SampleDataPoint(const SampleDataPoint& sdp) : Sim42DataPoint(sdp) {};
-        ~SampleDataPoint(void) {};
 
         // Private mutators
         inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
