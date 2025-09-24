@@ -13,6 +13,7 @@ set(sample_sim_src
     src/sample_42_data_provider.cpp
     src/sample_data_provider.cpp
     src/sample_data_point.cpp
+    src/sample_shmem_data_provider.cpp
 )
 
 # For Code::Blocks and other IDEs

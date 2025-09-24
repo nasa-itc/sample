@@ -25,6 +25,13 @@ namespace Nos3
         _sample_data[0] = _sample_data[1] = _sample_data[2] = 0.0;
     }
     
+    SampleDataPoint::SampleDataPoint(double x, double y, double z) : _not_parsed(false)
+    {
+        _sample_data[0] = x;
+        _sample_data[1] = y;
+        _sample_data[2] = z;
+    }
+
     void SampleDataPoint::do_parsing(void) const
     {
         try {
