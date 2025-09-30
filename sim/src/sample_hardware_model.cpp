@@ -190,9 +190,9 @@ namespace Nos3
         /* 
         ** Payload 
         ** 
-        ** Device is big engian (most significant byte first)
+        ** Device is big endian (most significant byte first)
         ** Assuming data is valid regardless of dynamic / environmental data
-        ** Floating poing numbers are extremely problematic 
+        ** Floating point numbers are extremely problematic 
         **   (https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html)
         ** Most hardware transmits some type of unsigned integer (e.g. from an ADC), so that's what we've done
         ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
