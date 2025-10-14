@@ -7,7 +7,8 @@
 #include "sample_src/SampleSim.hpp"
 #include <Fw/Logger/Logger.hpp>
 #include <Fw/Log/LogString.hpp>
-#include "FpConfig.hpp"
+// #include "FpConfig.hpp"
+#include "Fw/FPrimeBasicTypes.hpp"
 
 namespace Components {
 
