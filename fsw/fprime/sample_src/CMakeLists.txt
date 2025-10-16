@@ -52,3 +52,10 @@ register_fprime_module(
         # sample_device
 )
 target_sources(${FPRIME_CURRENT_MODULE} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../shared/sample_device.c")
+
+target_include_directories(${FPRIME_CURRENT_MODULE} PUBLIC
+  "../../shared"
+  "../../standalone/"
+  "../../../../../fsw/apps/hwlib/fsw/public_inc"
+  "../platform_inc"
+)
