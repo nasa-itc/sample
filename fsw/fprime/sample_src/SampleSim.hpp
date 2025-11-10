@@ -57,7 +57,7 @@ namespace Components {
       //! Destroy SampleSim object
       ~SampleSim();
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for commands
