@@ -363,6 +363,13 @@ void SAMPLE_ProcessGroundCommand(void)
                 SAMPLE_Configure();
             }
             break;
+        
+        case SAMPLE_OTHER_NOOP:
+            if (SAMPLE_VerifyCmdLength(SAMPLE_AppData.MsgPtr, sizeof(SAMPLE_Other_NOOP_cmd_t)) == OS_SUCCESS)
+            {
+                SAMPLE_Other_SC_NOOP();
+            }
+            break;
 
         /*
         ** TODO: Edit and add more command codes as appropriate for the application
@@ -711,6 +718,14 @@ void SAMPLE_Configure(void)
         }
     }
     return;
+}
+
+void SAMPLE_Other_SC_NOOP(void)
+{
+    SAMPLE_Other_NOOP_cmd_t *other_noop_cmd    = (SAMPLE_Other_NOOP_cmd_t *)SAMPLE_AppData.MsgPtr;
+
+    CFE_EVS_SendEvent(SAMPLE_CMD_OTHER_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
+                      "SAMPLE: Other SC NOOP command received.  Other SC: %u", other_noop_cmd->Other_SC);
 }
 
 /*

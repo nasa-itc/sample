@@ -21,6 +21,7 @@
 #define SAMPLE_ENABLE_CC         2
 #define SAMPLE_DISABLE_CC        3
 #define SAMPLE_CONFIG_CC         4
+#define SAMPLE_OTHER_NOOP        5
 
 /*
 ** Telemetry Request Command Codes
@@ -48,6 +49,13 @@ typedef struct
     uint32                  DeviceCfg;
 
 } SAMPLE_Config_cmd_t;
+
+typedef struct
+{
+    CFE_MSG_CommandHeader_t CmdHeader;
+    uint32                  Other_SC;
+
+} SAMPLE_Other_NOOP_cmd_t;
 
 /*
 ** SAMPLE device telemetry definition
