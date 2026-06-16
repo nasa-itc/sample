@@ -1,5 +1,12 @@
-from openc3.script import tlm, check
-from sample_lib import *
+import sys
+import glob
+
+for p in glob.glob('/gems/gems/openc3-cosmos-nos3-*/targets/SAMPLE/scripts'):
+    if p not in sys.path:
+        sys.path.append(p)
+
+from openc3.script import cmd, tlm, check
+from nos3.sample_lib import *
 
 def run_sample_ast_test():
     ##
@@ -10,11 +17,11 @@ def run_sample_ast_test():
         sample_prepare_ast()
 
         # Disable sim and confirm device error counts increase
-        dev_cmd_cnt = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_COUNT")
-        dev_cmd_err_cnt = tlm("SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT")
+        dev_cmd_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_COUNT")
+        dev_cmd_err_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ERR_COUNT")
         sample_sim_disable()
-        check(f"SAMPLE SAMPLE_HK_TLM DEVICE_COUNT == {dev_cmd_cnt}")
-        check(f"SAMPLE SAMPLE_HK_TLM DEVICE_ERR_COUNT >= {dev_cmd_err_cnt}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_COUNT == {dev_cmd_cnt}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ERR_COUNT >= {dev_cmd_err_cnt}")
 
         # Enable sim and confirm return to nominal operation
         sample_sim_enable()
@@ -32,9 +39,9 @@ def run_sample_ast_test():
 
         # Confirm that status register and that app disabled itself
         get_sample_hk()
-        check("SAMPLE SAMPLE_HK_TLM DEVICE_STATUS == 255")
+        check("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_STATUS == 255")
         get_sample_hk()
-        check("SAMPLE SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'")
+        check("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'")
         
         # Clear simulator status fault
         sample_sim_set_status(0)
