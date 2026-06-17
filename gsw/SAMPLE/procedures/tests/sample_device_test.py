@@ -10,38 +10,65 @@ from nos3.sample_lib import *
 
 def run_sample_device_test():
     ##
-    ## Hardware failure
+    ## Enable / disable, control hardware communications
     ##
     for n in range(SAMPLE_TEST_LOOP_COUNT):
-        # Prepare
-        sample_prepare_ast()
+        # Get to known state
+        safe_sample()
 
-        # Disable sim and confirm device error counts increase
-        dev_cmd_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_COUNT")
-        dev_cmd_err_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ERR_COUNT")
-        sample_sim_disable()
-        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_COUNT == {dev_cmd_cnt}")
-        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ERR_COUNT >= {dev_cmd_err_cnt}")
+        # Manually command to disable when already disabled
+        cmd_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT")
+        cmd_err_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT")
+        cmd("SAMPLE_DEBUG SAMPLE_DISABLE_CC")
+        get_sample_hk()
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT == {cmd_cnt}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT == {cmd_err_cnt+1}")
 
-        # Enable sim and confirm return to nominal operation
-        sample_sim_enable()
+        # Enable
+        enable_sample()
+
+        get_sample_data()
+        get_sample_hk()
+
+        # Confirm device counters increment without errors
         confirm_sample_data_loop()
 
+        # Manually command to enable when already enabled
+        cmd_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT")
+        cmd_err_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT")
+        cmd("SAMPLE_DEBUG SAMPLE_ENABLE_CC")
+        get_sample_hk()
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT == {cmd_cnt}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT == {cmd_err_cnt+1}")
+
+        # Reconfirm data remains as expected
+        confirm_sample_data_loop()
+
+        # Disable
+        disable_sample()
+
+
     ##
-    ## Hardware status reporting fault
+    ## Configuration, reconfigure sample instrument register
     ##
     for n in range(SAMPLE_TEST_LOOP_COUNT):
-        # Prepare
-        sample_prepare_ast()
+        # Get to known state
+        safe_sample()
 
-        # Add a fault to status in the simulator
-        sample_sim_set_status(255)
-
-        # Confirm that status register and that app disabled itself
+        # Confirm configuration command denied if disabled
+        cmd_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT")
+        cmd_err_cnt = tlm("SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT")
+        cmd("SAMPLE_DEBUG SAMPLE_CONFIG_CC with DEVICE_CONFIG 10")
         get_sample_hk()
-        check("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_STATUS == 255")
-        get_sample_hk()
-        check("SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_ENABLED == 'DISABLED'")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_COUNT == {cmd_cnt}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM CMD_ERR_COUNT == {cmd_err_cnt+1}")
         
-        # Clear simulator status fault
-        sample_sim_set_status(0)
+        # Enable
+        enable_sample()
+
+        get_sample_data()
+        get_sample_hk()
+
+        # Set configuration
+        sample_cmd(f"SAMPLE_DEBUG SAMPLE_CONFIG_CC with DEVICE_CONFIG {n+1}")
+        check(f"SAMPLE_DEBUG SAMPLE_HK_TLM DEVICE_CONFIG == {n+1}")
